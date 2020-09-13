@@ -18,7 +18,7 @@ This repository will not contain tests replicating raw algorithm-level testing a
 
 All tests are 
 - packaged into standalone Docker images facilitating execution across different (cloud) platforms and hardware architectures & CPU optimizations
-- designed to return JSON output representing current performance numbers that can be stored arbitrarily
+- designed to return JSON output representing current performance numbers that can be stored arbitrarily; initial storage facilities are provided to deposit data into AWS S3.
 - to also collect/document performance numbers of classic crypto to permit comparison with PQC algorithms
 
 Wrapper scripts are created to facilitate automatically running these tests on different cloud infrastructures and storing the resulting JSON output.
