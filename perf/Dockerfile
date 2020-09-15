@@ -3,6 +3,9 @@
 # define the Curl version to be baked in
 ARG CURL_VERSION=7.69.1
 
+# define the S3FS version to be baked in
+ARG S3FS_VERSION=1.82
+
 # Default location where all binaries wind up:
 ARG INSTALLDIR=/opt/oqssa
 
@@ -22,6 +25,7 @@ ARG MAKE_DEFINES="-j 2"
 FROM alpine:3.11 as intermediate
 # Take in all global args
 ARG CURL_VERSION
+ARG S3FS_VERSION
 ARG INSTALLDIR
 ARG LIBOQS_BUILD_DEFINES
 ARG OPENSSL_BUILD_DEFINES
@@ -39,16 +43,23 @@ RUN apk add build-base linux-headers \
             libtool automake autoconf cmake \
             make \
             openssl openssl-dev \
-            git docker wget
+            git docker wget fuse fuse-dev curl-dev libxml2-dev
 
 # get all sources
 WORKDIR /opt
 RUN git clone --depth 1 --branch master https://github.com/open-quantum-safe/liboqs && \
     git clone --depth 1 --branch OQS-OpenSSL_1_1_1-stable https://github.com/open-quantum-safe/openssl ossl-src && \
-    wget https://curl.haxx.se/download/curl-${CURL_VERSION}.tar.gz && tar -zxvf curl-${CURL_VERSION}.tar.gz;
+    wget https://curl.haxx.se/download/curl-${CURL_VERSION}.tar.gz && tar -zxvf curl-${CURL_VERSION}.tar.gz && \
+    wget https://github.com/s3fs-fuse/s3fs-fuse/archive/v${S3FS_VERSION}.tar.gz && tar -xzvf v${S3FS_VERSION}.tar.gz
 
 # Add curl patchfile
 ADD patch-${CURL_VERSION}.oqs.txt /opt/patch-${CURL_VERSION}.oqs.txt
+
+# build s3fs:
+WORKDIR /opt/s3fs-fuse-${S3FS_VERSION}
+RUN ./autogen.sh && ./configure --prefix=/usr && make && make install
+
+RUN s3fs --version
 
 # build liboqs shared and static
 WORKDIR /opt/liboqs
@@ -103,8 +114,11 @@ FROM alpine:3.11 as dev
 ARG INSTALLDIR
 ARG SIG_ALG
 
-RUN apk add python3
+# Dependencies for logfile analysis and S3FS:
+RUN apk add python3 fuse libxml2 curl libstdc++6 && ln -s /usr/lib/gcc/x86_64-alpine-linux-musl/6.4.0/libstdc\+\+.so.6 /usr/lib/libstdc\+\+.so.6 && rm -rf /var/cache/apk/*;
 
+# Move s3fs over...
+COPY --from=intermediate /usr/bin/s3fs /usr/bin/s3fs
 # Retain the ${INSTALLDIR} contents in the final image
 COPY --from=intermediate ${INSTALLDIR} ${INSTALLDIR}
 # Also retain liboqs speed-executables
