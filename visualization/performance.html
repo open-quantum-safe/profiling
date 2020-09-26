@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>OQS performance</title>
+    <link rel="stylesheet" type="text/css" href="oqs-style.css">
+  </head>
+  <body>
+      <h1>OQS algorithm performance visualizations</h1>
+      These pages are previews of OQS performance visualizations of measurements taken by the <a href="https://github.com/open-quantum-safe/speed">OQS speed</a> project.
+
+      <ol>
+	      <li><a href="speed_kem.html">KEM algorithms</a> (liboqs speed_kem)
+	      <li><a href="speed_sig.html">SIG algorithms</a> (liboqs speed_sig)
+	      <li><a href="openssl_speed.html">KEM/SIG algorithms</a> (openssl speed)
+	      <li><a href="handshakes.html">TLS handshakes</a> (openssl s_time)
+      </ol>
+      Measurements have been taken on an AWS t2.micro instance with O3 compile optimizations as well as AVX2 and AES CPU support. These graphs will be extended over time to other CPU (types) and cloud infrastructures.
+  </body>
+</html>
