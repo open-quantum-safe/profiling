@@ -15,3 +15,22 @@ h2 {
   color: #999;
 }
 
+tr:nth-child(even) {background: #CCC}
+tr:nth-child(odd) {background: #FFF}
+
+th, td, p, input {
+    font:14px Verdana;
+}
+
+table, th, td 
+{
+    border: solid 1px #DDD;
+    border-collapse: collapse;
+    padding: 5px 6px;
+    text-align: center;
+}
+
+th {
+    font-weight:bold;
+}
+
