@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SIG performance</title>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script> 
+    <link rel="stylesheet" type="text/css" href="oqs-style.css">
+  </head>
+  <body>
+   <div class="wrapper">
+      <h1>SIG performance</h1>
+      Operations per second per algorithm
+    <script src="oqs_colors.js"></script>
+    <script src="speed_sig_script.js"></script>
+    <iframe id="frmFile" src="speed_sig.json" onload="LoadFile();" style="display: none;"></iframe>
+
+     <h3>Set minimum values (set to include/exclude algorithms)</h3>
+     <form id="filterForm" name="myForm" onsubmit="SubmitForm(event);">
+       <label for="keygenmin">Keygen/s:</label>
+       <input type="number" id="keygenmin" name="keygenmin" maxlength="4" size="4">
+       <label for="signmin">Sign/s:</label>
+       <input type="number" id="signmin" name="signmin" maxlength="4" size="4">
+       <label for="verifymin">Verify/s:</label>
+       <input type="number" id="verifymin" name="verifymin" maxlength="4" size="4">
+       <input type="submit" value="Filter">
+     </form>
+
+     <h3>Algorithms & values (click name to enable/disable)</h3>
+       <canvas id="speedChart" width="1600" height="900"></canvas>
+   </div>
+   Color-coding derived from <a href="https://csrc.nist.gov/CSRC/media/Presentations/the-2nd-round-of-the-nist-pqc-standardization-proc/images-media/moody-opening-remarks.pdf#page=15" target=_new>a NIST presentation</a>.
+
+  </body>
+</html>

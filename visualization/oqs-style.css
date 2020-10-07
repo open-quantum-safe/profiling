@@ -1,0 +1,36 @@
+body {
+  font-family: Helvetica Neue, Arial, sans-serif;
+}
+
+h1 {
+  font-weight: 200;
+  font-size: 3em;
+  margin: 0 0 0.1em 0;
+}
+
+h2 {
+  font-weight: 200;
+  font-size: 0.9em;
+  margin: 0 0 50px;
+  color: #999;
+}
+
+tr:nth-child(even) {background: #CCC}
+tr:nth-child(odd) {background: #FFF}
+
+th, td, p, input {
+    font:14px Verdana;
+}
+
+table, th, td 
+{
+    border: solid 1px #DDD;
+    border-collapse: collapse;
+    padding: 5px 6px;
+    text-align: center;
+}
+
+th {
+    font-weight:bold;
+}
+
