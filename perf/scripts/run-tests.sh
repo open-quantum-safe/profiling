@@ -4,6 +4,10 @@ set +x
 
 S3FOLDER=/tmp/s3dir
 
+echo "outputting some system information first"
+dmesg
+hostname
+
 cd /opt/test
 mkdir -p results
 echo "Starting liboqs speed tests..."

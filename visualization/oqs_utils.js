@@ -1,5 +1,16 @@
 var cmkeys=[];
 
+function RetrieveData(url) {
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.open("GET", url, false);
+    xmlhttp.send();
+    if (xmlhttp.status==200) {
+       result = xmlhttp.responseText;
+    }
+    return result;
+}
+
+
 // created with help from coolors.co
 var ColorMap = {
 // Unstructured lattice: https://coolors.co/gradient-palette/8448b0-401062?number=10
@@ -47,6 +58,9 @@ var ColorMap = {
 "DILITHIUM_2":"#93C5F0", 
 "DILITHIUM_3":"#88BEEC", 
 "DILITHIUM_4":"#7DB6E8", 
+"DILITHIUM2":"#93C5F0", 
+"DILITHIUM3":"#88BEEC", 
+"DILITHIUM4":"#7DB6E8", 
 "Falcon-512":"#5BA0DD", 
 "Falcon-1024":"#3A8AD1", 
 
@@ -176,7 +190,7 @@ var ColorMap = {
 
 function getColor(alg) {
    if (!(alg in ColorMap)) {
-      console.log("\""+alg+"\":\"#missing\",");
+      console.log(alg+": missing perfect color - checking heuristics");
    }
    else {
       return ColorMap[alg];
@@ -205,5 +219,109 @@ function getColor(alg) {
    return undefined;
 }
 
+var l1algs =  "bike1-l1-fo bike1l1fo kyber512 kyber512-90s kyber90s512 classic-mceliece-348864 classic-mceliece-348864f lightsaber-kem lightsaber hqc-128-1-cca2 hqc128_1_cca2 frodokem-640-aes frodo640aes frodokem-640-shake frodo640shake ntru-hps-2048-509 ntru_hps2048509 sidh-p434 sidhp434 sidh-p434-compressed sidh-p503 sidhp503 sidh-p503-compressed sike-p434 sikep434 sike-p434-compressed sike-p503 sike-p503-compressed sikep503 " ;
+var l3algs =  "bike1-l3-fo bike1l3fo kyber768 kyber768-90s kyber90s768 classic-mceliece-460896 classic-mceliece-460896f saber-kem saber hqc-192-1-cca2 hqc192_1_cca2 hqc-192-2-cca2 hqc192_2_cca2 frodokem-976-aes frodo976aes frodokem-976-shake frodo976shake ntru-hps-2048-677 ntru_hps2048677 ntru-hrss-701 ntru_hrss701 sidh-p610 sidhp610 sidh-p610-compressed sike-p610 sikep610 sike-p610-compressed " ;
+var l5algs =  "kyber1024 kyber1024-90s kyber90s1024 classic-mceliece-6688128 classic-mceliece-6688128f classic-mceliece-6960119 classic-mceliece-6960119f classic-mceliece-8192128 classic-mceliece-8192128f firesaber-kem firesaber hqc-256-1-cca2 hqc256_1_cca2 hqc-256-2-cca2 hqc256_2_cca2 hqc-256-3-cca2 hqc256_3_cca2 frodokem-1344-aes frodo1344aes frodokem-1344-shake frodo1344shake ntru-hps-4096-821 ntru_hps4096821 sidh-p751 sidhp751 sidh-p751-compressed sike-p751 sikep751 sike-p751-compressed" ;
 
+function nOKAtNISTLevel(setLevel, algName) {
+   if (setLevel=="All") {
+      return false;
+   }
+   if (setLevel=="Level 1") {
+     if (l1algs.split(" ").includes(algName.toLowerCase())) return false;
+   }
+   if (setLevel=="Level 3") {
+     if (l3algs.split(" ").includes(algName.toLowerCase())) return false;
+   }
+   if (setLevel=="Level 5") {
+     if (l5algs.split(" ").includes(algName.toLowerCase())) return false;
+   }
+   return true;
+}
 
+function filterOQSKeyByName(key) {
+   if ((key.toLowerCase().includes("cpa"))||(key.toLowerCase().includes("default"))) {
+     return undefined;
+   }
+   return key;
+}
+
+function clearTable(table) {
+  while(table.rows.length > 0) {
+    table.deleteRow(0);
+  }
+}
+
+function addHeader(table, headings) {
+   var cols = headings.split(" ");
+   var hr = table.insertRow(-1);
+   cols.forEach(function (item, index) {
+     var hcell=document.createElement('TH')
+     hcell.innerHTML = item;
+     hr.appendChild(hcell);
+   });
+}
+
+function fillDownloadTable(setDate, filename) {
+     var dtable = document.getElementById('downloadtable');
+     clearTable(dtable);
+     var tr = dtable.insertRow(-1);
+     var tabCell = tr.insertCell(-1);
+     tabCell.style.width = "20%";
+     tabCell.style.textAlign = "center";
+     tabCell.innerHTML = "Raw Data";
+     tabCell = tr.insertCell(-1);
+     tabCell.style.width = "80%";
+     tabCell.style.textAlign = "center";
+     var a = document.createElement('a');
+     var linkText = document.createTextNode(setDate);
+     a.appendChild(linkText);
+     a.title = setDate;
+     a.href = "/"+setDate+"/"+filename;
+     tabCell.innerHTML = null;
+     tr.cells[1].appendChild(a);
+}
+
+function isSelectedOQSFamily(toTest) {
+  var select = document.getElementById("familyselector");
+  var options = select && select.options;
+  for (var j=0; j<options.length; j++) {
+    var opt = options[j];
+
+    if (opt.selected) {
+      var sval = opt.value || opt.text;
+      if (toTest.toLowerCase().includes(sval.toLowerCase())) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function preventFormHandling(event) { event.preventDefault(); }
+
+function loadJSONArray(formData) {
+       var dateOption = document.getElementById('date');
+       if (formData.get("datafile").endsWith(".json")) { // single JSON to load
+         firstobj = jsonarray["All"] = JSON.parse(RetrieveData(formData.get("datafile")));
+       }
+       else { // iterate through resources...
+          var urls = RetrieveData(formData.get("datafile")).split("\n");
+          var filldates = (dateOption.options.length==1);
+          urls.forEach(function (url, index) {
+            if (url.length>0) {
+                var d = url.substring(0, url.indexOf("/"));
+                jsonarray[d] = JSON.parse(RetrieveData(url));
+                if (firstobj==undefined) {
+                  firstobj = jsonarray[d];
+                }
+                alloperations[index] = d;
+                var option = document.createElement("option");
+                if (filldates) {
+                   option.text = d;
+                   dateOption.add(option);
+                }
+            }
+          });
+       }
+}
