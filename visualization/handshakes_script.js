@@ -47,7 +47,6 @@ function LoadData(fullInit) {
     var datasets=[];
     var dscount=0;
     var charttype = "bar";
-    var setDate = formData.get("date");
 
     if (Object.keys(jsonarray).length == 0) { // loading data just once
        loadJSONArray(formData);
@@ -63,7 +62,7 @@ function LoadData(fullInit) {
        currentsigalg = sigalg;
     }
 
-
+    var setDate = formData.get("date");
     var kemobj = firstobj[sigalg];
 
     Object.keys(kemobj).sort().forEach(function(key) {

@@ -48,12 +48,12 @@ function LoadData(fullInit) {
     var verifydatasets=[];
     var dscount=0;
     var charttype = "bar";
-    var setDate = formData.get("date");
-
 
     if (Object.keys(jsonarray).length == 0) { // loading data just once
        loadJSONArray(formData);
     }
+
+    var setDate = formData.get("date");
 
     Object.keys(firstobj).sort().forEach(function(key) {
        //console.log(key);

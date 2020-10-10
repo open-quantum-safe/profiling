@@ -302,6 +302,7 @@ function preventFormHandling(event) { event.preventDefault(); }
 
 function loadJSONArray(formData) {
        var dateOption = document.getElementById('date');
+       var d;
        if (formData.get("datafile").endsWith(".json")) { // single JSON to load
          firstobj = jsonarray["All"] = JSON.parse(RetrieveData(formData.get("datafile")));
        }
@@ -310,18 +311,28 @@ function loadJSONArray(formData) {
           var filldates = (dateOption.options.length==1);
           urls.forEach(function (url, index) {
             if (url.length>0) {
-                var d = url.substring(0, url.indexOf("/"));
-                jsonarray[d] = JSON.parse(RetrieveData(url));
-                if (firstobj==undefined) {
-                  firstobj = jsonarray[d];
+                d = url.substring(0, url.indexOf("/"));
+                try {
+                   data = JSON.parse(RetrieveData(url));
+                   jsonarray[d] = data;
+                   if (firstobj==undefined) {
+                     firstobj = jsonarray[d];
+                   }
+                   alloperations[index] = d;
+                   var option = document.createElement("option");
+                   if (filldates) {
+                      option.text = d;
+                      dateOption.add(option);
+                   }
                 }
-                alloperations[index] = d;
-                var option = document.createElement("option");
-                if (filldates) {
-                   option.text = d;
-                   dateOption.add(option);
+                catch(e) {
+                   console.log("Error loading "+url);
                 }
             }
           });
+       }
+       if (dateOption.options.length==2) { // single date only; remove leading "All" option
+          dateOption.remove(0);
+          formData.set("date", d);
        }
 }

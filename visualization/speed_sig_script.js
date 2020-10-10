@@ -4,7 +4,7 @@ var verifyChart=undefined;
 var jsonarray = {};
 var firstobj;
 // Our labels along the x-axis, changes with time series
-var alloperations = ["Operations/s"];
+var alloperations = [];
 var currentoperations = [];
 
 function fillNumberTable(tabledata, setDate) {
@@ -88,12 +88,12 @@ function LoadData(fullInit) {
     var verifydatasets=[];
     var dscount=0;
     var charttype = "bar";
-    var setDate = formData.get("date");
 
     if (Object.keys(jsonarray).length == 0) { // loading data just once
        loadJSONArray(formData);
     }
 
+    var setDate = formData.get("date");
     Object.keys(firstobj).sort().forEach(function(key) {
        //console.log(key);
        if ((key!="config")&&(key!="cpuinfo")&&(filterOQSKeyByName(key)!=undefined))  {
