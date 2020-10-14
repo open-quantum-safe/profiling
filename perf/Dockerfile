@@ -115,7 +115,7 @@ ARG INSTALLDIR
 ARG SIG_ALG
 
 # Dependencies for logfile analysis and S3FS:
-RUN apk add python3 fuse libxml2 curl libstdc++6 && ln -s /usr/lib/gcc/x86_64-alpine-linux-musl/6.4.0/libstdc\+\+.so.6 /usr/lib/libstdc\+\+.so.6 && rm -rf /var/cache/apk/*;
+RUN apk add python3 fuse libxml2 curl libstdc++6 git && ln -s /usr/lib/gcc/x86_64-alpine-linux-musl/6.4.0/libstdc\+\+.so.6 /usr/lib/libstdc\+\+.so.6 && rm -rf /var/cache/apk/*;
 
 # Move s3fs over...
 COPY --from=intermediate /usr/bin/s3fs /usr/bin/s3fs
