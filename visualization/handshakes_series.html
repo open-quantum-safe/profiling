@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Handshake performance</title>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script> 
+    <link rel="stylesheet" type="text/css" href="oqs-style.css">
+  </head>
+  <body>
+    <div class="wrapper">
+      <h1>TLS handshake performance</h1>
+      <h2>Handshakes per second per algorithm</h2>
+    <script src="oqs_utils.js"></script>
+     <h3>Select signature algorithm and minimum values (set to include/exclude algorithms)</h3>
+     <form id="filterForm" name="filterForm" onsubmit="SubmitHandshakesForm(event);">
+    <input type="hidden" id="datafile" name="datafile" value="handshakes.list">
+    <label for="shakemin">Handshakes/s:</label>
+    <input type="number" id="shakemin" name="shakemin" maxlength="4" size="4">
+       <label for="familyselector">Algorithm family:</label>
+       <select id="familyselector" name="familyselector" multiple onchange="SubmitHandshakesForm(event)">
+       <option selected>All</option>
+       <option>BIKE</option>
+       <option>Frodo</option>
+       <option>HQC</option>
+       <option>Kyber</option>
+       <option>McEliece</option>
+       <option>NTRU</option>
+       <option>Saber</option>
+       <option>SIDH</option>
+       <option>Sike</option>
+       </select>
+    <label for="sigalg">Signature Algorithm:</label>
+  <select id="sigalg" name="sigalg" onchange="SubmitHandshakesForm(event)">
+  <!-- add a single option to have something; will be replaced by JSON contents at first file read-->
+    <option>dilithium3</option>
+  </select>
+       <label for="nistlevel">NIST level:</label>
+       <select id="nistlevel" name="nistlevel" onchange="SubmitHandshakesForm(event)">
+       <option>All</option>
+       <option>Level 1</option>
+       <option>Level 3</option>
+       <option>Level 5</option>
+       </select>
+       <label for="date">Date(s):</label>
+       <select id="date" name="date" onchange="SubmitHandshakesForm(event)">
+       <option>All</option>
+
+    <input type="submit" value="Filter">
+</form>
+     <h3>KEM algorithms & performance values (click name to enable/disable)</h3>
+
+
+
+     <table id="downloadtable" name="downloadtable"></table>
+     <table id="numberstable" name="numberstable"></table>
+<canvas id="handshakesChart" width="1600" height="900"></canvas>
+
+
+    <script src="handshakes_script.js"></script>
+    </div>
+   <hr>
+   Color-coding derived from <a href="https://csrc.nist.gov/CSRC/media/Presentations/the-2nd-round-of-the-nist-pqc-standardization-proc/images-media/moody-opening-remarks.pdf#page=15" target=_new>a NIST presentation</a>.
+
+
+  </body>
+</html>
