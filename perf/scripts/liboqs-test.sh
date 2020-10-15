@@ -2,10 +2,10 @@
 
 set +x
 
-/opt/oqssa/bin/speed_kem | tee results/speed_kem.log
-/opt/oqssa/bin/speed_sig | tee results/speed_sig.log
+/opt/oqssa/bin/speed_kem${1} | tee results/speed_kem${1}.log
+/opt/oqssa/bin/speed_sig${1} | tee results/speed_sig${1}.log
 echo "Generating logfiles..."
-python3 parse_liboqs_speed.py results/speed_sig.log
-python3 parse_liboqs_speed.py results/speed_kem.log
+python3 parse_liboqs_speed.py results/speed_sig${1}.log
+python3 parse_liboqs_speed.py results/speed_kem${1}.log
 echo "liboqs testing complete."
 

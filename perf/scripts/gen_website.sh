@@ -9,6 +9,6 @@ cp tmp/speed/visualization/*.html out
 cp tmp/speed/visualization/*.js out
 cp tmp/speed/visualization/*.css out
 cd out && tar czvf ../site.tgz * && cd ..
-cp site.tgz ${1}
+cp site.tgz ${1}/site
 rm -rf tmp out
 

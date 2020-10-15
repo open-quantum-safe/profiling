@@ -102,6 +102,11 @@ RUN env CPPFLAGS="-I/opt/ossl-src/oqs/include" \
                     --with-ssl=${INSTALLDIR} && \
     make ${MAKE_DEFINES} && make install && mv letsencryptauthorityx3.pem.txt ${INSTALLDIR}/oqs-bundle.pem;
 
+WORKDIR /opt/liboqs
+# Build ref-only variants and store in INSTALLDIR/ref
+RUN mkdir build-shared-ref && cd build-shared-ref && cmake .. ${LIBOQS_BUILD_DEFINES} -DBUILD_SHARED_LIBS=ON -DOQS_USE_CPU_EXTENSIONS=OFF -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}/oqs-ref && make ${MAKE_DEFINES} && make install
+RUN mkdir build-static-ref && cd build-static-ref && cmake .. ${LIBOQS_BUILD_DEFINES} -DBUILD_SHARED_LIBS=OFF -DOQS_USE_CPU_EXTENSIONS=OFF -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}/oqs-ref && make ${MAKE_DEFINES} && make install
+
 # Download current test.openquantumsafe.org test CA cert
 WORKDIR ${INSTALLDIR}
 RUN wget https://test.openquantumsafe.org/CA.crt && mv CA.crt oqs-testca.pem
@@ -124,6 +129,8 @@ COPY --from=intermediate ${INSTALLDIR} ${INSTALLDIR}
 # Also retain liboqs speed-executables
 COPY --from=intermediate /opt/liboqs/build-static/tests/speed_kem ${INSTALLDIR}/bin/speed_kem
 COPY --from=intermediate /opt/liboqs/build-static/tests/speed_sig ${INSTALLDIR}/bin/speed_sig
+COPY --from=intermediate /opt/liboqs/build-static-ref/tests/speed_kem ${INSTALLDIR}/bin/speed_kem-ref
+COPY --from=intermediate /opt/liboqs/build-static-ref/tests/speed_sig ${INSTALLDIR}/bin/speed_sig-ref
 
 # set path to use 'new' openssl & curl. Dyn libs have been properly linked in to match
 ENV PATH="${INSTALLDIR}/bin:${PATH}"
@@ -146,6 +153,10 @@ ARG INSTALLDIR
 
 # Enable a normal user to create new server keys off set CA
 RUN addgroup -g 1000 -S oqs && adduser --uid 1000 -S oqs -G oqs && chown -R oqs.oqs /opt/test 
+
+# permit changes to liboqs lib by normal oqs user:
+RUN chmod gou+rwx /opt/oqssa/lib
+RUN chmod gou+rwx /opt/oqssa/lib/*
 
 USER oqs
 WORKDIR /opt/test

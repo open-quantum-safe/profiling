@@ -30,14 +30,12 @@ for file in os.listdir(datadir):
             files[dt.date()]=os.path.join(sys.argv[2], filename)
 
 
-# operate on files in chronological order:
+# operate on files in alphabetical==chronological order:
 for f in sorted(files.keys(), key=lambda k: k):
-   #print("%s: %s" % (f, files[f]))
    # generate .list files:
    for i in gen_files:
       with open(os.path.join(outdir, i+".list"), "a+") as fp:
          fp.write(str(f)+"/"+i+".json\n")
    # extract data files to correct location:
    os.system("tar xzvf "+files[f]+" && mv results "+os.path.join(outdir, str(f)))
-   #print("tar xzvf "+files[f]+" && mv results "+os.path.join(outdir, str(f)))
 
