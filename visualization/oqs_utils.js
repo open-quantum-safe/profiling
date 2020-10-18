@@ -309,6 +309,7 @@ function loadJSONArray(formData) {
        else { // iterate through resources...
           var urls = RetrieveData(formData.get("datafile")).split("\n");
           var filldates = (dateOption.options.length==1);
+          var idx = 0;
           urls.forEach(function (url, index) {
             if (url.length>0) {
                 d = url.substring(0, url.indexOf("/"));
@@ -318,7 +319,7 @@ function loadJSONArray(formData) {
                    if (firstobj==undefined) {
                      firstobj = jsonarray[d];
                    }
-                   alloperations[index] = d;
+                   alloperations[idx++] = d;
                    var option = document.createElement("option");
                    if (filldates) {
                       option.text = d;
