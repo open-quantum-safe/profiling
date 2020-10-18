@@ -1,6 +1,6 @@
 var handshakesChart=undefined;
 var sigalgs=[];
-var jsonarray = {};
+var jsonarray;
 var firstobj;
 // Our labels along the x-axis, changes with time series
 var alloperations = ["Handshakes/s"];
@@ -48,8 +48,10 @@ function LoadData(fullInit) {
     var dscount=0;
     var charttype = "bar";
 
-    if (Object.keys(jsonarray).length == 0) { // loading data just once
-       loadJSONArray(formData);
+    if (jsonarray == undefined) { // loading data just once
+       [jsonarray, firstobj, alloperations] = loadJSONArray(formData, false,
+          loadJSONArray(formData, true, undefined)[0] // loading ref data if/when present
+       );
        // also populate sigalgs array just once
        // remove initial default option
        sigalgOption.remove(0); 
@@ -80,7 +82,12 @@ function LoadData(fullInit) {
          }
          for (var date in jsonarray) {
            if ((setDate==undefined)||(setDate=="All")||(setDate==date)) {
-              hs[i] = jsonarray[date][sigalg][key];
+              try {
+                hs[i] = jsonarray[date][sigalg][key];
+              }
+              catch(e) {
+                hs[i] = NaN;
+              }
               i=i+1;
            }
          }

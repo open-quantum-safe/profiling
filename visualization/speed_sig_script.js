@@ -1,7 +1,7 @@
 var keygenChart=undefined;
 var signChart=undefined;
 var verifyChart=undefined;
-var jsonarray = {};
+var jsonarray;
 var firstobj;
 // Our labels along the x-axis, changes with time series
 var alloperations = [];
@@ -89,14 +89,16 @@ function LoadData(fullInit) {
     var dscount=0;
     var charttype = "bar";
 
-    if (Object.keys(jsonarray).length == 0) { // loading data just once
-       loadJSONArray(formData);
+    if (jsonarray == undefined) { // loading data just once
+       [jsonarray, firstobj, alloperations] = loadJSONArray(formData, false, 
+          loadJSONArray(formData, true, undefined)[0] // loading ref data if/when present
+       );
     }
 
     var setDate = formData.get("date");
     Object.keys(firstobj).sort().forEach(function(key) {
        //console.log(key);
-       if ((key!="config")&&(key!="cpuinfo")&&(filterOQSKeyByName(key)!=undefined))  {
+       if (!(key.startsWith("config"))&&!(key.startsWith("cpuinfo"))&&(filterOQSKeyByName(key)!=undefined))  {
          var innerobj=firstobj[key];
          var ka = [];
          var ea = [];
@@ -111,28 +113,38 @@ function LoadData(fullInit) {
          }
          for (var date in jsonarray) {
            if ((setDate==undefined)||(setDate=="All")||(setDate==date)) {
-              ka[i] = jsonarray[date][key].keypair;
-              ea[i] = jsonarray[date][key].sign;
-              da[i] = jsonarray[date][key].verify;
+              try { // not all dates may be filled with numbers
+                 ka[i] = jsonarray[date][key].keypair;
+                 ea[i] = jsonarray[date][key].sign;
+                 da[i] = jsonarray[date][key].verify;
+              }
+              catch(e) {
+                 ka[i] = ea[i] = da[i] = NaN;
+              }
               i=i+1;
            }
          }
          if (i>1) { // do line chart
             charttype="line";
+            var borderdash = [];
+            if (key.includes("-ref")) borderdash = [4];
             keygendatasets[dscount]={
               borderColor: getColor(key),
+              borderDash: borderdash,
               label: key,
               fill: false,
               data: ka
             }
             signdatasets[dscount]={
               borderColor: getColor(key),
+              borderDash: borderdash,
               label: key,
               fill: false,
               data: ea
             }
             verifydatasets[dscount]={
               borderColor: getColor(key),
+              borderDash: borderdash,
               hidden: false,
               label: key,
               fill: false,
@@ -248,7 +260,7 @@ function LoadData(fullInit) {
           (signChart.data.datasets[i].data[0]<signmin)||
           (verifyChart.data.datasets[i].data[0]<verifymin)||
           (nOKAtNISTLevel(formData.get("nistlevel"), keygenChart.data.datasets[i].label))||
-          ((formData.get("familyselector")!="All") && !isSelectedOQSFamily(keygenChart.data.datasets[i].label))
+          (!isSelectedOQSFamily(keygenChart.data.datasets[i].label))
          ) {
            keygenChart.data.datasets[i].hidden=true;
            signChart.data.datasets[i].hidden=true;

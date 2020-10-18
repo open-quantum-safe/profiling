@@ -33,6 +33,12 @@
        <option>SIDH</option>
        <option>Sike</option>
        </select>
+       <label for="refselector">Reference code:</label>
+       <select id="refselector" name="refselector" onchange="SubmitKEMForm(event)">
+       <option selected>All</option>
+       <option>Ref only</option>
+       <option>Optimized only</option>
+       </select>
        <label for="nistlevel">NIST level:</label>
        <select id="nistlevel" name="nistlevel" onchange="SubmitKEMForm(event)">
        <option>All</option>

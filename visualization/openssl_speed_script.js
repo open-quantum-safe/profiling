@@ -3,7 +3,7 @@ var signChart=undefined;
 var verifyChart=undefined;
 var encapChart=undefined;
 var decapChart=undefined;
-var jsonarray = {};
+var jsonarray = undefined;
 var firstobj;
 // Our labels along the x-axis, changes with time series
 var alloperations = ["Operations/s"];
@@ -49,8 +49,10 @@ function LoadData(fullInit) {
     var dscount=0;
     var charttype = "bar";
 
-    if (Object.keys(jsonarray).length == 0) { // loading data just once
-       loadJSONArray(formData);
+    if (jsonarray == undefined) { // loading data just once
+       [jsonarray, firstobj, alloperations] = loadJSONArray(formData, false,
+          loadJSONArray(formData, true, undefined)[0] // loading ref data if/when present
+       );
     }
 
     var setDate = formData.get("date");
@@ -74,40 +76,51 @@ function LoadData(fullInit) {
          }
          for (var date in jsonarray) {
            if ((setDate==undefined)||(setDate=="All")||(setDate==date)) {
-             var innerobj = jsonarray[date][key];
-             if (innerobj["op/s"] != undefined) {
-              ka[i] = 0;
-              ea[i] = innerobj["op/s"];
-              da[i] = innerobj["op/s"];
-              sa[i] = 0;
-              va[i] = 0;
+             try {
+                var innerobj = jsonarray[date][key];
+                if (innerobj["op/s"] != undefined) {
+                 ka[i] = 0;
+                 ea[i] = innerobj["op/s"];
+                 da[i] = innerobj["op/s"];
+                 sa[i] = 0;
+                 va[i] = 0;
+                }
+                else {
+                 ka[i] = innerobj["keygen/s"];
+                 ea[i] = innerobj["encap/s"];
+                 da[i] = innerobj["decap/s"];
+                 sa[i] = innerobj["sign/s"];
+                 va[i] = innerobj["verify/s"];
+                }
              }
-             else {
-              ka[i] = innerobj["keygen/s"];
-              ea[i] = innerobj["encap/s"];
-              da[i] = innerobj["decap/s"];
-              sa[i] = innerobj["sign/s"];
-              va[i] = innerobj["verify/s"];
+             catch(e) {
+                 ka[i] = ea[i] = da[i] = sa[i] = va[i] = NaN;
              }
              i=i+1;
            }
          }
          if (i>1) { // do line chart
             charttype="line";
+            var borderdash = [];
+            if (key.includes("-ref")) borderdash = [4];
+
             keygendatasets[dscount]={
               borderColor: getColor(key),
+              borderDash: borderdash,
               label: key,
               fill: false,
               data: ka
             }
             encapdatasets[dscount]={
               borderColor: getColor(key),
+              borderDash: borderdash,
               label: key,
               fill: false,
               data: ea
             }
             decapdatasets[dscount]={
               borderColor: getColor(key),
+              borderDash: borderdash,
               hidden: false,
               label: key,
               fill: false,
@@ -115,12 +128,14 @@ function LoadData(fullInit) {
             }
             signdatasets[dscount]={
               borderColor: getColor(key),
+              borderDash: borderdash,
               label: key,
               fill: false,
               data: sa
             }
             verifydatasets[dscount]={
               borderColor: getColor(key),
+              borderDash: borderdash,
               hidden: false,
               label: key,
               fill: false,

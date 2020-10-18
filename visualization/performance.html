@@ -14,6 +14,6 @@
 	      <li><a href="openssl_speed_series.html">KEM/SIG algorithms</a> (openssl speed)
 	      <li><a href="handshakes_series.html">TLS handshakes</a> (openssl s_time)
       </ol>
-      Measurements have been taken on an AWS t2.micro instance with O3 compile optimizations as well as AVX2 and AES CPU support. These graphs will be extended over time to other CPU (types) and cloud infrastructures.
+      Measurements have been taken on an AWS c4 instance with O3 compile optimizations. Algorithms labelled <i>-ref</i> are reference (C-code only) implementations compiled without special CPU feature support. Algorithms without this moniker are compiled with all CPU extensions available to achieve best performance figures. <br>These graphs will be extended over time to other CPU (types) and cloud infrastructures.
   </body>
 </html>
