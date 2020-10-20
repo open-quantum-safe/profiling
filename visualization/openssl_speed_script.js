@@ -1,14 +1,20 @@
+// charts to show
 var keygenChart=undefined;
 var signChart=undefined;
 var verifyChart=undefined;
 var encapChart=undefined;
 var decapChart=undefined;
+
+// data by date
 var jsonarray = undefined;
-var firstobj;
+var refobj;
+
 // Our labels along the x-axis, changes with time series
 var alloperations = ["Operations/s"];
 var currentoperations = [];
 
+// fill numberstable HTML element as per indicated header information
+// tabledata must match header structure
 function fillNumberTable(tabledata, setDate) {
    var ntable = document.getElementById('numberstable');
    clearTable(ntable);
@@ -36,8 +42,8 @@ function fillNumberTable(tabledata, setDate) {
    }
 }
 
-
-
+// main chart-generator function
+// only populate config data if fullInit set to true
 function LoadData(fullInit) {
     var filterForm = document.getElementById('filterForm');
     var formData = new FormData(filterForm);
@@ -50,17 +56,17 @@ function LoadData(fullInit) {
     var charttype = "bar";
 
     if (jsonarray == undefined) { // loading data just once
-       [jsonarray, firstobj, alloperations] = loadJSONArray(formData, false,
+       [jsonarray, refobj, alloperations] = loadJSONArray(formData, false,
           loadJSONArray(formData, true, undefined)[0] // loading ref data if/when present
        );
     }
 
     var setDate = formData.get("date");
 
-    Object.keys(firstobj).sort().forEach(function(key) {
+    Object.keys(refobj).sort().forEach(function(key) {
        //console.log(key);
        if ((key!="config")&&(key!="cpuinfo")&&(filterOQSKeyByName(key)!=undefined))  {
-         var innerobj=firstobj[key];
+         var innerobj=refobj[key];
          var ka = [];
          var ea = [];
          var da = [];
@@ -176,7 +182,7 @@ function LoadData(fullInit) {
        else { // add to config table
          if (fullInit && filterOQSKeyByName(key)!=undefined) {
             var table = document.getElementById('configtable');
-            Object.keys(firstobj[key]).sort().forEach(function(r) {
+            Object.keys(refobj[key]).sort().forEach(function(r) {
                var tr = table.insertRow(-1);
                var tabCell = tr.insertCell(-1);
                tabCell.style.width = "20%";
@@ -185,7 +191,7 @@ function LoadData(fullInit) {
                tabCell = tr.insertCell(-1);
                tabCell.style.width = "80%";
                tabCell.style.textAlign = "left";
-               tabCell.innerHTML = JSON.stringify(firstobj[key][r]).replace(/\"/g, ""); 
+               tabCell.innerHTML = JSON.stringify(refobj[key][r]).replace(/\"/g, ""); 
             });
          }
        }
@@ -301,7 +307,7 @@ function LoadData(fullInit) {
           (signChart.data.datasets[i].data[0]<signmin)||
           (verifyChart.data.datasets[i].data[0]<verifymin)||
           (nOKAtNISTLevel(formData.get("nistlevel"), keygenChart.data.datasets[i].label))||
-          ((formData.get("familyselector")!="All") && !isSelectedOQSFamily(keygenChart.data.datasets[i].label)) ||
+          (!isSelectedOQSFamily(keygenChart.data.datasets[i].label)) ||
           ((formData.get("oqsalg")=="OQS only") && (keygenChart.data.datasets[i].backgroundColor==undefined) && (keygenChart.data.datasets[i].borderColor==undefined))
          ) {
            keygenChart.data.datasets[i].hidden=true;
@@ -336,6 +342,7 @@ function LoadData(fullInit) {
      fillNumberTable(tabledata, setDate);
 }
 
+// called upon any filter change
 function SubmitOSSLspeedForm(event) {
     var filterForm = document.getElementById('filterForm');
     var formData = new FormData(filterForm);
@@ -343,6 +350,7 @@ function SubmitOSSLspeedForm(event) {
     // completely redo chart if specific date selected
     var dateOption = document.getElementById('date');
     var d = formData.get("date")
+    // if toggling between specific date and series, redo chart (e.g., changing type)
     if ((d!="All")||(currentoperations.length!=alloperations.length)) {
        keygenChart.destroy();
        keygenChart=undefined;
