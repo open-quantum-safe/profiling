@@ -7,6 +7,9 @@ function RetrieveData(url) {
     if (xmlhttp.status==200) {
        result = xmlhttp.responseText;
     }
+    else {
+       console.log("Error retrieving "+url);
+    }
     return result;
 }
 
@@ -189,6 +192,10 @@ var ColorMap = {
 }
 
 function getColor(alg) {
+   // -ref algs get the same color:
+   if (alg.substring(alg.length-4, alg.length)=="-ref") {
+      alg = alg.substring(0, alg.length-4);
+   }
    if (!(alg in ColorMap)) {
       console.log(alg+": missing perfect color - checking heuristics");
    }
@@ -219,26 +226,35 @@ function getColor(alg) {
    return undefined;
 }
 
-var l1algs =  "bike1-l1-fo bike1l1fo kyber512 kyber512-90s kyber90s512 classic-mceliece-348864 classic-mceliece-348864f lightsaber-kem lightsaber hqc-128-1-cca2 hqc128_1_cca2 frodokem-640-aes frodo640aes frodokem-640-shake frodo640shake ntru-hps-2048-509 ntru_hps2048509 sidh-p434 sidhp434 sidh-p434-compressed sidh-p503 sidhp503 sidh-p503-compressed sike-p434 sikep434 sike-p434-compressed sike-p503 sike-p503-compressed sikep503 " ;
-var l3algs =  "bike1-l3-fo bike1l3fo kyber768 kyber768-90s kyber90s768 classic-mceliece-460896 classic-mceliece-460896f saber-kem saber hqc-192-1-cca2 hqc192_1_cca2 hqc-192-2-cca2 hqc192_2_cca2 frodokem-976-aes frodo976aes frodokem-976-shake frodo976shake ntru-hps-2048-677 ntru_hps2048677 ntru-hrss-701 ntru_hrss701 sidh-p610 sidhp610 sidh-p610-compressed sike-p610 sikep610 sike-p610-compressed " ;
-var l5algs =  "kyber1024 kyber1024-90s kyber90s1024 classic-mceliece-6688128 classic-mceliece-6688128f classic-mceliece-6960119 classic-mceliece-6960119f classic-mceliece-8192128 classic-mceliece-8192128f firesaber-kem firesaber hqc-256-1-cca2 hqc256_1_cca2 hqc-256-2-cca2 hqc256_2_cca2 hqc-256-3-cca2 hqc256_3_cca2 frodokem-1344-aes frodo1344aes frodokem-1344-shake frodo1344shake ntru-hps-4096-821 ntru_hps4096821 sidh-p751 sidhp751 sidh-p751-compressed sike-p751 sikep751 sike-p751-compressed" ;
+// List of all algs as per NIST level
+// ToDo: Generate automatically
 
-function nOKAtNISTLevel(setLevel, algName) {
+var l1algs =  "bike1-l1-fo bike1l1fo kyber512 kyber512-90s kyber90s512 classic-mceliece-348864 classic-mceliece-348864f lightsaber-kem lightsaber hqc-128-1-cca2 hqc128_1_cca2 frodokem-640-aes frodo640aes frodokem-640-shake frodo640shake ntru-hps-2048-509 ntru_hps2048509 sidh-p434 sidhp434 sidh-p434-compressed sidh-p503 sidhp503 sidh-p503-compressed sike-p434 sikep434 sike-p434-compressed sike-p503 sike-p503-compressed sikep503 dilithium_2 dilithium_3 falcon-512 picnic3_l1 picnic_l1_fs picnic_l1_ur picnic_l1_full rainbow-ia-cyclic rainbow-ia-cyclic-compressed rainbow-ia-cyclic sphincs+-shake256-128s-simple sphincs+-shake256-128s-robust sphincs+-shake256-128f-simple sphincs+-shake256-128f-robust sphincs+-sha256-128s-simple sphincs+-sha256-128s-robust sphincs+-sha256-128f-simple sphincs+-sha256-128f-robust sphincs+-haraka-128s-simple sphincs+-haraka-128s-robust sphincs+-haraka-128f-simple sphincs+-haraka-128f-robust" ;
+var l3algs =  "bike1-l3-fo bike1l3fo kyber768 kyber768-90s kyber90s768 classic-mceliece-460896 classic-mceliece-460896f saber-kem saber hqc-192-1-cca2 hqc192_1_cca2 hqc-192-2-cca2 hqc192_2_cca2 frodokem-976-aes frodo976aes frodokem-976-shake frodo976shake ntru-hps-2048-677 ntru_hps2048677 ntru-hrss-701 ntru_hrss701 sidh-p610 sidhp610 sidh-p610-compressed sike-p610 sikep610 sike-p610-compressed dilithium_4 picnic3_l3 picnic_l3_fs picnic_l3_ur picnic_l3_full rainbow-iiic-classic rainbow-iiic-cyclic rainbow-iiic-cyclic-compressed rainbow-iiic-cyclic sphincs+-haraka-192s-simple sphincs+-haraka-192s-robust sphincs+-haraka-192f-simplesphincs+-haraka-192f-robust sphincs+-sha256-192s-simple sphincs+-sha256-192s-robustsphincs+-sha256-192f-simple sphincs+-sha256-192f-robust sphincs+-shake256-192s-simple sphincs+-shake256-192s-robust sphincs+-shake256-192f-simple sphincs+-shake256-192f-robust " ;
+var l5algs =  "kyber1024 kyber1024-90s kyber90s1024 classic-mceliece-6688128 classic-mceliece-6688128f classic-mceliece-6960119 classic-mceliece-6960119f classic-mceliece-8192128 classic-mceliece-8192128f firesaber-kem firesaber hqc-256-1-cca2 hqc256_1_cca2 hqc-256-2-cca2 hqc256_2_cca2 hqc-256-3-cca2 hqc256_3_cca2 frodokem-1344-aes frodo1344aes frodokem-1344-shake frodo1344shake ntru-hps-4096-821 ntru_hps4096821 sidh-p751 sidhp751 sidh-p751-compressed sike-p751 sikep751 sike-p751-compressed falcon-1024 picnic3_l5 picnic_l5_fs picnic_l5_ur picnic_l5_full rainbow-vc-classic rainbow-vc-cyclic rainbow-vc-cyclic-compressed rainbow-vc-cyclici sphincs+-shake256-256s-simple sphincs+-shake256-256s-robust sphincs+-shake256-256f-simple sphincs+-shake256-256f-robust sphincs+-sha256-256s-simple sphincs+-sha256-256s-robust sphincs+-sha256-256f-simple sphincs+-sha256-256f-robust sphincs+-haraka-256s-simple sphincs+-haraka-256s-robust sphincs+-haraka-256f-simple sphincs+-haraka-256f-robust" ;
+
+// check whether a specific algorithm (alg) is NOT OK at a given level (setLevel)
+function nOKAtNISTLevel(setLevel, alg) {
+   // -ref algs have the same strength:
+   if (alg.substring(alg.length-4, alg.length)=="-ref") {
+      alg = alg.substring(0, alg.length-4);
+   }
    if (setLevel=="All") {
       return false;
    }
    if (setLevel=="Level 1") {
-     if (l1algs.split(" ").includes(algName.toLowerCase())) return false;
+     if (l1algs.split(" ").includes(alg.toLowerCase())) return false;
    }
    if (setLevel=="Level 3") {
-     if (l3algs.split(" ").includes(algName.toLowerCase())) return false;
+     if (l3algs.split(" ").includes(alg.toLowerCase())) return false;
    }
    if (setLevel=="Level 5") {
-     if (l5algs.split(" ").includes(algName.toLowerCase())) return false;
+     if (l5algs.split(" ").includes(alg.toLowerCase())) return false;
    }
    return true;
 }
 
+// function to filter out generally specific key terms 
 function filterOQSKeyByName(key) {
    if ((key.toLowerCase().includes("cpa"))||(key.toLowerCase().includes("default"))) {
      return undefined;
@@ -246,12 +262,14 @@ function filterOQSKeyByName(key) {
    return key;
 }
 
+// helper function to clear HTML table
 function clearTable(table) {
   while(table.rows.length > 0) {
     table.deleteRow(0);
   }
 }
 
+// helper function to add headings to HTML table
 function addHeader(table, headings) {
    var cols = headings.split(" ");
    var hr = table.insertRow(-1);
@@ -262,6 +280,7 @@ function addHeader(table, headings) {
    });
 }
 
+// helper function to set table of download links
 function fillDownloadTable(setDate, filename) {
      var dtable = document.getElementById('downloadtable');
      clearTable(dtable);
@@ -282,9 +301,15 @@ function fillDownloadTable(setDate, filename) {
      tr.cells[1].appendChild(a);
 }
 
+// returns true if algorithm toTest belongs to the OQS family set in the familyselector HTML form selector
+// also used to filter out {reference|optimized} algorithms if ref algs {not} requested
 function isSelectedOQSFamily(toTest) {
   var select = document.getElementById("familyselector");
+  var refselect = new FormData(document.getElementById("filterForm")).get("refselector");
+  if ((refselect == "Ref only") && !(toTest.includes("-ref"))) return false;
+  if ((refselect == "Optimized only") && (toTest.includes("-ref"))) return false;
   var options = select && select.options;
+  if (options[0].selected) return true;
   for (var j=0; j<options.length; j++) {
     var opt = options[j];
 
@@ -300,14 +325,34 @@ function isSelectedOQSFamily(toTest) {
 
 function preventFormHandling(event) { event.preventDefault(); }
 
-function loadJSONArray(formData) {
+// function to load JSON data
+// parameters:
+// formData: HTML component containing reference to datafile
+// loadRef: boolean determining whether reference data shall be loaded; 
+//          if false, only optimized alg data is loaded (without -ref extension)
+// refarray: is not undefined, contains ref alg data to be mixed in with optimized alg data
+function loadJSONArray(formData, loadRef, refarray) {
+    // values to be returned:
+    var jsonarray = {};
+    var refobj;
+    var alldates = [];
        var dateOption = document.getElementById('date');
        var d;
-       if (formData.get("datafile").endsWith(".json")) { // single JSON to load
-         firstobj = jsonarray["All"] = JSON.parse(RetrieveData(formData.get("datafile")));
+
+       // format: "date/name[-ref].{json|list}"
+       var fname = formData.get("datafile");
+       var suffix = fname.substring(fname.length-5, fname.length);
+       var prefix = fname.substring(0, fname.length-5);
+       if (loadRef) {
+          fname = prefix+"-ref"+suffix;
        }
-       else { // iterate through resources...
-          var urls = RetrieveData(formData.get("datafile")).split("\n");
+
+       if (fname.endsWith(".json")) { // single JSON to load
+         refobj = jsonarray["All"] = JSON.parse(RetrieveData(fname));
+       }
+       else { // iterate through resources in .list file:
+          var urls = RetrieveData(fname).split("\n");
+          // add dates only at first run (where dataOption only contains default "All" entry)
           var filldates = (dateOption.options.length==1);
           var idx = 0;
           urls.forEach(function (url, index) {
@@ -316,12 +361,14 @@ function loadJSONArray(formData) {
                 try {
                    data = JSON.parse(RetrieveData(url));
                    jsonarray[d] = data;
-                   if (firstobj==undefined) {
-                     firstobj = jsonarray[d];
+                   if (refobj==undefined) {
+                     refobj = jsonarray[d];
                    }
-                   alloperations[idx++] = d;
-                   var option = document.createElement("option");
+                   // add date only if data is present
+                   alldates[idx++] = d;
                    if (filldates) {
+                      // add date to dateOption list
+                      var option = document.createElement("option");
                       option.text = d;
                       dateOption.add(option);
                    }
@@ -336,4 +383,24 @@ function loadJSONArray(formData) {
           dateOption.remove(0);
           formData.set("date", d);
        }
+       // if refarray given, merge into result with keys+"-ref":
+       var nfo = undefined;
+       if (refarray != undefined) {
+          Object.keys(jsonarray).forEach(function(date) {
+             if (refarray[date] != undefined) { // merge
+                Object.keys(refobj).forEach(function(key) {
+                   if (refarray[date][key] == undefined) {
+                     console.log("Unexpected empty refarray entry for "+date+"/"+key);
+                   }
+                   else {
+                      jsonarray[date][key+"-ref"]=refarray[date][key];
+                      // ensure only fully populated date entry becomes reference object
+                      nfo=jsonarray[date];
+                   }
+                });                
+             }
+          });
+       }
+       if (nfo != undefined) refobj=nfo;
+   return [jsonarray, refobj, alldates];
 }

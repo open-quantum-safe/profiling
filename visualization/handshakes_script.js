@@ -1,12 +1,20 @@
+// the chart to show
 var handshakesChart=undefined;
+
+// the possible signature algs to select from
 var sigalgs=[];
-var jsonarray = {};
-var firstobj;
+
+// all data by date
+var jsonarray;
+var refobj;
+
 // Our labels along the x-axis, changes with time series
 var alloperations = ["Handshakes/s"];
 var currentoperations = [];
 var currentsigalg = "";
 
+// fill numberstable HTML element as per indicated header information
+// tabledata must match header structure
 function fillNumberTable(tabledata, setDate) {
    var ntable = document.getElementById('numberstable');
    clearTable(ntable);
@@ -34,7 +42,8 @@ function fillNumberTable(tabledata, setDate) {
    }
 }
 
-
+// main chart-generator function
+// only populate config data if fullInit set to true
 function LoadData(fullInit) {
     var filterForm = document.getElementById('filterForm');
     var sigalgOption = document.getElementById('sigalg');
@@ -48,12 +57,14 @@ function LoadData(fullInit) {
     var dscount=0;
     var charttype = "bar";
 
-    if (Object.keys(jsonarray).length == 0) { // loading data just once
-       loadJSONArray(formData);
+    if (jsonarray == undefined) { // loading data just once
+       [jsonarray, refobj, alloperations] = loadJSONArray(formData, false,
+          loadJSONArray(formData, true, undefined)[0] // loading ref data if/when present
+       );
        // also populate sigalgs array just once
        // remove initial default option
        sigalgOption.remove(0); 
-       Object.keys(firstobj).forEach(function(key) {
+       Object.keys(refobj).forEach(function(key) {
          var option = document.createElement("option");
          option.text = key;
          sigalgs.push(key);
@@ -63,12 +74,12 @@ function LoadData(fullInit) {
     }
 
     var setDate = formData.get("date");
-    var kemobj = firstobj[sigalg];
+    var kemobj = refobj[sigalg];
 
     Object.keys(kemobj).sort().forEach(function(key) {
        //console.log(key);
        if ((key!="config")&&(key!="cpuinfo")&&(filterOQSKeyByName(key)!=undefined))  {
-         var innerobj=firstobj[key];
+         var innerobj=refobj[key];
          var hs = [];
          var i = 0;
          if (setDate!="All") {
@@ -80,7 +91,12 @@ function LoadData(fullInit) {
          }
          for (var date in jsonarray) {
            if ((setDate==undefined)||(setDate=="All")||(setDate==date)) {
-              hs[i] = jsonarray[date][sigalg][key];
+              try {
+                hs[i] = jsonarray[date][sigalg][key];
+              }
+              catch(e) {
+                hs[i] = NaN;
+              }
               i=i+1;
            }
          }
@@ -105,7 +121,7 @@ function LoadData(fullInit) {
        else { // add to config table
          if (fullInit && filterOQSKeyByName(key)!=undefined) {
             var table = document.getElementById('configtable');
-            Object.keys(firstobj[key]).sort().forEach(function(r) {
+            Object.keys(refobj[key]).sort().forEach(function(r) {
                var tr = table.insertRow(-1);
                var tabCell = tr.insertCell(-1);
                tabCell.style.width = "20%";
@@ -114,7 +130,7 @@ function LoadData(fullInit) {
                tabCell = tr.insertCell(-1);
                tabCell.style.width = "80%";
                tabCell.style.textAlign = "left";
-               tabCell.innerHTML = JSON.stringify(firstobj[key][r]).replace(/\"/g, "");
+               tabCell.innerHTML = JSON.stringify(refobj[key][r]).replace(/\"/g, "");
             });
          }
        }
@@ -144,9 +160,9 @@ function LoadData(fullInit) {
    var tabledata=[];
    for (i = 0; i < handshakesChart.data.datasets.length; i++) {
        if (
-          (handshakesChart.data.datasets[i].data[0]<shakemin)||
+          (refobj[sigalg][handshakesChart.data.datasets[i].label]<shakemin)||
           (nOKAtNISTLevel(formData.get("nistlevel"), handshakesChart.data.datasets[i].label))||
-          ((formData.get("familyselector")!="All") && !isSelectedOQSFamily(handshakesChart.data.datasets[i].label))
+          (!isSelectedOQSFamily(handshakesChart.data.datasets[i].label))
          ) {
            handshakesChart.data.datasets[i].hidden=true;
        }
@@ -162,6 +178,7 @@ function LoadData(fullInit) {
      fillNumberTable(tabledata, setDate);
 }
 
+// called upon any filter change
 function SubmitHandshakesForm(event) {
     var filterForm = document.getElementById('filterForm');
     var formData = new FormData(filterForm);
@@ -169,6 +186,7 @@ function SubmitHandshakesForm(event) {
     // completely redo chart if specific date selected
     var dateOption = document.getElementById('date');
     var d = formData.get("date")
+    // if toggling between specific date and series, redo chart (e.g., changing type)
     if ((d!="All")||(currentoperations.length!=alloperations.length)||(currentsigalg!=formData.get("sigalg"))) {
        handshakesChart.destroy();
        handshakesChart=undefined;

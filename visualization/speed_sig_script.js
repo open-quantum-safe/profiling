@@ -1,12 +1,20 @@
+// the Charts to display
 var keygenChart=undefined;
 var signChart=undefined;
 var verifyChart=undefined;
-var jsonarray = {};
-var firstobj;
+
+// the data set
+var jsonarray;
+
+// the reference object (jsonarray of date containing maximum set of data)
+var refobj;
+
 // Our labels along the x-axis, changes with time series
-var alloperations = [];
+var alloperations = []; // becomes date list in series display
 var currentoperations = [];
 
+// fill numberstable HTML element as per indicated header information
+// tabledata must match header structure
 function fillNumberTable(tabledata, setDate) {
    var ntable = document.getElementById('numberstable');
    clearTable(ntable);
@@ -34,6 +42,7 @@ function fillNumberTable(tabledata, setDate) {
    }
 }
 
+// called upon any filter change
 function SubmitSIGForm(event) {
     var filterForm = document.getElementById('filterForm');
     var formData = new FormData(filterForm);
@@ -41,6 +50,7 @@ function SubmitSIGForm(event) {
     // completely redo chart if specific date selected
     var dateOption = document.getElementById('date');
     var d = formData.get("date")
+    // if toggling between specific date and series, redo chart (e.g., changing type)
     if ((d!="All")||(currentoperations.length!=alloperations.length)) {
        keygenChart.destroy();
        keygenChart=undefined;
@@ -53,33 +63,8 @@ function SubmitSIGForm(event) {
     event.preventDefault();
 }
 
-function redoSIGTable(ci) {
-   var filterForm = document.getElementById('filterForm');
-   var formData = new FormData(filterForm);
-   var setDate = formData.get("date");
-   var tabledata = [];
-   for (i = 0; i < ci.data.datasets.length; i++) {
-         var meta = ci.getDatasetMeta(i);
-         if (setDate!="All" && !meta.hidden) {
-           var k = ci.data.datasets[i].label;
-           tabledata.push([ k, jsonarray[setDate][k].keypair, jsonarray[setDate][k].keypaircycles, jsonarray[setDate][k].sign, jsonarray[setDate][k].signcycles, jsonarray[setDate][k].verify, jsonarray[setDate][k].verifycycles ]);
-         }
-   }
-   fillNumberTable(tabledata, setDate);
-}
-
-function SIGlegendClickHandler(e, legendItem) {
-    var index = legendItem.datasetIndex;
-    var ci = this.chart;
-    var meta = ci.getDatasetMeta(index);
-
-    // See controller.isDatasetVisible comment
-    meta.hidden = meta.hidden === null ? !ci.data.datasets[index].hidden : null;
-    // We hid a dataset ... rerender the chart
-    ci.update();
-    redoSIGTable(ci);
-}
-
+// main chart-generator function
+// only populate config data if fullInit set to true
 function LoadData(fullInit) {
     var filterForm = document.getElementById('filterForm');
     var formData = new FormData(filterForm);
@@ -89,15 +74,19 @@ function LoadData(fullInit) {
     var dscount=0;
     var charttype = "bar";
 
-    if (Object.keys(jsonarray).length == 0) { // loading data just once
-       loadJSONArray(formData);
+    if (jsonarray == undefined) { // loading data just once
+       [jsonarray, refobj, alloperations] = loadJSONArray(formData, false, 
+          loadJSONArray(formData, true, undefined)[0] // loading ref data if/when present
+       );
     }
 
+    // obtain this only now as loadJSONArray could have changed it:
     var setDate = formData.get("date");
-    Object.keys(firstobj).sort().forEach(function(key) {
+
+    Object.keys(refobj).sort().forEach(function(key) {
        //console.log(key);
-       if ((key!="config")&&(key!="cpuinfo")&&(filterOQSKeyByName(key)!=undefined))  {
-         var innerobj=firstobj[key];
+       if (!(key.startsWith("config"))&&!(key.startsWith("cpuinfo"))&&(filterOQSKeyByName(key)!=undefined))  {
+         var innerobj=refobj[key];
          var ka = [];
          var ea = [];
          var da = [];
@@ -111,28 +100,40 @@ function LoadData(fullInit) {
          }
          for (var date in jsonarray) {
            if ((setDate==undefined)||(setDate=="All")||(setDate==date)) {
-              ka[i] = jsonarray[date][key].keypair;
-              ea[i] = jsonarray[date][key].sign;
-              da[i] = jsonarray[date][key].verify;
+              try { // not all dates may be filled with numbers
+                 ka[i] = jsonarray[date][key].keypair;
+                 ea[i] = jsonarray[date][key].sign;
+                 da[i] = jsonarray[date][key].verify;
+              }
+              catch(e) {
+                 ka[i] = ea[i] = da[i] = NaN;
+              }
               i=i+1;
            }
          }
          if (i>1) { // do line chart
             charttype="line";
+            // straight line for optimized implementations
+            var borderdash = [];
+            if (key.includes("-ref")) borderdash = [4]; // dashed line for reference code
+
             keygendatasets[dscount]={
               borderColor: getColor(key),
+              borderDash: borderdash,
               label: key,
               fill: false,
               data: ka
             }
             signdatasets[dscount]={
               borderColor: getColor(key),
+              borderDash: borderdash,
               label: key,
               fill: false,
               data: ea
             }
             verifydatasets[dscount]={
               borderColor: getColor(key),
+              borderDash: borderdash,
               hidden: false,
               label: key,
               fill: false,
@@ -162,7 +163,7 @@ function LoadData(fullInit) {
        else { // add to config table
          if (fullInit && filterOQSKeyByName(key)!=undefined) {
             var table = document.getElementById('configtable');
-            Object.keys(firstobj[key]).sort().forEach(function(r) {
+            Object.keys(refobj[key]).sort().forEach(function(r) {
                var tr = table.insertRow(-1);
                var tabCell = tr.insertCell(-1);
                tabCell.style.width = "20%";
@@ -171,7 +172,7 @@ function LoadData(fullInit) {
                tabCell = tr.insertCell(-1);
                tabCell.style.width = "80%";
                tabCell.style.textAlign = "left";
-               tabCell.innerHTML = JSON.stringify(firstobj[key][r]).replace(/\"/g, ""); 
+               tabCell.innerHTML = JSON.stringify(refobj[key][r]).replace(/\"/g, ""); 
             });
          }
        }
@@ -188,6 +189,7 @@ function LoadData(fullInit) {
         },
         options: {
           legend: {
+            // Possible ToDo: React on clicks to legend
             //onClick: SIGlegendClickHandler
           },
           scales: {
@@ -244,11 +246,12 @@ function LoadData(fullInit) {
    var tabledata=[];
    for (i = 0; i < keygenChart.data.datasets.length; i++) { 
        if (
-          (keygenChart.data.datasets[i].data[0]<keygenmin)||
-          (signChart.data.datasets[i].data[0]<signmin)||
-          (verifyChart.data.datasets[i].data[0]<verifymin)||
+          // check values at reference object/date to decide what to keep globally
+          (refobj[keygenChart.data.datasets[i].label]["keypair"]<keygenmin)||
+          (refobj[signChart.data.datasets[i].label]["sign"]<signmin)||
+          (refobj[verifyChart.data.datasets[i].label]["verify"]<verifymin)||
           (nOKAtNISTLevel(formData.get("nistlevel"), keygenChart.data.datasets[i].label))||
-          ((formData.get("familyselector")!="All") && !isSelectedOQSFamily(keygenChart.data.datasets[i].label))
+          (!isSelectedOQSFamily(keygenChart.data.datasets[i].label))
          ) {
            keygenChart.data.datasets[i].hidden=true;
            signChart.data.datasets[i].hidden=true;

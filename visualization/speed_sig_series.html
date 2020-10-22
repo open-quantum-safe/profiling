@@ -29,6 +29,12 @@
        <option>Rainbow</option>
        <option>Picnic</option>
        </select>
+       <label for="refselector">Reference code:</label>
+       <select id="refselector" name="refselector" onchange="SubmitSIGForm(event)">
+       <option selected>All</option>
+       <option>Ref only</option>
+       <option>Optimized only</option>
+       </select>
        <label for="nistlevel">NIST level:</label>
        <select id="nistlevel" name="nistlevel" onchange="SubmitSIGForm(event)">
        <option>All</option>
