@@ -3,6 +3,7 @@ import os
 import time
 import json
 import sys
+import re
 
 # Default install directory
 INSTALLDIR="/opt/oqssa"
@@ -23,10 +24,10 @@ def populate_algs():
    for line in stderr_iterator:
        l = str(line.rstrip())[2:-1]
        if l.startswith("OQSSIG"):
-          alglist=l[16:]
+          alglist=re.sub(r"^\W+|\W+$", "", l[16:]) # cut trailing non-alphanumerics
           sigs=alglist.split(",")
        if l.startswith("OQSKEM"):
-          alglist=l[16:]
+          alglist=re.sub(r"^\W+|\W+$", "", l[16:]) # cut trailing non-alphanumerics
           kems=alglist.split(",")
 
    if len(kems)==0 or len(sigs)==0:
