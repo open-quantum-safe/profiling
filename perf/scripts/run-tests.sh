@@ -44,7 +44,7 @@ if [ $? -eq 0 ]; then
     echo "Copy test results to S3"
     today=`date +%Y-%m-%d-%H_%M_%S`
     tar czvf ${S3FOLDER}/${today}.tgz results/*.json
-    ./gen_website.sh ${S3FOLDER}
+    ./gen_website2.sh ${S3FOLDER}
     echo "Copy complete: ${S3FOLDER}/${today}.tgz"
 else
     echo "Couldn't mount S3 bucket. Not copying out test results."

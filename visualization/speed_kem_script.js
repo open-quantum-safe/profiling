@@ -75,9 +75,7 @@ function LoadData(fullInit) {
     var charttype = "bar";
 
     if (jsonarray == undefined) { // loading data just once
-       [jsonarray, refobj, alloperations] = loadJSONArray(formData, false, 
-          loadJSONArray(formData, true, undefined)[0] // loading ref data if/when present
-       );
+       [jsonarray, refobj, alloperations] = loadJSONArray(formData, false,  undefined)
     }
 
     // obtain this only now as loadJSONArray could have changed it:

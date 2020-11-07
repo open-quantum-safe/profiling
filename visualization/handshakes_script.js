@@ -58,9 +58,7 @@ function LoadData(fullInit) {
     var charttype = "bar";
 
     if (jsonarray == undefined) { // loading data just once
-       [jsonarray, refobj, alloperations] = loadJSONArray(formData, false,
-          loadJSONArray(formData, true, undefined)[0] // loading ref data if/when present
-       );
+       [jsonarray, refobj, alloperations] = loadJSONArray(formData, false, undefined);
        // also populate sigalgs array just once
        // remove initial default option
        sigalgOption.remove(0); 
