@@ -1,7 +1,7 @@
 *.json
 visualization/20*
 *.log
+visualization/*.sh
 *.err
-*.sh
 *.list
 __pycache__
