@@ -1,16 +1,65 @@
 var cmkeys=[];
 
-function RetrieveData(url) {
-    var xmlhttp = new XMLHttpRequest();
-    xmlhttp.open("GET", url, false);
-    xmlhttp.send();
-    if (xmlhttp.status==200) {
-       result = xmlhttp.responseText;
-    }
-    else {
-       console.log("Error retrieving "+url);
-    }
-    return result;
+function RetrieveData(url, async) {
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", url, async);
+  if (async) {
+    xhr.onload = function (e) {
+      var ld = xhr.responseURL.lastIndexOf("/");
+      date = xhr.responseURL.substring(ld-10,ld);
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+            jd = JSON.parse(xhr.responseText);
+            var nro = undefined;
+            if (jsonarray[date] == undefined) {
+                 jsonarray[date]={};
+            }
+            Object.keys(jd).forEach(function(key) {
+               if (xhr.responseURL.includes("-ref.json")) {
+                    jsonarray[date][key+"-ref"]=jd[key];
+                    // ensure only fully populated date entry becomes reference object
+                    if (jsonarray[date][key]!=undefined) {
+                       nro = jsonarray[date];
+                    }
+               }
+               else {
+                    jsonarray[date][key]=jd[key];
+                    // ensure only fully populated date entry becomes reference object
+                    if (jsonarray[date][key+"-ref"]!=undefined) {
+                       nro = jsonarray[date];
+                    }
+               }
+            });
+
+            if (refobj==undefined && nro!=undefined) {
+              refobj=nro;
+              document.getElementById("date").value = date;
+              LoadData(false);
+            }
+            //if (Object.keys(jsonarray).length == alloperations.length) {
+            //  CleanSlate();
+            //  LoadData(false);
+            //}
+        } else {
+           console.log("error getting "+xhr.responseURL);
+           console.error(xhr.statusText);
+        }
+      }
+    };
+    xhr.onerror = function (e) {
+      console.error(xhr.statusText);
+    };
+  }
+  xhr.send();
+  if (!async) {
+     if (xhr.status==200) {
+        result = xhr.responseText;
+     }
+     else {
+        console.log("Error retrieving "+url);
+     }
+     return result;
+  }
 }
 
 
@@ -348,10 +397,10 @@ function loadJSONArray(formData, loadRef, refarray) {
        }
 
        if (fname.endsWith(".json")) { // single JSON to load
-         refobj = jsonarray["All"] = JSON.parse(RetrieveData(fname));
+         refobj = jsonarray["All"] = JSON.parse(RetrieveData(fname, false));
        }
        else { // iterate through resources in .list file:
-          var urls = RetrieveData(fname).split("\n");
+          var urls = RetrieveData(fname, false).split("\n");
           // add dates only at first run (where dataOption only contains default "All" entry)
           var filldates = (dateOption.options.length==1);
           var idx = 0;
@@ -359,11 +408,15 @@ function loadJSONArray(formData, loadRef, refarray) {
             if (url.length>0) {
                 d = url.substring(0, url.indexOf("/"));
                 try {
-                   data = JSON.parse(RetrieveData(url));
-                   jsonarray[d] = data;
-                   if (refobj==undefined) {
-                     refobj = jsonarray[d];
-                   }
+                   RetrieveData(url, true);
+                   // also request -ref
+                   var rname = url.substring(0,url.length-5)+"-ref"+url.substring(url.length-5, url.length);
+                   RetrieveData(rname, true);
+                   //data = JSON.parse(RetrieveData(url, true));
+                   //jsonarray[d] = data;
+                   //if (refobj==undefined) {
+                   //  refobj = jsonarray[d];
+                   //}
                    // add date only if data is present
                    alldates[idx++] = d;
                    if (filldates) {
@@ -374,7 +427,7 @@ function loadJSONArray(formData, loadRef, refarray) {
                    }
                 }
                 catch(e) {
-                   console.log("Error loading "+url);
+                   console.log("Error loading "+url+":"+e);
                 }
             }
           });
@@ -384,23 +437,23 @@ function loadJSONArray(formData, loadRef, refarray) {
           formData.set("date", d);
        }
        // if refarray given, merge into result with keys+"-ref":
-       var nfo = undefined;
-       if (refarray != undefined) {
-          Object.keys(jsonarray).forEach(function(date) {
-             if (refarray[date] != undefined) { // merge
-                Object.keys(refobj).forEach(function(key) {
-                   if (refarray[date][key] == undefined) {
-                     console.log("Unexpected empty refarray entry for "+date+"/"+key);
-                   }
-                   else {
-                      jsonarray[date][key+"-ref"]=refarray[date][key];
-                      // ensure only fully populated date entry becomes reference object
-                      nfo=jsonarray[date];
-                   }
-                });                
-             }
-          });
-       }
-       if (nfo != undefined) refobj=nfo;
+       //var nfo = undefined;
+       //if (refarray != undefined) {
+       //   Object.keys(jsonarray).forEach(function(date) {
+       //      if (refarray[date] != undefined) { // merge
+       //         Object.keys(refobj).forEach(function(key) {
+       //            if (refarray[date][key] == undefined) {
+       //              console.log("Unexpected empty refarray entry for "+date+"/"+key);
+       //            }
+       //            else {
+       //               jsonarray[date][key+"-ref"]=refarray[date][key];
+       //               // ensure only fully populated date entry becomes reference object
+       //               nfo=jsonarray[date];
+       //            }
+       //         });                
+       //      }
+       //   });
+       //}
+       //if (nfo != undefined) refobj=nfo;
    return [jsonarray, refobj, alldates];
 }

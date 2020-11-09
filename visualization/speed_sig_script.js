@@ -42,6 +42,15 @@ function fillNumberTable(tabledata, setDate) {
    }
 }
 
+function CleanSlate() {
+       keygenChart.destroy();
+       keygenChart=undefined;
+       signChart.destroy();
+       signChart=undefined;
+       verifyChart.destroy();
+       verifyChart=undefined;
+}
+
 // called upon any filter change
 function SubmitSIGForm(event) {
     var filterForm = document.getElementById('filterForm');
@@ -52,12 +61,7 @@ function SubmitSIGForm(event) {
     var d = formData.get("date")
     // if toggling between specific date and series, redo chart (e.g., changing type)
     if ((d!="All")||(currentoperations.length!=alloperations.length)) {
-       keygenChart.destroy();
-       keygenChart=undefined;
-       signChart.destroy();
-       signChart=undefined;
-       verifyChart.destroy();
-       verifyChart=undefined;
+       CleanSlate();
     }
     LoadData(false);
     event.preventDefault();
@@ -65,7 +69,7 @@ function SubmitSIGForm(event) {
 
 // main chart-generator function
 // only populate config data if fullInit set to true
-function LoadData(fullInit) {
+function LoadData(fullInit, cleanSlate) {
     var filterForm = document.getElementById('filterForm');
     var formData = new FormData(filterForm);
     var keygendatasets=[];
@@ -74,10 +78,16 @@ function LoadData(fullInit) {
     var dscount=0;
     var charttype = "bar";
 
+    if (cleanSlate) {
+       CleanSlate();
+    }
+
     if (jsonarray == undefined) { // loading data just once
-       [jsonarray, refobj, alloperations] = loadJSONArray(formData, false, 
-          loadJSONArray(formData, true, undefined)[0] // loading ref data if/when present
-       );
+       [jsonarray, refobj, alloperations] = loadJSONArray(formData, false, undefined);
+    }
+
+    if (refobj==undefined) { // no data yet
+       return;
     }
 
     // obtain this only now as loadJSONArray could have changed it:
@@ -260,7 +270,12 @@ function LoadData(fullInit) {
        else {
          if (setDate!="All") {
            var k = keygenChart.data.datasets[i].label;
-           tabledata.push([ k, jsonarray[setDate][k].keypair, jsonarray[setDate][k].keypaircycles, jsonarray[setDate][k].sign, jsonarray[setDate][k].signcycles, jsonarray[setDate][k].verify, jsonarray[setDate][k].verifycycles ]);
+           try {
+              tabledata.push([ k, jsonarray[setDate][k].keypair, jsonarray[setDate][k].keypaircycles, jsonarray[setDate][k].sign, jsonarray[setDate][k].signcycles, jsonarray[setDate][k].verify, jsonarray[setDate][k].verifycycles ]);
+           }
+           catch (e) { // ref data may not be present
+              tabledata.push([ k, undefined, undefined, undefined, undefined, undefined, undefined ]);
+           }
          }
          keygenChart.data.datasets[i].hidden=false;
          signChart.data.datasets[i].hidden=false;

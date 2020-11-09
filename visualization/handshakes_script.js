@@ -42,13 +42,19 @@ function fillNumberTable(tabledata, setDate) {
    }
 }
 
+function CleanSlate() {
+       handshakesChart.destroy();
+       handshakesChart=undefined;
+}
+
 // main chart-generator function
 // only populate config data if fullInit set to true
-function LoadData(fullInit) {
+function LoadData(fullInit, cleanSlate) {
     var filterForm = document.getElementById('filterForm');
     var sigalgOption = document.getElementById('sigalg');
     var formData = new FormData(filterForm);
     var sigalg = formData.get("sigalg");
+    if (cleanSlate) CleanSlate();
     if (sigalg==null) {
       console.log("Could not determine signature algorithm. Setting default.");
       sigalg="dilithium3"
@@ -58,10 +64,13 @@ function LoadData(fullInit) {
     var charttype = "bar";
 
     if (jsonarray == undefined) { // loading data just once
-       [jsonarray, refobj, alloperations] = loadJSONArray(formData, false,
-          loadJSONArray(formData, true, undefined)[0] // loading ref data if/when present
-       );
-       // also populate sigalgs array just once
+       [jsonarray, refobj, alloperations] = loadJSONArray(formData, false, undefined);
+    }
+
+    if (refobj == undefined) return; // no data yes
+
+    if (sigalgs.length == 0) {
+       // populate sigalgs array just once
        // remove initial default option
        sigalgOption.remove(0); 
        Object.keys(refobj).forEach(function(key) {
@@ -188,11 +197,10 @@ function SubmitHandshakesForm(event) {
     var d = formData.get("date")
     // if toggling between specific date and series, redo chart (e.g., changing type)
     if ((d!="All")||(currentoperations.length!=alloperations.length)||(currentsigalg!=formData.get("sigalg"))) {
-       handshakesChart.destroy();
-       handshakesChart=undefined;
+       LoadData(false, true);
     }
-    LoadData(false);
+    else LoadData(false, false);
     event.preventDefault();
 }
 
-LoadData(true);
+LoadData(true, false);

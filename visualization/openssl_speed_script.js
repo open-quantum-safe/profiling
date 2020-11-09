@@ -42,9 +42,22 @@ function fillNumberTable(tabledata, setDate) {
    }
 }
 
+function CleanSlate() {
+       keygenChart.destroy();
+       keygenChart=undefined;
+       signChart.destroy();
+       signChart=undefined;
+       verifyChart.destroy();
+       verifyChart=undefined;
+       encapChart.destroy();
+       encapChart=undefined;
+       decapChart.destroy();
+       decapChart=undefined;
+}
+
 // main chart-generator function
 // only populate config data if fullInit set to true
-function LoadData(fullInit) {
+function LoadData(fullInit, cleanSlate) {
     var filterForm = document.getElementById('filterForm');
     var formData = new FormData(filterForm);
     var keygendatasets=[];
@@ -55,10 +68,14 @@ function LoadData(fullInit) {
     var dscount=0;
     var charttype = "bar";
 
+    if (cleanSlate) CleanSlate();
+
     if (jsonarray == undefined) { // loading data just once
-       [jsonarray, refobj, alloperations] = loadJSONArray(formData, false,
-          loadJSONArray(formData, true, undefined)[0] // loading ref data if/when present
-       );
+       [jsonarray, refobj, alloperations] = loadJSONArray(formData, false, undefined);
+    }
+
+    if (refobj == undefined) { // no data yet
+      return;
     }
 
     var setDate = formData.get("date");
@@ -352,22 +369,15 @@ function SubmitOSSLspeedForm(event) {
     var d = formData.get("date")
     // if toggling between specific date and series, redo chart (e.g., changing type)
     if ((d!="All")||(currentoperations.length!=alloperations.length)) {
-       keygenChart.destroy();
-       keygenChart=undefined;
-       signChart.destroy();
-       signChart=undefined;
-       verifyChart.destroy();
-       verifyChart=undefined;
-       encapChart.destroy();
-       encapChart=undefined;
-       decapChart.destroy();
-       decapChart=undefined;
+       LoadData(false, true);
     }
-    LoadData(false);
+    else {
+       LoadData(false, false);
+    }
     event.preventDefault();
 }
 
 
-LoadData(true);
+LoadData(true, false);
 
 
