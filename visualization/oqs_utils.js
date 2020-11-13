@@ -30,33 +30,40 @@ var ColorMap = {
 "FrodoKEM-1344-AES":"#662f8d", 
 "FrodoKEM-1344-SHAKE":"#5e2985", 
 
-// Structured lattice https://coolors.co/gradient-palette/00ba63-0b4a2d?number=20
-"kyber512":"#00ba63",
-"kyber768":"#01b640",
-"kyber1024":"#01ae5d",
-"kyber90s512":"#02a85a",
-"kyber90s768":"#02a258",
-"kyber90s1024":"#039d55",
-"Kyber512":"#00ba63", 
-"Kyber768":"#01b640", 
-"Kyber1024":"#01ae5d", 
-"Kyber512-90s":"#02a85d", 
-"Kyber768-90s":"#02a258", 
-"Kyber1024-90s":"#039d55", 
-"ntru_hps2048509":"#058549",
-"ntru_hps2048677":"#067f47",
-"ntru_hps4096821":"#067944",
-"ntru_hrss701":"#077341",
-"lightsaber":"#0a5633",
-"saber":"#0a5030",
-"firesaber":"#0b4a2d",
-"NTRU-HPS-2048-509":"#058549", 
-"NTRU-HPS-2048-677":"#067f47", 
-"NTRU-HPS-4096-821":"#067944", 
-"NTRU-HRSS-701":"#077341", 
-"LightSaber-KEM":"#0a5633", 
-"Saber-KEM":"#0a5030", 
-"FireSaber-KEM":"#0b4a2d", 
+// Structured lattice https://coolors.co/gradient-palette/00ba63-0b4a2d?number=30
+// and https://coolors.co/gradient-palette/0b4a2d-000000?number=30
+"kyber512":"#00BA63",
+"kyber768":"#00B661",
+"kyber1024":"#01B25F",
+"kyber90s512":"#01AE5D",
+"kyber90s768":"#02AB5C",
+"kyber90s1024":"#02A75A",
+"Kyber512":"#02A358", 
+"Kyber768":"#039F56", 
+"Kyber1024":"#039B54", 
+"Kyber512-90s":"#039752", 
+"Kyber768-90s":"#049350", 
+"Kyber1024-90s":"#04904F", 
+"ntru_hps2048509":"#058C4D",
+"ntru_hps2048677":"#05884B",
+"ntru_hps4096821":"#068047",
+"ntru_hrss701":"#067C45",
+"lightsaber":"#067843",
+"saber":"#077441",
+"firesaber":"#086D3E",
+"NTRU-HPS-2048-509":"#08693C", 
+"NTRU-HPS-2048-677":"#08653A", 
+"NTRU-HPS-4096-821":"#096138", 
+"NTRU-HRSS-701":"#095D36", 
+"ntrulpr653":"#095934",
+"ntrulpr761":"#0A5633",
+"ntrulpr857":"#0A5231",
+"sntrup653":"#0B4E2F",
+"sntrup761":"#0B4A2D",
+"sntrup857":"#0B472B",
+"LightSaber-KEM":"#0A452A", 
+"Saber-KEM":"#0A4228", 
+"FireSaber-KEM":"#094027", 
 // https://coolors.co/gradient-palette/93c5f0-297fcb?number=20
 "DILITHIUM_2":"#93C5F0", 
 "DILITHIUM_3":"#88BEEC", 
@@ -229,8 +236,8 @@ function getColor(alg) {
 // List of all algs as per NIST level
 // ToDo: Generate automatically
 
-var l1algs =  "bike1-l1-fo bike1l1fo kyber512 kyber512-90s kyber90s512 classic-mceliece-348864 classic-mceliece-348864f lightsaber-kem lightsaber hqc-128-1-cca2 hqc128_1_cca2 frodokem-640-aes frodo640aes frodokem-640-shake frodo640shake ntru-hps-2048-509 ntru_hps2048509 sidh-p434 sidhp434 sidh-p434-compressed sidh-p503 sidhp503 sidh-p503-compressed sike-p434 sikep434 sike-p434-compressed sike-p503 sike-p503-compressed sikep503 dilithium_2 dilithium_3 falcon-512 picnic3_l1 picnic_l1_fs picnic_l1_ur picnic_l1_full rainbow-ia-cyclic rainbow-ia-cyclic-compressed rainbow-ia-cyclic sphincs+-shake256-128s-simple sphincs+-shake256-128s-robust sphincs+-shake256-128f-simple sphincs+-shake256-128f-robust sphincs+-sha256-128s-simple sphincs+-sha256-128s-robust sphincs+-sha256-128f-simple sphincs+-sha256-128f-robust sphincs+-haraka-128s-simple sphincs+-haraka-128s-robust sphincs+-haraka-128f-simple sphincs+-haraka-128f-robust" ;
-var l3algs =  "bike1-l3-fo bike1l3fo kyber768 kyber768-90s kyber90s768 classic-mceliece-460896 classic-mceliece-460896f saber-kem saber hqc-192-1-cca2 hqc192_1_cca2 hqc-192-2-cca2 hqc192_2_cca2 frodokem-976-aes frodo976aes frodokem-976-shake frodo976shake ntru-hps-2048-677 ntru_hps2048677 ntru-hrss-701 ntru_hrss701 sidh-p610 sidhp610 sidh-p610-compressed sike-p610 sikep610 sike-p610-compressed dilithium_4 picnic3_l3 picnic_l3_fs picnic_l3_ur picnic_l3_full rainbow-iiic-classic rainbow-iiic-cyclic rainbow-iiic-cyclic-compressed rainbow-iiic-cyclic sphincs+-haraka-192s-simple sphincs+-haraka-192s-robust sphincs+-haraka-192f-simplesphincs+-haraka-192f-robust sphincs+-sha256-192s-simple sphincs+-sha256-192s-robustsphincs+-sha256-192f-simple sphincs+-sha256-192f-robust sphincs+-shake256-192s-simple sphincs+-shake256-192s-robust sphincs+-shake256-192f-simple sphincs+-shake256-192f-robust " ;
+var l1algs =  "bike1-l1-fo bike1l1fo kyber512 kyber512-90s kyber90s512 classic-mceliece-348864 classic-mceliece-348864f lightsaber-kem lightsaber hqc-128-1-cca2 hqc128_1_cca2 frodokem-640-aes frodo640aes frodokem-640-shake frodo640shake ntru-hps-2048-509 ntru_hps2048509 sidh-p434 sidhp434 sidh-p434-compressed sidh-p503 sidhp503 sidh-p503-compressed sike-p434 sikep434 sike-p434-compressed sike-p503 sike-p503-compressed sikep503 dilithium_2 dilithium_3 falcon-512 picnic3_l1 picnic_l1_fs picnic_l1_ur picnic_l1_full rainbow-ia-cyclic rainbow-ia-cyclic-compressed rainbow-ia-cyclic sphincs+-shake256-128s-simple sphincs+-shake256-128s-robust sphincs+-shake256-128f-simple sphincs+-shake256-128f-robust sphincs+-sha256-128s-simple sphincs+-sha256-128s-robust sphincs+-sha256-128f-simple sphincs+-sha256-128f-robust sphincs+-haraka-128s-simple sphincs+-haraka-128s-robust sphincs+-haraka-128f-simple sphincs+-haraka-128f-robust ntrulpr653 sntrup653" ;
+var l3algs =  "bike1-l3-fo bike1l3fo kyber768 kyber768-90s kyber90s768 classic-mceliece-460896 classic-mceliece-460896f saber-kem saber hqc-192-1-cca2 hqc192_1_cca2 hqc-192-2-cca2 hqc192_2_cca2 frodokem-976-aes frodo976aes frodokem-976-shake frodo976shake ntru-hps-2048-677 ntru_hps2048677 ntru-hrss-701 ntru_hrss701 sidh-p610 sidhp610 sidh-p610-compressed sike-p610 sikep610 sike-p610-compressed dilithium_4 picnic3_l3 picnic_l3_fs picnic_l3_ur picnic_l3_full rainbow-iiic-classic rainbow-iiic-cyclic rainbow-iiic-cyclic-compressed rainbow-iiic-cyclic sphincs+-haraka-192s-simple sphincs+-haraka-192s-robust sphincs+-haraka-192f-simplesphincs+-haraka-192f-robust sphincs+-sha256-192s-simple sphincs+-sha256-192s-robustsphincs+-sha256-192f-simple sphincs+-sha256-192f-robust sphincs+-shake256-192s-simple sphincs+-shake256-192s-robust sphincs+-shake256-192f-simple sphincs+-shake256-192f-robust ntrulpr761 ntrulpr857 sntrup761 sntrup857" ;
 var l5algs =  "kyber1024 kyber1024-90s kyber90s1024 classic-mceliece-6688128 classic-mceliece-6688128f classic-mceliece-6960119 classic-mceliece-6960119f classic-mceliece-8192128 classic-mceliece-8192128f firesaber-kem firesaber hqc-256-1-cca2 hqc256_1_cca2 hqc-256-2-cca2 hqc256_2_cca2 hqc-256-3-cca2 hqc256_3_cca2 frodokem-1344-aes frodo1344aes frodokem-1344-shake frodo1344shake ntru-hps-4096-821 ntru_hps4096821 sidh-p751 sidhp751 sidh-p751-compressed sike-p751 sikep751 sike-p751-compressed falcon-1024 picnic3_l5 picnic_l5_fs picnic_l5_ur picnic_l5_full rainbow-vc-classic rainbow-vc-cyclic rainbow-vc-cyclic-compressed rainbow-vc-cyclici sphincs+-shake256-256s-simple sphincs+-shake256-256s-robust sphincs+-shake256-256f-simple sphincs+-shake256-256f-robust sphincs+-sha256-256s-simple sphincs+-sha256-256s-robust sphincs+-sha256-256f-simple sphincs+-sha256-256f-robust sphincs+-haraka-256s-simple sphincs+-haraka-256s-robust sphincs+-haraka-256f-simple sphincs+-haraka-256f-robust" ;
 
 // check whether a specific algorithm (alg) is NOT OK at a given level (setLevel)
