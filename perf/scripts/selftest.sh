@@ -7,7 +7,7 @@ if [ $? != 0 ]; then
    exit 1
 fi
 
-./scripts/mount_s3.sh /tmp/test | grep "expects BUCKETSECRETS"
+./mount_s3.sh /tmp/test | grep "expects BUCKETSECRETS"
 
 if [ $? != 0 ]; then
    echo "mount harness failing. Test failure."
