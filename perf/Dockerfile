@@ -81,8 +81,8 @@ ENV OPENSSL=${INSTALLDIR}/bin/openssl
 ENV OPENSSL_CNF=${INSTALLDIR}/ssl/openssl.cnf
 
 WORKDIR ${INSTALLDIR}/bin
+# generate CA key and cert
 RUN set -x && \
-    # generate CA key and cert
     ${OPENSSL} req -x509 -new -newkey ${SIG_ALG} -keyout CA.key -out CA.crt -nodes -subj "/CN=oqstest CA" -days 365 -config ${OPENSSL_CNF} 
 
 # build curl - injecting OQS CA generated above into root store
