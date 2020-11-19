@@ -35,7 +35,7 @@ jobs:
             # The CircleCI executor offers 35 cores, but using
             # all of them might exhaust memory
             docker build --build-arg MAKE_DEFINES="-j 18" -t oqs-perf . &&
-            docker run -it oqs-perf selftest.sh 
+            docker run -it oqs-perf /opt/test/selftest.sh
           working_directory: perf
       - when:
           condition:
