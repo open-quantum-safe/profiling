@@ -37,5 +37,6 @@ for f in sorted(files.keys(), key=lambda k: k):
       with open(os.path.join(outdir, i+".list"), "a+") as fp:
          fp.write(str(f)+"/"+i+".json\n")
    # extract data files to correct location:
+   print("extracting "+files[f]);
    os.system("tar xzvf "+files[f]+" && mv results "+os.path.join(outdir, str(f)))
 

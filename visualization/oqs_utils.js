@@ -10,7 +10,7 @@ function RetrieveData(url, async) {
       if (xhr.readyState === 4) {
         if (xhr.status === 200) {
             jd = JSON.parse(xhr.responseText);
-            var nro = undefined;
+            var nro = undefined; // candidate new reference object
             if (jsonarray[date] == undefined) {
                  jsonarray[date]={};
             }
@@ -31,11 +31,21 @@ function RetrieveData(url, async) {
                }
             });
 
-            if (refobj==undefined && nro!=undefined) {
-              refobj=nro;
-              document.getElementById("date").value = date;
-              LoadData(false);
+            if (nro != undefined) { // candidate new refobj available
+              if (refobj==undefined) { // take nro as refobj
+                 refobj=nro;
+                 document.getElementById("date").value = date;
+                 LoadData(false);
+               }
+               else { // check whether nro contains more keys than refobj; if so, set refobj to nro
+                 Object.keys(nro).forEach(function(key) {
+                   if (refobj[key]==undefined) {
+                      refobj=nro;
+                   }
+                });
+               }
             }
+            // activate this code to automatically show all data if all requested data sets have arrived; warning: Information overload :-)
             //if (Object.keys(jsonarray).length == alloperations.length) {
             //  CleanSlate();
             //  LoadData(false);
