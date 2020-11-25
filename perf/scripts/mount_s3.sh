@@ -23,5 +23,10 @@ else
    chmod 600 ~/.passwd-s3fs
    mkdir -p ${LOCALBUCKETPATH}
    s3fs ${BUCKETNAME} ${LOCALBUCKETPATH}
-   echo "$BUCKETNAME mounted"
+   if [ $? -eq 0 ]; then
+      echo "$BUCKETNAME mounted"
+   else
+      echo "Mount failed"
+      exit 1
+   fi
 fi
