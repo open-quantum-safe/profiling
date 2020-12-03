@@ -6,6 +6,9 @@ var decapChart=undefined;
 // the data set
 var jsonarray;
 
+// the data to show
+var heapOrStack = undefined;
+
 // the reference object (jsonarray of date containing maximum set of data)
 var refobj;
 
@@ -13,17 +16,14 @@ var refobj;
 var alloperations = []; // becomes date list in series display
 var currentoperations = [];
 
-// initialization status
-var fullInitDone = false;
-
 // fill numberstable HTML element as per indicated header information
 // tabledata must match header structure
 function fillNumberTable(tabledata, setDate) {
    var ntable = document.getElementById('numberstable');
    clearTable(ntable);
    if (tabledata.length > 0) {
-     fillDownloadTable(setDate, "speed_kem.json");
-     addHeader(ntable, "Algorithm keygen/s keygen(cycles) encaps/s encap(cycles) decaps/s decaps(cycles)");
+     fillDownloadTable(setDate, "mem_kem.json");
+     addHeader(ntable, "Algorithm keygen(maxHeap) keygen(maxStack) encaps(maxHeap) encap(maxStack) decaps(maxHeap) decaps(maxStack)");
      tabledata.forEach(function (item, index) {
         tr = ntable.insertRow(-1);
         row = item;
@@ -52,6 +52,7 @@ function CleanSlate() {
        encapChart=undefined;
        decapChart.destroy();
        decapChart=undefined;
+       heapOrStack=undefined;
 }
 
 // called upon any filter change
@@ -63,7 +64,7 @@ function SubmitKEMForm(event) {
     var dateOption = document.getElementById('date');
     var d = formData.get("date")
     // if toggling between specific date and series, redo chart (e.g., changing type)
-    if ((d!="All")||(currentoperations.length!=alloperations.length)) {
+    if ((d!="All")||(currentoperations.length!=alloperations.length)||(heapOrStack!=formData.get("memselector"))) {
        CleanSlate();
     }
     LoadData(false);
@@ -80,6 +81,10 @@ function LoadData(fullInit, cleanSlate) {
     var decapdatasets=[];
     var dscount=0;
     var charttype = "bar";
+
+    if (heapOrStack == undefined) {
+      heapOrStack = formData.get("memselector");;
+    }
 
     if (cleanSlate) {
        CleanSlate();
@@ -114,9 +119,9 @@ function LoadData(fullInit, cleanSlate) {
          for (var date in jsonarray) {
            if ((setDate==undefined)||(setDate=="All")||(setDate==date)) {
               try { // not all dates may be filled with numbers
-                 ka[i] = jsonarray[date][key].keygen;
-                 ea[i] = jsonarray[date][key].encaps;
-                 da[i] = jsonarray[date][key].decaps;
+                 ka[i] = jsonarray[date][key]["keygen"][heapOrStack];
+                 ea[i] = jsonarray[date][key]["encaps"][heapOrStack];
+                 da[i] = jsonarray[date][key]["decaps"][heapOrStack];
               }
               catch(e) {
                  ka[i] = ea[i] = da[i] = NaN;
@@ -174,7 +179,7 @@ function LoadData(fullInit, cleanSlate) {
          dscount++;
        }
        else { // add to config table
-         if ((!fullInitDone || fullInit) && filterOQSKeyByName(key)!=undefined) {
+         if (fullInit && filterOQSKeyByName(key)!=undefined) {
             var table = document.getElementById('configtable');
             Object.keys(refobj[key]).sort().forEach(function(r) {
                var tr = table.insertRow(-1);
@@ -190,7 +195,6 @@ function LoadData(fullInit, cleanSlate) {
          }
        }
    });
-   if (!fullInitDone) fullInitDone=true;
    var keygenmin = parseInt(formData.get("keygenmin"));
    var encapmin = parseInt(formData.get("encapmin"));
    var decapmin = parseInt(formData.get("decapmin"));
@@ -210,7 +214,7 @@ function LoadData(fullInit, cleanSlate) {
            yAxes: [{
              scaleLabel: {
                display: true,
-               labelString: 'key generations/s'
+               labelString: 'Bytes'
              }
            }]
          }
@@ -229,7 +233,7 @@ function LoadData(fullInit, cleanSlate) {
            yAxes: [{
              scaleLabel: {
                display: true,
-               labelString: 'encap/s'
+               labelString: 'Bytes'
              }
            }]
          }
@@ -249,7 +253,7 @@ function LoadData(fullInit, cleanSlate) {
            yAxes: [{
              scaleLabel: {
                display: true,
-               labelString: 'decap/s'
+               labelString: 'Bytes'
              }
            }]
          }
@@ -261,9 +265,9 @@ function LoadData(fullInit, cleanSlate) {
    for (i = 0; i < keygenChart.data.datasets.length; i++) { 
        if (
           // check values at reference object/date to decide what to keep globally
-          (refobj[keygenChart.data.datasets[i].label]["keygen"]<keygenmin)||
-          (refobj[encapChart.data.datasets[i].label]["encaps"]<encapmin)||
-          (refobj[decapChart.data.datasets[i].label]["decaps"]<decapmin)||
+          (refobj[keygenChart.data.datasets[i].label]["keygen"][heapOrStack]>keygenmin)||
+          (refobj[encapChart.data.datasets[i].label]["encaps"][heapOrStack]>encapmin)||
+          (refobj[decapChart.data.datasets[i].label]["decaps"][heapOrStack]>decapmin)||
           (nOKAtNISTLevel(formData.get("nistlevel"), keygenChart.data.datasets[i].label))||
           (!isSelectedOQSFamily(keygenChart.data.datasets[i].label))
          ) {
@@ -275,7 +279,7 @@ function LoadData(fullInit, cleanSlate) {
          if (setDate!="All") {
            var k = keygenChart.data.datasets[i].label;
            try {
-              tabledata.push([ k, jsonarray[setDate][k].keygen, jsonarray[setDate][k].keygencycles, jsonarray[setDate][k].encaps, jsonarray[setDate][k].encapscycles, jsonarray[setDate][k].decaps, jsonarray[setDate][k].decapscycles ]);
+              tabledata.push([ k, jsonarray[setDate][k]["keygen"]["maxHeap"], jsonarray[setDate][k]["keygen"]["maxStack"], jsonarray[setDate][k]["encaps"]["maxHeap"], jsonarray[setDate][k]["encaps"]["maxStack"], jsonarray[setDate][k]["decaps"]["maxHeap"], jsonarray[setDate][k]["decaps"]["maxStack"] ]);
            }
            catch (e) { // ref data may not be present
               tabledata.push([ k, undefined, undefined, undefined, undefined, undefined, undefined ]);

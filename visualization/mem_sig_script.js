@@ -1,10 +1,13 @@
 // the Charts to display
 var keygenChart=undefined;
-var encapChart=undefined;
-var decapChart=undefined;
+var signChart=undefined;
+var verifyChart=undefined;
 
 // the data set
 var jsonarray;
+
+// the data to show
+var heapOrStack = undefined;
 
 // the reference object (jsonarray of date containing maximum set of data)
 var refobj;
@@ -13,17 +16,14 @@ var refobj;
 var alloperations = []; // becomes date list in series display
 var currentoperations = [];
 
-// initialization status
-var fullInitDone = false;
-
 // fill numberstable HTML element as per indicated header information
 // tabledata must match header structure
 function fillNumberTable(tabledata, setDate) {
    var ntable = document.getElementById('numberstable');
    clearTable(ntable);
    if (tabledata.length > 0) {
-     fillDownloadTable(setDate, "speed_kem.json");
-     addHeader(ntable, "Algorithm keygen/s keygen(cycles) encaps/s encap(cycles) decaps/s decaps(cycles)");
+     fillDownloadTable(setDate, "mem_sig.json");
+     addHeader(ntable, "Algorithm keygen(maxHeap) keygen(maxStack) signs(maxHeap) sign(maxStack) verifys(maxHeap) verifys(maxStack)");
      tabledata.forEach(function (item, index) {
         tr = ntable.insertRow(-1);
         row = item;
@@ -48,14 +48,15 @@ function fillNumberTable(tabledata, setDate) {
 function CleanSlate() {
        keygenChart.destroy();
        keygenChart=undefined;
-       encapChart.destroy();
-       encapChart=undefined;
-       decapChart.destroy();
-       decapChart=undefined;
+       signChart.destroy();
+       signChart=undefined;
+       verifyChart.destroy();
+       verifyChart=undefined;
+       heapOrStack=undefined;
 }
 
 // called upon any filter change
-function SubmitKEMForm(event) {
+function SubmitSIGForm(event) {
     var filterForm = document.getElementById('filterForm');
     var formData = new FormData(filterForm);
     filterForm.addEventListener('submit', preventFormHandling);
@@ -63,7 +64,7 @@ function SubmitKEMForm(event) {
     var dateOption = document.getElementById('date');
     var d = formData.get("date")
     // if toggling between specific date and series, redo chart (e.g., changing type)
-    if ((d!="All")||(currentoperations.length!=alloperations.length)) {
+    if ((d!="All")||(currentoperations.length!=alloperations.length)||(heapOrStack!=formData.get("memselector"))) {
        CleanSlate();
     }
     LoadData(false);
@@ -76,10 +77,14 @@ function LoadData(fullInit, cleanSlate) {
     var filterForm = document.getElementById('filterForm');
     var formData = new FormData(filterForm);
     var keygendatasets=[];
-    var encapdatasets=[];
-    var decapdatasets=[];
+    var signdatasets=[];
+    var verifydatasets=[];
     var dscount=0;
     var charttype = "bar";
+
+    if (heapOrStack == undefined) {
+      heapOrStack = formData.get("memselector");;
+    }
 
     if (cleanSlate) {
        CleanSlate();
@@ -114,9 +119,9 @@ function LoadData(fullInit, cleanSlate) {
          for (var date in jsonarray) {
            if ((setDate==undefined)||(setDate=="All")||(setDate==date)) {
               try { // not all dates may be filled with numbers
-                 ka[i] = jsonarray[date][key].keygen;
-                 ea[i] = jsonarray[date][key].encaps;
-                 da[i] = jsonarray[date][key].decaps;
+                 ka[i] = jsonarray[date][key]["keygen"][heapOrStack];
+                 ea[i] = jsonarray[date][key]["sign"][heapOrStack];
+                 da[i] = jsonarray[date][key]["verify"][heapOrStack];
               }
               catch(e) {
                  ka[i] = ea[i] = da[i] = NaN;
@@ -137,14 +142,14 @@ function LoadData(fullInit, cleanSlate) {
               fill: false,
               data: ka
             }
-            encapdatasets[dscount]={
+            signdatasets[dscount]={
               borderColor: getColor(key),
               borderDash: borderdash,
               label: key,
               fill: false,
               data: ea
             }
-            decapdatasets[dscount]={
+            verifydatasets[dscount]={
               borderColor: getColor(key),
               borderDash: borderdash,
               hidden: false,
@@ -159,12 +164,12 @@ function LoadData(fullInit, cleanSlate) {
               label: key,
               data: ka
             }
-            encapdatasets[dscount]={
+            signdatasets[dscount]={
               backgroundColor: getColor(key),
               label: key,
               data: ea
             }
-            decapdatasets[dscount]={
+            verifydatasets[dscount]={
               backgroundColor: getColor(key),
               hidden: false,
               label: key,
@@ -174,7 +179,7 @@ function LoadData(fullInit, cleanSlate) {
          dscount++;
        }
        else { // add to config table
-         if ((!fullInitDone || fullInit) && filterOQSKeyByName(key)!=undefined) {
+         if (fullInit && filterOQSKeyByName(key)!=undefined) {
             var table = document.getElementById('configtable');
             Object.keys(refobj[key]).sort().forEach(function(r) {
                var tr = table.insertRow(-1);
@@ -190,10 +195,9 @@ function LoadData(fullInit, cleanSlate) {
          }
        }
    });
-   if (!fullInitDone) fullInitDone=true;
    var keygenmin = parseInt(formData.get("keygenmin"));
-   var encapmin = parseInt(formData.get("encapmin"));
-   var decapmin = parseInt(formData.get("decapmin"));
+   var signmin = parseInt(formData.get("signmin"));
+   var verifymin = parseInt(formData.get("verifymin"));
    if (keygenChart===undefined) {
       keygenChart = new Chart(document.getElementById("keygenChart"), {
         type: charttype,
@@ -204,32 +208,32 @@ function LoadData(fullInit, cleanSlate) {
         options: {
           legend: {
             // Possible ToDo: React on clicks to legend
-            //onClick: KEMlegendClickHandler
+            //onClick: SIGlegendClickHandler
           },
           scales: {
            yAxes: [{
              scaleLabel: {
                display: true,
-               labelString: 'key generations/s'
+               labelString: 'Bytes'
              }
            }]
          }
         }
       });
    }
-   if (encapChart===undefined) {
-      encapChart = new Chart(document.getElementById("encapChart"), {
+   if (signChart===undefined) {
+      signChart = new Chart(document.getElementById("signChart"), {
         type: charttype,
         data: {
           labels: currentoperations,
-          datasets: encapdatasets
+          datasets: signdatasets
         },
         options: {
           scales: {
            yAxes: [{
              scaleLabel: {
                display: true,
-               labelString: 'encap/s'
+               labelString: 'Bytes'
              }
            }]
          }
@@ -237,19 +241,19 @@ function LoadData(fullInit, cleanSlate) {
 
       });
    }
-   if (decapChart===undefined) {
-      decapChart = new Chart(document.getElementById("decapChart"), {
+   if (verifyChart===undefined) {
+      verifyChart = new Chart(document.getElementById("verifyChart"), {
         type: charttype,
         data: {
           labels: currentoperations,
-          datasets: decapdatasets
+          datasets: verifydatasets
         },
         options: {
           scales: {
            yAxes: [{
              scaleLabel: {
                display: true,
-               labelString: 'decap/s'
+               labelString: 'Bytes'
              }
            }]
          }
@@ -261,34 +265,34 @@ function LoadData(fullInit, cleanSlate) {
    for (i = 0; i < keygenChart.data.datasets.length; i++) { 
        if (
           // check values at reference object/date to decide what to keep globally
-          (refobj[keygenChart.data.datasets[i].label]["keygen"]<keygenmin)||
-          (refobj[encapChart.data.datasets[i].label]["encaps"]<encapmin)||
-          (refobj[decapChart.data.datasets[i].label]["decaps"]<decapmin)||
+          (refobj[keygenChart.data.datasets[i].label]["keygen"][heapOrStack]>keygenmin)||
+          (refobj[signChart.data.datasets[i].label]["sign"][heapOrStack]>signmin)||
+          (refobj[verifyChart.data.datasets[i].label]["verify"][heapOrStack]>verifymin)||
           (nOKAtNISTLevel(formData.get("nistlevel"), keygenChart.data.datasets[i].label))||
           (!isSelectedOQSFamily(keygenChart.data.datasets[i].label))
          ) {
            keygenChart.data.datasets[i].hidden=true;
-           encapChart.data.datasets[i].hidden=true;
-           decapChart.data.datasets[i].hidden=true;
+           signChart.data.datasets[i].hidden=true;
+           verifyChart.data.datasets[i].hidden=true;
        }
        else {
          if (setDate!="All") {
            var k = keygenChart.data.datasets[i].label;
            try {
-              tabledata.push([ k, jsonarray[setDate][k].keygen, jsonarray[setDate][k].keygencycles, jsonarray[setDate][k].encaps, jsonarray[setDate][k].encapscycles, jsonarray[setDate][k].decaps, jsonarray[setDate][k].decapscycles ]);
+              tabledata.push([ k, jsonarray[setDate][k]["keygen"]["maxHeap"], jsonarray[setDate][k]["keygen"]["maxStack"], jsonarray[setDate][k]["sign"]["maxHeap"], jsonarray[setDate][k]["sign"]["maxStack"], jsonarray[setDate][k]["verify"]["maxHeap"], jsonarray[setDate][k]["verify"]["maxStack"] ]);
            }
            catch (e) { // ref data may not be present
               tabledata.push([ k, undefined, undefined, undefined, undefined, undefined, undefined ]);
            }
          }
          keygenChart.data.datasets[i].hidden=false;
-         encapChart.data.datasets[i].hidden=false;
-         decapChart.data.datasets[i].hidden=false;
+         signChart.data.datasets[i].hidden=false;
+         verifyChart.data.datasets[i].hidden=false;
        }
      }
      keygenChart.update();
-     encapChart.update();
-     decapChart.update();
+     signChart.update();
+     verifyChart.update();
      fillNumberTable(tabledata, setDate);
 }
 

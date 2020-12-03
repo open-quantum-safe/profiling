@@ -4,7 +4,7 @@ import os
 import re
 import datetime
 
-gen_files = [ "speed_kem", "speed_sig", "speed", "handshakes", "speed_kem-ref", "speed_sig-ref", "speed-ref", "handshakes-ref" ]
+gen_files = [ "speed_kem", "speed_sig", "speed", "handshakes", "speed_kem-ref", "speed_sig-ref", "speed-ref", "handshakes-ref", "mem_kem", "mem_sig", "mem_kem-ref", "mem_sig-ref" ]
 
 # will contain list of date/tgz-filename paths to be used for generating .list files:
 files = {}

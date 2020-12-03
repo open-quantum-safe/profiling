@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>OQS benchmarking</title>
+    <link rel="stylesheet" type="text/css" href="oqs-style.css">
+  </head>
+  <body>
+      <h1>OQS algorithm benchmarking visualizations</h1>
+      These pages are OQS benchmark visualizations of measurements taken by the <a href="https://github.com/open-quantum-safe/speed">OQS speed</a> project.
+
+      <ol>
+	      <li><a href="speed_kem_series.html">KEM algorithms timeseries</a> (liboqs speed_kem)
+	      <li><a href="mem_kem_series.html">KEM algorithms memory consumption timeseries</a> (liboqs test_kem_mem)
+	      <li><a href="speed_sig_series.html">SIG algorithms timeseries</a> (liboqs speed_sig)
+	      <li><a href="mem_sig_series.html">SIG algorithms memory consumption timeseries</a> (liboqs test_sig_mem)
+	      <li><a href="openssl_speed_series.html">KEM/SIG algorithms</a> (openssl speed)
+	      <li><a href="handshakes_series.html">TLS handshakes</a> (openssl s_time)
+      </ol>
+      Measurements have been taken on an AWS c4 instance with O3 compile optimizations. Algorithms labelled <i>-ref</i> are reference (C-code only) implementations compiled without special CPU feature support. Algorithms without this moniker are compiled with all CPU extensions available to achieve best performance figures. <br>These graphs will be extended over time to other CPU (types) and cloud infrastructures.
+  </body>
+</html>
