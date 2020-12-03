@@ -84,7 +84,6 @@ RUN set -x && \
 
 # build curl - injecting OQS CA generated above into root store
 WORKDIR /opt/curl-${CURL_VERSION}
-RUN patch -p1 < /opt/patch-${CURL_VERSION}.oqs.txt
 
 # Download and integrate LetsEncrypt Root CA to CA bundle
 RUN wget https://letsencrypt.org/certs/letsencryptauthorityx3.pem.txt && cat ${INSTALLDIR}/bin/CA.crt >> letsencryptauthorityx3.pem.txt 
