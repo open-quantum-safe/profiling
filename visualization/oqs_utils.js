@@ -421,7 +421,7 @@ function loadJSONArray(formData, loadRef, refarray) {
           // add dates only at first run (where dataOption only contains default "All" entry)
           var filldates = (dateOption.options.length==1);
           var idx = 0;
-          urls.forEach(function (url, index) {
+          urls.reverse().forEach(function (url, index) {
             if (url.length>0) {
                 d = url.substring(0, url.indexOf("/"));
                 try {
