@@ -13,6 +13,9 @@ var refobj;
 var alloperations = []; // becomes date list in series display
 var currentoperations = [];
 
+// initialization status
+var fullInitDone = false;
+
 // fill numberstable HTML element as per indicated header information
 // tabledata must match header structure
 function fillNumberTable(tabledata, setDate) {
@@ -171,7 +174,7 @@ function LoadData(fullInit, cleanSlate) {
          dscount++;
        }
        else { // add to config table
-         if (fullInit && filterOQSKeyByName(key)!=undefined) {
+         if ((!fullInitDone || fullInit) && filterOQSKeyByName(key)!=undefined) {
             var table = document.getElementById('configtable');
             Object.keys(refobj[key]).sort().forEach(function(r) {
                var tr = table.insertRow(-1);
@@ -187,6 +190,7 @@ function LoadData(fullInit, cleanSlate) {
          }
        }
    });
+   if (!fullInitDone) fullInitDone=true;
    var keygenmin = parseInt(formData.get("keygenmin"));
    var signmin = parseInt(formData.get("signmin"));
    var verifymin = parseInt(formData.get("verifymin"));

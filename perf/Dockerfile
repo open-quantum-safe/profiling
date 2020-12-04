@@ -1,7 +1,7 @@
 # Multi-stage build: First the full builder image:
 
 # define the Curl version to be baked in
-ARG CURL_VERSION=7.69.1
+ARG CURL_VERSION=7.73.0
 
 # define the S3FS version to be baked in
 ARG S3FS_VERSION=1.82
@@ -47,13 +47,10 @@ RUN apk add build-base linux-headers \
 
 # get all sources
 WORKDIR /opt
-RUN git clone --depth 1 --branch master https://github.com/open-quantum-safe/liboqs && \
+RUN git clone --depth 1 --branch main https://github.com/open-quantum-safe/liboqs && \
     git clone --depth 1 --branch OQS-OpenSSL_1_1_1-stable https://github.com/open-quantum-safe/openssl ossl-src && \
     wget https://curl.haxx.se/download/curl-${CURL_VERSION}.tar.gz && tar -zxvf curl-${CURL_VERSION}.tar.gz && \
     wget https://github.com/s3fs-fuse/s3fs-fuse/archive/v${S3FS_VERSION}.tar.gz && tar -xzvf v${S3FS_VERSION}.tar.gz
-
-# Add curl patchfile
-ADD patch-${CURL_VERSION}.oqs.txt /opt/patch-${CURL_VERSION}.oqs.txt
 
 # build s3fs:
 WORKDIR /opt/s3fs-fuse-${S3FS_VERSION}
@@ -87,7 +84,6 @@ RUN set -x && \
 
 # build curl - injecting OQS CA generated above into root store
 WORKDIR /opt/curl-${CURL_VERSION}
-RUN patch -p1 < /opt/patch-${CURL_VERSION}.oqs.txt
 
 # Download and integrate LetsEncrypt Root CA to CA bundle
 RUN wget https://letsencrypt.org/certs/letsencryptauthorityx3.pem.txt && cat ${INSTALLDIR}/bin/CA.crt >> letsencryptauthorityx3.pem.txt 
@@ -120,7 +116,7 @@ ARG INSTALLDIR
 ARG SIG_ALG
 
 # Dependencies for logfile analysis and S3FS:
-RUN apk add python3 fuse libxml2 curl libstdc++6 git && ln -s /usr/lib/gcc/x86_64-alpine-linux-musl/6.4.0/libstdc\+\+.so.6 /usr/lib/libstdc\+\+.so.6 && rm -rf /var/cache/apk/*;
+RUN apk add python3 fuse libxml2 curl libstdc++6 git valgrind perl && ln -s /usr/lib/gcc/x86_64-alpine-linux-musl/6.4.0/libstdc\+\+.so.6 /usr/lib/libstdc\+\+.so.6 && rm -rf /var/cache/apk/*;
 
 # Move s3fs over...
 COPY --from=intermediate /usr/bin/s3fs /usr/bin/s3fs
@@ -131,6 +127,11 @@ COPY --from=intermediate /opt/liboqs/build-static/tests/speed_kem ${INSTALLDIR}/
 COPY --from=intermediate /opt/liboqs/build-static/tests/speed_sig ${INSTALLDIR}/bin/speed_sig
 COPY --from=intermediate /opt/liboqs/build-static-ref/tests/speed_kem ${INSTALLDIR}/bin/speed_kem-ref
 COPY --from=intermediate /opt/liboqs/build-static-ref/tests/speed_sig ${INSTALLDIR}/bin/speed_sig-ref
+# Also retain liboqs test_mem-executables
+COPY --from=intermediate /opt/liboqs/build-static/tests/test_kem_mem ${INSTALLDIR}/bin/test_kem_mem
+COPY --from=intermediate /opt/liboqs/build-static/tests/test_sig_mem ${INSTALLDIR}/bin/test_sig_mem
+COPY --from=intermediate /opt/liboqs/build-static-ref/tests/test_kem_mem ${INSTALLDIR}/bin/test_kem_mem-ref
+COPY --from=intermediate /opt/liboqs/build-static-ref/tests/test_sig_mem ${INSTALLDIR}/bin/test_sig_mem-ref
 
 # set path to use 'new' openssl & curl. Dyn libs have been properly linked in to match
 ENV PATH="${INSTALLDIR}/bin:${PATH}"

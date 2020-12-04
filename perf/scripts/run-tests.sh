@@ -13,6 +13,10 @@ mkdir -p results
 echo "Starting liboqs speed tests..."
 ./liboqs-test.sh
 
+echo "Starting liboqs memory tests..."
+python3 run_mem.py test_kem_mem && mv test_kem_mem.json results/mem_kem.json
+python3 run_mem.py test_sig_mem && mv test_sig_mem.json results/mem_sig.json
+
 echo "Starting openssl speed tests..."
 ./openssl-test.sh
 
@@ -27,6 +31,10 @@ cp /opt/oqssa/oqs-ref/lib/liboqs.so.0.4.0 /opt/oqssa/lib/liboqs.so.0.4.0
 echo "Done."
 echo "Starting openssl speed tests (ref)..."
 ./openssl-test.sh -ref
+
+echo "Starting liboqs memory tests..."
+python3 run_mem.py test_kem_mem-ref && mv test_kem_mem-ref.json results/mem_kem-ref.json
+python3 run_mem.py test_sig_mem-ref && mv test_sig_mem-ref.json results/mem_sig-ref.json
 
 # About 1100 tests: Multiply with test runtime set by second parameter:
 # Save away previous test results
