@@ -1,3 +1,5 @@
+[![open-quantum-safe](https://circleci.com/gh/open-quantum-safe/speed.svg?style=svg)](https://app.circleci.com/pipelines/github/open-quantum-safe/speed)
+
 # speed
 Performance testing
 
