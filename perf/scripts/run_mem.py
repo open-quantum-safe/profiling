@@ -80,8 +80,8 @@ for line in outs.splitlines():
 for alg in algs:
    data[alg]={}
    # Activate this for a quick test:
-   if alg=="BIKE1-L3-FO" or alg=="DILITHIUM_3":
-     for i in range(3):
+   #if alg=="BIKE1-L3-FO" or alg=="DILITHIUM_3":
+   for i in range(3):
       do_test(alg, i, methnames, exepath)
 
 # Dump data
