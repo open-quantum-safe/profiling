@@ -11,7 +11,7 @@
       Memory utilization per algorithm in Bytes
     <script src="oqs_utils.js"></script>
 
-     <h3>Set minimum values (set to include/exclude algorithms)</h3>
+     <h3>Set maximum values (set to include/exclude algorithms)</h3>
      <form id="filterForm" name="filterForm" onsubmit="SubmitSIGForm(event);">
        <input type="hidden" id="datafile" name="datafile" value="mem_sig.list">
        <select id="memselector" name="memselector" onchange="SubmitSIGForm(event)">
@@ -58,9 +58,9 @@
      <table id="numberstable" name="numberstable"></table>
      <h3>Keygen (click algorithm name to enable/disable)</h3>
        <canvas id="keygenChart" width="1200" height="700"></canvas>
-     <h3>Encap & values (click algorithm name to enable/disable)</h3>
+     <h3>Signs & values (click algorithm name to enable/disable)</h3>
        <canvas id="signChart" width="1600" height="900"></canvas>
-     <h3>Decap & values (click algorithm name to enable/disable)</h3>
+     <h3>Verify & values (click algorithm name to enable/disable)</h3>
        <canvas id="verifyChart" width="1600" height="900"></canvas>
      <h3>Configuration information</h3>
        <table id="configtable" name="configtable">

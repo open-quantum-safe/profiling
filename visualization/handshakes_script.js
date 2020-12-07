@@ -98,7 +98,8 @@ function LoadData(fullInit, cleanSlate) {
          else {
             currentoperations=alloperations;
          }
-         for (var date in jsonarray) {
+         for (var i in currentoperations) {
+           var date = currentoperations[i];
            if ((setDate==undefined)||(setDate=="All")||(setDate==date)) {
               try {
                 hs[i] = jsonarray[date][sigalg][key];

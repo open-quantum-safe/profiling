@@ -1,3 +1,5 @@
+[![open-quantum-safe](https://circleci.com/gh/open-quantum-safe/speed.svg?style=svg)](https://app.circleci.com/pipelines/github/open-quantum-safe/speed)
+
 # speed
 Performance testing
 
@@ -6,7 +8,7 @@ Performance testing
 This repository is to contain software geared to collect performance numbers across the algorithms supported by liboqs at different levels of the software and network stack.
 
 Particularly, measurements will be collected using 
-1) ´liboqs´ library-level performance testing using ´speed_sig´ and ´speed_kem´
+1) ´liboqs´ library-level performance testing using ´speed_sig´ and ´speed_kem´ for execution performance numbers and ´test_sig_mem´ and ´test_kem_mem´ for memory consumption numbers (heap and stack)
 2) ´openssl´ application-level performance testing using ´speed´
 3) ´openssl´ "basic network"-level raw handshake performance testing using ´s_time´
 4) "Simulated"/controlled network-level performance testing [not yet implemented]
@@ -22,4 +24,4 @@ All tests
 - allow to also collect/document performance numbers of classic crypto to permit comparison with PQC algorithms
 - can be visualized by suitable Chart.js code: see [visualization folder](https://github.com/open-quantum-safe/speed/tree/master/visualization).
 
-Wrapper scripts are created to facilitate automatically running these tests on different cloud infrastructures and storing the resulting JSON output.
+Wrapper scripts are created to facilitate automatically running these tests on different cloud infrastructures and storing the resulting JSON output as well as the wrapping HTML and JavaScript code.

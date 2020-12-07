@@ -11,6 +11,9 @@ function RetrieveData(url, async) {
         if (xhr.status === 200) {
             jd = JSON.parse(xhr.responseText);
             var nro = undefined; // candidate new reference object
+            if (jsonarray == undefined) {
+                 jsonarray={};
+            }
             if (jsonarray[date] == undefined) {
                  jsonarray[date]={};
             }
@@ -421,6 +424,18 @@ function loadJSONArray(formData, loadRef, refarray) {
           // add dates only at first run (where dataOption only contains default "All" entry)
           var filldates = (dateOption.options.length==1);
           var idx = 0;
+          urls.forEach(function (url, index) {
+            if (url.length>0) {
+                d = url.substring(0, url.indexOf("/"));
+                alldates[idx++] = d;
+                if (filldates) {
+                      // add date to dateOption list
+                      var option = document.createElement("option");
+                      option.text = d;
+                      dateOption.add(option);
+                }
+            }
+          });
           urls.reverse().forEach(function (url, index) {
             if (url.length>0) {
                 d = url.substring(0, url.indexOf("/"));
@@ -429,19 +444,6 @@ function loadJSONArray(formData, loadRef, refarray) {
                    // also request -ref
                    var rname = url.substring(0,url.length-5)+"-ref"+url.substring(url.length-5, url.length);
                    RetrieveData(rname, true);
-                   //data = JSON.parse(RetrieveData(url, true));
-                   //jsonarray[d] = data;
-                   //if (refobj==undefined) {
-                   //  refobj = jsonarray[d];
-                   //}
-                   // add date only if data is present
-                   alldates[idx++] = d;
-                   if (filldates) {
-                      // add date to dateOption list
-                      var option = document.createElement("option");
-                      option.text = d;
-                      dateOption.add(option);
-                   }
                 }
                 catch(e) {
                    console.log("Error loading "+url+":"+e);
@@ -453,24 +455,5 @@ function loadJSONArray(formData, loadRef, refarray) {
           dateOption.remove(0);
           formData.set("date", d);
        }
-       // if refarray given, merge into result with keys+"-ref":
-       //var nfo = undefined;
-       //if (refarray != undefined) {
-       //   Object.keys(jsonarray).forEach(function(date) {
-       //      if (refarray[date] != undefined) { // merge
-       //         Object.keys(refobj).forEach(function(key) {
-       //            if (refarray[date][key] == undefined) {
-       //              console.log("Unexpected empty refarray entry for "+date+"/"+key);
-       //            }
-       //            else {
-       //               jsonarray[date][key+"-ref"]=refarray[date][key];
-       //               // ensure only fully populated date entry becomes reference object
-       //               nfo=jsonarray[date];
-       //            }
-       //         });                
-       //      }
-       //   });
-       //}
-       //if (nfo != undefined) refobj=nfo;
    return [jsonarray, refobj, alldates];
 }

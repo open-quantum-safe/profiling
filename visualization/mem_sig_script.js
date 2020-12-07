@@ -116,7 +116,8 @@ function LoadData(fullInit, cleanSlate) {
          else {
             currentoperations=alloperations;
          }
-         for (var date in jsonarray) {
+         for(var i in currentoperations) {
+           var date = currentoperations[i];
            if ((setDate==undefined)||(setDate=="All")||(setDate==date)) {
               try { // not all dates may be filled with numbers
                  ka[i] = jsonarray[date][key]["keygen"][heapOrStack];
