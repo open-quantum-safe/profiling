@@ -38,7 +38,7 @@ function RetrieveData(url, async) {
               if (refobj==undefined) { // take nro as refobj
                  refobj=nro;
                  document.getElementById("date").value = date;
-                 LoadData(false);
+                 LoadData(true);
                }
                else { // check whether nro contains more keys than refobj; if so, set refobj to nro
                  Object.keys(nro).forEach(function(key) {
@@ -349,25 +349,56 @@ function addHeader(table, headings) {
    });
 }
 
+// helper function populating config information table
+function addConfigtable(fullInit, key) {
+         if ((!fullInitDone || fullInit) && filterOQSKeyByName(key)!=undefined && !key.includes("-ref")) {
+            var table = document.getElementById('configtable');
+            Object.keys(refobj[key]).sort().forEach(function(r) {
+               var tr = table.insertRow(-1);
+               var tabCell = tr.insertCell(-1);
+               tabCell.style.width = "20%";
+               tabCell.style.textAlign = "right";
+               tabCell.innerHTML = r;
+               tabCell = tr.insertCell(-1);
+               tabCell.style.width = "80%";
+               tabCell.style.textAlign = "left";
+               tabCell.innerHTML = JSON.stringify(refobj[key][r]).replace(/\"/g, "");
+            });
+         }
+}
+
 // helper function to set table of download links
 function fillDownloadTable(setDate, filename) {
      var dtable = document.getElementById('downloadtable');
      clearTable(dtable);
      var tr = dtable.insertRow(-1);
+
      var tabCell = tr.insertCell(-1);
      tabCell.style.width = "20%";
      tabCell.style.textAlign = "center";
      tabCell.innerHTML = "Raw Data";
+
      tabCell = tr.insertCell(-1);
-     tabCell.style.width = "80%";
+     tabCell.style.width = "40%";
      tabCell.style.textAlign = "center";
      var a = document.createElement('a');
      var linkText = document.createTextNode(setDate);
      a.appendChild(linkText);
      a.title = setDate;
-     a.href = "/"+setDate+"/"+filename;
+     a.href = setDate+"/"+filename;
      tabCell.innerHTML = null;
      tr.cells[1].appendChild(a);
+
+     tabCell = tr.insertCell(-1);
+     tabCell.style.width = "40%";
+     tabCell.style.textAlign = "center";
+     var a = document.createElement('a');
+     var linkText = document.createTextNode(setDate+"(ref)");
+     a.appendChild(linkText);
+     a.title = setDate+"(ref)";
+     a.href = setDate+"/"+filename.substring(0,filename.length-5)+"-ref.json";
+     tabCell.innerHTML = null;
+     tr.cells[2].appendChild(a);
 }
 
 // returns true if algorithm toTest belongs to the OQS family set in the familyselector HTML form selector
