@@ -16,6 +16,10 @@ var refobj;
 var alloperations = []; // becomes date list in series display
 var currentoperations = [];
 
+// initialization status
+var fullInitDone = false;
+
+
 // fill numberstable HTML element as per indicated header information
 // tabledata must match header structure
 function fillNumberTable(tabledata, setDate) {
@@ -179,23 +183,11 @@ function LoadData(fullInit, cleanSlate) {
          }
          dscount++;
        }
-       else { // add to config table
-         if (fullInit && filterOQSKeyByName(key)!=undefined) {
-            var table = document.getElementById('configtable');
-            Object.keys(refobj[key]).sort().forEach(function(r) {
-               var tr = table.insertRow(-1);
-               var tabCell = tr.insertCell(-1);
-               tabCell.style.width = "20%";
-               tabCell.style.textAlign = "right";
-               tabCell.innerHTML = r; 
-               tabCell = tr.insertCell(-1);
-               tabCell.style.width = "80%";
-               tabCell.style.textAlign = "left";
-               tabCell.innerHTML = JSON.stringify(refobj[key][r]).replace(/\"/g, ""); 
-            });
-         }
+       else { 
+         addConfigtable(fullInit, key);
        }
    });
+   if (!fullInitDone) fullInitDone=true; 
    var keygenmin = parseInt(formData.get("keygenmin"));
    var signmin = parseInt(formData.get("signmin"));
    var verifymin = parseInt(formData.get("verifymin"));
