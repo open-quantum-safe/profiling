@@ -30,7 +30,7 @@ jobs:
           name: Authenticate to Docker
           command: echo $DOCKER_PASSWORD | docker login --username $DOCKER_LOGIN --password-stdin
       - run:
-          name: Build and test speed image
+          name: Build and test profiling image
           command: |
             # The CircleCI executor offers 35 cores, but using
             # all of them might exhaust memory
