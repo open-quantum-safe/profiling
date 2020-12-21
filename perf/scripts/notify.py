@@ -5,7 +5,7 @@ SMTP_SERVER = "www14.servertown.ch"
 sender_email = "oqs@baentsch.ch"
 sender_password = os.getenv("SMTP_PWD")
 
-receiver_emails = "michael@baentsch.ch"
+receiver_emails = "info@baentsch.ch"
 message = """\
 From: OQS event notification services <oqs@baentsch.ch>
 Subject: Profiling deviation notification
