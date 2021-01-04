@@ -101,16 +101,16 @@ cnt=0
 devs=0
 for file in todaysvalues:
    for k in todaysvalues[file]:
-      delta = 100.0*abs(todaysvalues[file][k]-avgs[file][k])/todaysvalues[file][k]
+      delta = 100.0*abs(todaysvalues[file][k]-avgs[file][k])/min(todaysvalues[file][k],avgs[file][k])
       cnt=cnt+1
       if (delta > MAXDIFF):
           if k in knowndevs:
              if delta>knowndevs[k]*(1+MAXDIFF/100):
-                print("%2.2f|%s|(T: %f - AVG: %f: larger dev than before)" % (delta, k, todaysvalues[file][k], avgs[file][k]))
+                print("%4.2f|%s|(T: %f - AVG: %f: larger dev than before)" % (delta, k, todaysvalues[file][k], avgs[file][k]))
              else:
-                print("%2.2f|%s|(T: %f - AVG: %f (expected: %2.2f). Ignoring." % (delta, k, todaysvalues[file][k], avgs[file][k], knowndevs[k]))
+                print("%4.2f|%s|(T: %f - AVG: %f (expected: %4.2f). Ignoring." % (delta, k, todaysvalues[file][k], avgs[file][k], knowndevs[k]))
           else:
-             print("%2.2f|%s|(T: %f - AVG: %f)" % (delta, k, todaysvalues[file][k], avgs[file][k]))
+             print("%4.2f|%s|(T: %f - AVG: %f)" % (delta, k, todaysvalues[file][k], avgs[file][k]))
              devs=devs+1
 
 # print summary report to STDERR to avoid it going to results file (STDOUT)
