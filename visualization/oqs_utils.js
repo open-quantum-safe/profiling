@@ -40,12 +40,21 @@ function RetrieveData(url, async) {
                  document.getElementById("date").value = date;
                  LoadData(true);
                }
-               else { // check whether nro contains more keys than refobj; if so, set refobj to nro
+               else { // check whether nro contains more keys than refobj; if so, it may be a new nro
+                 var candidate = false;
                  Object.keys(nro).forEach(function(key) {
                    if (refobj[key]==undefined) {
-                      refobj=nro;
-                   }
-                });
+                      candidate = true;
+                    }
+                  });
+                  if (candidate) { // Now check whether it doesn't contain all that refobj contains
+                      Object.keys(refobj).forEach(function(key) {
+                         if (nro[key]==undefined) { // add prev refobj key
+                            nro[key]=refobj[key];
+                         }
+                      });
+                      refobj = nro;
+                  }
                }
             }
             // activate this code to automatically show all data if all requested data sets have arrived; warning: Information overload :-)
@@ -249,15 +258,15 @@ var ColorMap = {
 "Classic-McEliece-8192128f":"#e67010", 
 
 // Multivariate https://coolors.co/gradient-palette/c61536-aa0000?number=20
-"Rainbow-Ia-Classic":"#C61536", 
-"Rainbow-Ia-Cyclic":"#C51433", 
-"Rainbow-Ia-Cyclic-Compressed":"#C2122D", 
-"Rainbow-IIIc-Classic":"#C0112B", 
-"Rainbow-IIIc-Cyclic":"#BD0E25", 
-"Rainbow-IIIc-Cyclic-Compressed":"#BC0D22", 
-"Rainbow-Vc-Classic":"#BA0C1F", 
-"Rainbow-Vc-Cyclic":"#B90B1C", 
-"Rainbow-Vc-Cyclic-Compressed":"#B70A1A", 
+"Rainbow-I-Circumzenithal":"#C61536",
+"Rainbow-I-Classic":"#C51433",
+"Rainbow-I-Compressed":"#C2122D",
+"Rainbow-III-Circumzenithal":"#C0112B",
+"Rainbow-III-Classic":"#BD0E25",
+"Rainbow-III-Compressed":"#BC0D22",
+"Rainbow-V-Circumzenithal":"#BA0C1F",
+"Rainbow-V-Classic":"#B90B1C",
+"Rainbow-V-Compressed":"#B70A1A",
 }
 
 function getColor(alg) {
@@ -266,7 +275,7 @@ function getColor(alg) {
       alg = alg.substring(0, alg.length-4);
    }
    if (!(alg in ColorMap)) {
-      console.log(alg+": missing perfect color - checking heuristics");
+      //console.log(alg+": missing perfect color - checking heuristics");
    }
    else {
       return ColorMap[alg];
@@ -298,9 +307,9 @@ function getColor(alg) {
 // List of all algs as per NIST level
 // ToDo: Generate automatically
 
-var l1algs =  "bike1-l1-fo bike1l1fo kyber512 kyber512-90s kyber90s512 classic-mceliece-348864 classic-mceliece-348864f lightsaber-kem lightsaber hqc-128-1-cca2 hqc128_1_cca2 frodokem-640-aes frodo640aes frodokem-640-shake frodo640shake ntru-hps-2048-509 ntru_hps2048509 sidh-p434 sidhp434 sidh-p434-compressed sidh-p503 sidhp503 sidh-p503-compressed sike-p434 sikep434 sike-p434-compressed sike-p503 sike-p503-compressed sikep503 dilithium_2 dilithium_3 falcon-512 picnic3_l1 picnic_l1_fs picnic_l1_ur picnic_l1_full rainbow-ia-cyclic rainbow-ia-cyclic-compressed rainbow-ia-cyclic sphincs+-shake256-128s-simple sphincs+-shake256-128s-robust sphincs+-shake256-128f-simple sphincs+-shake256-128f-robust sphincs+-sha256-128s-simple sphincs+-sha256-128s-robust sphincs+-sha256-128f-simple sphincs+-sha256-128f-robust sphincs+-haraka-128s-simple sphincs+-haraka-128s-robust sphincs+-haraka-128f-simple sphincs+-haraka-128f-robust ntrulpr653 sntrup653" ;
-var l3algs =  "bike1-l3-fo bike1l3fo kyber768 kyber768-90s kyber90s768 classic-mceliece-460896 classic-mceliece-460896f saber-kem saber hqc-192-1-cca2 hqc192_1_cca2 hqc-192-2-cca2 hqc192_2_cca2 frodokem-976-aes frodo976aes frodokem-976-shake frodo976shake ntru-hps-2048-677 ntru_hps2048677 ntru-hrss-701 ntru_hrss701 sidh-p610 sidhp610 sidh-p610-compressed sike-p610 sikep610 sike-p610-compressed dilithium_4 picnic3_l3 picnic_l3_fs picnic_l3_ur picnic_l3_full rainbow-iiic-classic rainbow-iiic-cyclic rainbow-iiic-cyclic-compressed rainbow-iiic-cyclic sphincs+-haraka-192s-simple sphincs+-haraka-192s-robust sphincs+-haraka-192f-simplesphincs+-haraka-192f-robust sphincs+-sha256-192s-simple sphincs+-sha256-192s-robustsphincs+-sha256-192f-simple sphincs+-sha256-192f-robust sphincs+-shake256-192s-simple sphincs+-shake256-192s-robust sphincs+-shake256-192f-simple sphincs+-shake256-192f-robust ntrulpr761 ntrulpr857 sntrup761 sntrup857" ;
-var l5algs =  "kyber1024 kyber1024-90s kyber90s1024 classic-mceliece-6688128 classic-mceliece-6688128f classic-mceliece-6960119 classic-mceliece-6960119f classic-mceliece-8192128 classic-mceliece-8192128f firesaber-kem firesaber hqc-256-1-cca2 hqc256_1_cca2 hqc-256-2-cca2 hqc256_2_cca2 hqc-256-3-cca2 hqc256_3_cca2 frodokem-1344-aes frodo1344aes frodokem-1344-shake frodo1344shake ntru-hps-4096-821 ntru_hps4096821 sidh-p751 sidhp751 sidh-p751-compressed sike-p751 sikep751 sike-p751-compressed falcon-1024 picnic3_l5 picnic_l5_fs picnic_l5_ur picnic_l5_full rainbow-vc-classic rainbow-vc-cyclic rainbow-vc-cyclic-compressed rainbow-vc-cyclici sphincs+-shake256-256s-simple sphincs+-shake256-256s-robust sphincs+-shake256-256f-simple sphincs+-shake256-256f-robust sphincs+-sha256-256s-simple sphincs+-sha256-256s-robust sphincs+-sha256-256f-simple sphincs+-sha256-256f-robust sphincs+-haraka-256s-simple sphincs+-haraka-256s-robust sphincs+-haraka-256f-simple sphincs+-haraka-256f-robust" ;
+var l1algs =  "bike1-l1-fo bike1l1fo kyber512 kyber512-90s kyber90s512 classic-mceliece-348864 classic-mceliece-348864f lightsaber-kem lightsaber hqc-128-1-cca2 hqc128_1_cca2 frodokem-640-aes frodo640aes frodokem-640-shake frodo640shake ntru-hps-2048-509 ntru_hps2048509 sidh-p434 sidhp434 sidh-p434-compressed sidh-p503 sidhp503 sidh-p503-compressed sike-p434 sikep434 sike-p434-compressed sike-p503 sike-p503-compressed sikep503 dilithium_2 dilithium_3 falcon-512 picnic3_l1 picnic_l1_fs picnic_l1_ur picnic_l1_full rainbowicircumzenithal rainbowicompressed rainbowiclassic sphincs+-shake256-128s-simple sphincs+-shake256-128s-robust sphincs+-shake256-128f-simple sphincs+-shake256-128f-robust sphincs+-sha256-128s-simple sphincs+-sha256-128s-robust sphincs+-sha256-128f-simple sphincs+-sha256-128f-robust sphincs+-haraka-128s-simple sphincs+-haraka-128s-robust sphincs+-haraka-128f-simple sphincs+-haraka-128f-robust ntrulpr653 sntrup653" ;
+var l3algs =  "bike1-l3-fo bike1l3fo kyber768 kyber768-90s kyber90s768 classic-mceliece-460896 classic-mceliece-460896f saber-kem saber hqc-192-1-cca2 hqc192_1_cca2 hqc-192-2-cca2 hqc192_2_cca2 frodokem-976-aes frodo976aes frodokem-976-shake frodo976shake ntru-hps-2048-677 ntru_hps2048677 ntru-hrss-701 ntru_hrss701 sidh-p610 sidhp610 sidh-p610-compressed sike-p610 sikep610 sike-p610-compressed dilithium_4 picnic3_l3 picnic_l3_fs picnic_l3_ur picnic_l3_full rainbowiiicircumzenithal rainbowiiicompressed rainbowiiiclassic sphincs+-haraka-192s-simple sphincs+-haraka-192s-robust sphincs+-haraka-192f-simplesphincs+-haraka-192f-robust sphincs+-sha256-192s-simple sphincs+-sha256-192s-robustsphincs+-sha256-192f-simple sphincs+-sha256-192f-robust sphincs+-shake256-192s-simple sphincs+-shake256-192s-robust sphincs+-shake256-192f-simple sphincs+-shake256-192f-robust ntrulpr761 ntrulpr857 sntrup761 sntrup857" ;
+var l5algs =  "kyber1024 kyber1024-90s kyber90s1024 classic-mceliece-6688128 classic-mceliece-6688128f classic-mceliece-6960119 classic-mceliece-6960119f classic-mceliece-8192128 classic-mceliece-8192128f firesaber-kem firesaber hqc-256-1-cca2 hqc256_1_cca2 hqc-256-2-cca2 hqc256_2_cca2 hqc-256-3-cca2 hqc256_3_cca2 frodokem-1344-aes frodo1344aes frodokem-1344-shake frodo1344shake ntru-hps-4096-821 ntru_hps4096821 sidh-p751 sidhp751 sidh-p751-compressed sike-p751 sikep751 sike-p751-compressed falcon-1024 picnic3_l5 picnic_l5_fs picnic_l5_ur picnic_l5_full rainbowvcircumzenithal rainbowvcompressed rainbowvclassic sphincs+-shake256-256s-simple sphincs+-shake256-256s-robust sphincs+-shake256-256f-simple sphincs+-shake256-256f-robust sphincs+-sha256-256s-simple sphincs+-sha256-256s-robust sphincs+-sha256-256f-simple sphincs+-sha256-256f-robust sphincs+-haraka-256s-simple sphincs+-haraka-256s-robust sphincs+-haraka-256f-simple sphincs+-haraka-256f-robust" ;
 
 // check whether a specific algorithm (alg) is NOT OK at a given level (setLevel)
 function nOKAtNISTLevel(setLevel, alg) {
