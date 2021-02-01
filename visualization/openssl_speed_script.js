@@ -130,6 +130,7 @@ function LoadData(fullInit, cleanSlate) {
             charttype="line";
             var borderdash = [];
             if (key.includes("-ref")) borderdash = [4];
+            if (key.includes("-noport")) borderdash = [2]; // dotted line for nonportable code
 
             keygendatasets[dscount]={
               borderColor: getColor(key),
@@ -210,6 +211,7 @@ function LoadData(fullInit, cleanSlate) {
    var decapmin = parseInt(formData.get("decapmin"));
    var signmin = parseInt(formData.get("signmin"));
    var verifymin = parseInt(formData.get("verifymin"));
+   var displaylegend = formData.get("legend")==null?false:true;
    if (keygenChart===undefined) {
       keygenChart = new Chart(document.getElementById("keygenChart"), {
         type: charttype,
@@ -218,6 +220,9 @@ function LoadData(fullInit, cleanSlate) {
           datasets: keygendatasets
         },
         options: {
+          legend: {
+            display: displaylegend
+          },
           scales: {
            yAxes: [{
              scaleLabel: {
@@ -237,6 +242,9 @@ function LoadData(fullInit, cleanSlate) {
           datasets: encapdatasets
         },
         options: {
+          legend: {
+            display: displaylegend
+          },
           scales: {
            yAxes: [{
              scaleLabel: {
@@ -256,6 +264,9 @@ function LoadData(fullInit, cleanSlate) {
           datasets: decapdatasets
         },
         options: {
+          legend: {
+            display: displaylegend
+          },
           scales: {
            yAxes: [{
              scaleLabel: {
@@ -275,6 +286,9 @@ function LoadData(fullInit, cleanSlate) {
           datasets: signdatasets
         },
         options: {
+          legend: {
+            display: false
+          },
           scales: {
            yAxes: [{
              scaleLabel: {
@@ -294,6 +308,9 @@ function LoadData(fullInit, cleanSlate) {
           datasets: verifydatasets
         },
         options: {
+          legend: {
+            display: false
+          },
           scales: {
            yAxes: [{
              scaleLabel: {
@@ -359,11 +376,14 @@ function SubmitOSSLspeedForm(event) {
     // completely redo chart if specific date selected
     var dateOption = document.getElementById('date');
     var d = formData.get("date")
+    var displaylegend = formData.get("legend")==null?false:true;
     // if toggling between specific date and series, redo chart (e.g., changing type)
-    if ((d!="All")||(currentoperations.length!=alloperations.length)) {
+    if ((d!="All")||(currentoperations.length!=alloperations.length)||(legendstate!=displaylegend)) {
+       legendstate = displaylegend;
        LoadData(false, true);
     }
     else {
+       legendstate = displaylegend;
        LoadData(false, false);
     }
     event.preventDefault();

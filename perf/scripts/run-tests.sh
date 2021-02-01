@@ -3,6 +3,7 @@
 set +x
 
 S3FOLDER=/tmp/s3dir
+LIBOQS_VERSION=0.5.0-dev
 
 echo "outputting some system information first"
 dmesg
@@ -27,7 +28,7 @@ python3 handshakes.py /opt/oqssa 1
 echo "Starting ref tests..."
 ./liboqs-test.sh -ref
 echo "Exchanging oqs lib..."
-cp /opt/oqssa/oqs-ref/lib/liboqs.so.0.4.0 /opt/oqssa/lib/liboqs.so.0.4.0
+cp /opt/oqssa/oqs-ref/lib/liboqs.so.$LIBOQS_VERSION /opt/oqssa/lib/liboqs.so.LIBOQS_VERSION
 echo "Done."
 echo "Starting openssl speed tests (ref)..."
 ./openssl-test.sh -ref
@@ -38,12 +39,31 @@ python3 run_mem.py test_sig_mem-ref && mv test_sig_mem-ref.json results/mem_sig-
 
 # About 1100 tests: Multiply with test runtime set by second parameter:
 # Save away previous test results
-mv results/handshakes.json results/handshakes.json-fast
+mv results/handshakes.json results/handshakes.json-port
 echo "Starting openssl handshake tests..."
 python3 handshakes.py /opt/oqssa 1
 # correct filenames again:
 mv results/handshakes.json results/handshakes-ref.json
-mv results/handshakes.json-fast results/handshakes.json
+
+echo "Starting nonportable tests..."
+./liboqs-test.sh -noport
+echo "Exchanging oqs lib..."
+cp /opt/oqssa/oqs-noport/lib/liboqs.so.$LIBOQS_VERSION /opt/oqssa/lib/liboqs.so.$LIBOQS_VERSION
+echo "Done."
+echo "Starting openssl speed tests (noport)..."
+./openssl-test.sh -noport
+
+echo "Starting liboqs memory tests..."
+python3 run_mem.py test_kem_mem-noport && mv test_kem_mem-noport.json results/mem_kem-noport.json
+python3 run_mem.py test_sig_mem-noport && mv test_sig_mem-noport.json results/mem_sig-noport.json
+
+# About 1100 tests: Multiply with test runtime set by second parameter:
+echo "Starting openssl handshake tests..."
+python3 handshakes.py /opt/oqssa 1
+# correct filenames again:
+mv results/handshakes.json results/handshakes-noport.json
+
+mv results/handshakes.json-port results/handshakes.json
 
 echo "All tests complete. Results in results folder."
 echo "Trying to mount S3..."

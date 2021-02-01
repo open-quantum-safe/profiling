@@ -34,3 +34,4 @@ th {
     font-weight:bold;
 }
 
+label[for="legend"] {display:block; text-align:right;}

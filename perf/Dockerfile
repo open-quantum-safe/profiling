@@ -99,9 +99,13 @@ RUN env CPPFLAGS="-I/opt/ossl-src/oqs/include" \
     make ${MAKE_DEFINES} && make install && mv letsencryptauthorityx3.pem.txt ${INSTALLDIR}/oqs-bundle.pem;
 
 WORKDIR /opt/liboqs
-# Build ref-only variants and store in INSTALLDIR/ref
+# Build ref-only variants and store in INSTALLDIR-ref
 RUN mkdir build-shared-ref && cd build-shared-ref && cmake .. ${LIBOQS_BUILD_DEFINES} -DBUILD_SHARED_LIBS=ON -DOQS_USE_CPU_EXTENSIONS=OFF -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}/oqs-ref && make ${MAKE_DEFINES} && make install
 RUN mkdir build-static-ref && cd build-static-ref && cmake .. ${LIBOQS_BUILD_DEFINES} -DBUILD_SHARED_LIBS=OFF -DOQS_USE_CPU_EXTENSIONS=OFF -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}/oqs-ref && make ${MAKE_DEFINES} && make install
+
+# Build noportable fast variants and store in INSTALLDIR-noport
+RUN mkdir build-shared-noport && cd build-shared-noport && cmake .. ${LIBOQS_BUILD_DEFINES} -DBUILD_SHARED_LIBS=ON -DOQS_USE_CPU_EXTENSIONS=ON -DOQS_PORTABLE_BUILD=OFF -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}/oqs-noport && make ${MAKE_DEFINES} && make install
+RUN mkdir build-static-noport && cd build-static-noport && cmake .. ${LIBOQS_BUILD_DEFINES} -DBUILD_SHARED_LIBS=OFF -DOQS_USE_CPU_EXTENSIONS=ON -DOQS_PORTABLE_BUILD=OFF -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}/oqs-noport && make ${MAKE_DEFINES} && make install
 
 # Download current test.openquantumsafe.org test CA cert
 WORKDIR ${INSTALLDIR}
@@ -127,11 +131,15 @@ COPY --from=intermediate /opt/liboqs/build-static/tests/speed_kem ${INSTALLDIR}/
 COPY --from=intermediate /opt/liboqs/build-static/tests/speed_sig ${INSTALLDIR}/bin/speed_sig
 COPY --from=intermediate /opt/liboqs/build-static-ref/tests/speed_kem ${INSTALLDIR}/bin/speed_kem-ref
 COPY --from=intermediate /opt/liboqs/build-static-ref/tests/speed_sig ${INSTALLDIR}/bin/speed_sig-ref
+COPY --from=intermediate /opt/liboqs/build-static-noport/tests/speed_kem ${INSTALLDIR}/bin/speed_kem-noport
+COPY --from=intermediate /opt/liboqs/build-static-noport/tests/speed_sig ${INSTALLDIR}/bin/speed_sig-noport
 # Also retain liboqs test_mem-executables
 COPY --from=intermediate /opt/liboqs/build-static/tests/test_kem_mem ${INSTALLDIR}/bin/test_kem_mem
 COPY --from=intermediate /opt/liboqs/build-static/tests/test_sig_mem ${INSTALLDIR}/bin/test_sig_mem
 COPY --from=intermediate /opt/liboqs/build-static-ref/tests/test_kem_mem ${INSTALLDIR}/bin/test_kem_mem-ref
 COPY --from=intermediate /opt/liboqs/build-static-ref/tests/test_sig_mem ${INSTALLDIR}/bin/test_sig_mem-ref
+COPY --from=intermediate /opt/liboqs/build-static-noport/tests/test_kem_mem ${INSTALLDIR}/bin/test_kem_mem-noport
+COPY --from=intermediate /opt/liboqs/build-static-noport/tests/test_sig_mem ${INSTALLDIR}/bin/test_sig_mem-noport
 
 # set path to use 'new' openssl & curl. Dyn libs have been properly linked in to match
 ENV PATH="${INSTALLDIR}/bin:${PATH}"

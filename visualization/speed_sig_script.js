@@ -54,22 +54,6 @@ function CleanSlate() {
        verifyChart=undefined;
 }
 
-// called upon any filter change
-function SubmitSIGForm(event) {
-    var filterForm = document.getElementById('filterForm');
-    var formData = new FormData(filterForm);
-    filterForm.addEventListener('submit', preventFormHandling);
-    // completely redo chart if specific date selected
-    var dateOption = document.getElementById('date');
-    var d = formData.get("date")
-    // if toggling between specific date and series, redo chart (e.g., changing type)
-    if ((d!="All")||(currentoperations.length!=alloperations.length)) {
-       CleanSlate();
-    }
-    LoadData(false);
-    event.preventDefault();
-}
-
 // main chart-generator function
 // only populate config data if fullInit set to true
 function LoadData(fullInit, cleanSlate) {
@@ -130,6 +114,7 @@ function LoadData(fullInit, cleanSlate) {
             // straight line for optimized implementations
             var borderdash = [];
             if (key.includes("-ref")) borderdash = [4]; // dashed line for reference code
+            if (key.includes("-noport")) borderdash = [2]; // dotted line for nonportable code
 
             keygendatasets[dscount]={
               borderColor: getColor(key),
@@ -182,6 +167,7 @@ function LoadData(fullInit, cleanSlate) {
    var keygenmin = parseInt(formData.get("keygenmin"));
    var signmin = parseInt(formData.get("signmin"));
    var verifymin = parseInt(formData.get("verifymin"));
+   var displaylegend = formData.get("legend")==null?false:true;
    if (keygenChart===undefined) {
       keygenChart = new Chart(document.getElementById("keygenChart"), {
         type: charttype,
@@ -191,6 +177,7 @@ function LoadData(fullInit, cleanSlate) {
         },
         options: {
           legend: {
+            display: displaylegend
             // Possible ToDo: React on clicks to legend
             //onClick: SIGlegendClickHandler
           },
@@ -213,6 +200,9 @@ function LoadData(fullInit, cleanSlate) {
           datasets: signdatasets
         },
         options: {
+          legend: {
+            display: displaylegend
+          },
           scales: {
            yAxes: [{
              scaleLabel: {
@@ -233,6 +223,9 @@ function LoadData(fullInit, cleanSlate) {
           datasets: verifydatasets
         },
         options: {
+          legend: {
+            display: displaylegend
+          },
           scales: {
            yAxes: [{
              scaleLabel: {

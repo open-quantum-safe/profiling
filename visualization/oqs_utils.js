@@ -1,4 +1,6 @@
 var cmkeys=[];
+// legend toggle
+var legendstate = false;
 
 function RetrieveData(url, async) {
   var xhr = new XMLHttpRequest();
@@ -21,14 +23,21 @@ function RetrieveData(url, async) {
                if (xhr.responseURL.includes("-ref.json")) {
                     jsonarray[date][key+"-ref"]=jd[key];
                     // ensure only fully populated date entry becomes reference object
-                    if (jsonarray[date][key]!=undefined) {
+                    if ((jsonarray[date][key]!=undefined)&&(jsonarray[date][key+"-noport"]!=undefined)) {
+                       nro = jsonarray[date];
+                    }
+               }
+               else if (xhr.responseURL.includes("-noport.json")) {
+                    jsonarray[date][key+"-noport"]=jd[key];
+                    // ensure only fully populated date entry becomes reference object
+                    if ((jsonarray[date][key]!=undefined)&&(jsonarray[date][key+"-ref"]!=undefined)) {
                        nro = jsonarray[date];
                     }
                }
                else {
                     jsonarray[date][key]=jd[key];
                     // ensure only fully populated date entry becomes reference object
-                    if (jsonarray[date][key+"-ref"]!=undefined) {
+                    if ((jsonarray[date][key+"-ref"]!=undefined)&&(jsonarray[date][key+"-noport"]!=undefined)) {
                        nro = jsonarray[date];
                     }
                }
@@ -274,6 +283,10 @@ function getColor(alg) {
    if (alg.substring(alg.length-4, alg.length)=="-ref") {
       alg = alg.substring(0, alg.length-4);
    }
+   // -noport algs get the same color:
+   if (alg.substring(alg.length-7, alg.length)=="-noport") {
+      alg = alg.substring(0, alg.length-7);
+   }
    if (!(alg in ColorMap)) {
       //console.log(alg+": missing perfect color - checking heuristics");
    }
@@ -360,7 +373,7 @@ function addHeader(table, headings) {
 
 // helper function populating config information table
 function addConfigtable(fullInit, key) {
-         if ((!fullInitDone || fullInit) && filterOQSKeyByName(key)!=undefined && !key.includes("-ref")) {
+         if ((!fullInitDone || fullInit) && filterOQSKeyByName(key)!=undefined && !key.includes("-ref") && !key.includes("-noport")) {
             var table = document.getElementById('configtable');
             Object.keys(refobj[key]).sort().forEach(function(r) {
                var tr = table.insertRow(-1);
@@ -388,7 +401,7 @@ function fillDownloadTable(setDate, filename) {
      tabCell.innerHTML = "Raw Data";
 
      tabCell = tr.insertCell(-1);
-     tabCell.style.width = "40%";
+     tabCell.style.width = "30%";
      tabCell.style.textAlign = "center";
      var a = document.createElement('a');
      var linkText = document.createTextNode(setDate);
@@ -399,7 +412,7 @@ function fillDownloadTable(setDate, filename) {
      tr.cells[1].appendChild(a);
 
      tabCell = tr.insertCell(-1);
-     tabCell.style.width = "40%";
+     tabCell.style.width = "30%";
      tabCell.style.textAlign = "center";
      var a = document.createElement('a');
      var linkText = document.createTextNode(setDate+"(ref)");
@@ -408,6 +421,17 @@ function fillDownloadTable(setDate, filename) {
      a.href = setDate+"/"+filename.substring(0,filename.length-5)+"-ref.json";
      tabCell.innerHTML = null;
      tr.cells[2].appendChild(a);
+
+     tabCell = tr.insertCell(-1);
+     tabCell.style.width = "30%";
+     tabCell.style.textAlign = "center";
+     var a = document.createElement('a');
+     var linkText = document.createTextNode(setDate+"(noport)");
+     a.appendChild(linkText);
+     a.title = setDate+"(noport)";
+     a.href = setDate+"/"+filename.substring(0,filename.length-5)+"-noport.json";
+     tabCell.innerHTML = null;
+     tr.cells[3].appendChild(a);
 }
 
 // returns true if algorithm toTest belongs to the OQS family set in the familyselector HTML form selector
@@ -415,8 +439,9 @@ function fillDownloadTable(setDate, filename) {
 function isSelectedOQSFamily(toTest) {
   var select = document.getElementById("familyselector");
   var refselect = new FormData(document.getElementById("filterForm")).get("refselector");
-  if ((refselect == "Ref only") && !(toTest.includes("-ref"))) return false;
-  if ((refselect == "Optimized only") && (toTest.includes("-ref"))) return false;
+  if ((refselect == "Optimized non-portable only") && !(toTest.includes("-noport"))) return false;
+  if ((refselect == "Reference only") && !(toTest.includes("-ref"))) return false;
+  if ((refselect == "Optimized portable only") && ((toTest.includes("-ref")) || (toTest.includes("-noport")))) return false;
   var options = select && select.options;
   if (options[0].selected) return true;
   for (var j=0; j<options.length; j++) {
@@ -484,6 +509,9 @@ function loadJSONArray(formData, loadRef, refarray) {
                    // also request -ref
                    var rname = url.substring(0,url.length-5)+"-ref"+url.substring(url.length-5, url.length);
                    RetrieveData(rname, true);
+                   // also request -noport
+                   var rname = url.substring(0,url.length-5)+"-noport"+url.substring(url.length-5, url.length);
+                   RetrieveData(rname, true);
                 }
                 catch(e) {
                    console.log("Error loading "+url+":"+e);
@@ -497,3 +525,29 @@ function loadJSONArray(formData, loadRef, refarray) {
        }
    return [jsonarray, refobj, alldates];
 }
+
+// Shared code
+
+// called upon any filter change
+function SubmitSIGForm(event) {
+    var filterForm = document.getElementById('filterForm');
+    var formData = new FormData(filterForm);
+    filterForm.addEventListener('submit', preventFormHandling);
+    // completely redo chart if specific date selected
+    var dateOption = document.getElementById('date');
+    var d = formData.get("date")
+    var displaylegend = formData.get("legend")==null?false:true;
+    // if toggling between specific date and series, or toggling legend redo chart (e.g., changing type)
+    if ((d!="All")||(currentoperations.length!=alloperations.length)||(legendstate!=displaylegend)) {
+       legendstate = displaylegend;
+       CleanSlate();
+    }
+    LoadData(false);
+    event.preventDefault();
+}
+
+// called upon any filter change
+function SubmitKEMForm(event) {
+    SubmitSIGForm(event);
+}
+

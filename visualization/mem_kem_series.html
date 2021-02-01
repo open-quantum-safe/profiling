@@ -13,6 +13,7 @@
 
      <h3>Set maximum values (set to include/exclude algorithms)</h3>
      <form id="filterForm" name="filterForm" onsubmit="SubmitKEMForm(event);">
+       <label for="legend">Enable legend<input class="boolean optional" type="checkbox" value="1" name="legend" id="legend"></label>
        <input type="hidden" id="datafile" name="datafile" value="mem_kem.list">
        <select id="memselector" name="memselector" onchange="SubmitKEMForm(event)">
        <option selected>maxHeap</option>
@@ -40,8 +41,9 @@
        <label for="refselector">Reference code:</label>
        <select id="refselector" name="refselector" onchange="SubmitKEMForm(event)">
        <option selected>All</option>
-       <option>Ref only</option>
-       <option>Optimized only</option>
+       <option>Reference only</option>
+       <option>Optimized portable only</option>
+       <option>Optimized non-portable only</option>
        </select>
        <label for="nistlevel">NIST level:</label>
        <select id="nistlevel" name="nistlevel" onchange="SubmitKEMForm(event)">
@@ -60,11 +62,11 @@
 
      <table id="downloadtable" name="downloadtable"></table>
      <table id="numberstable" name="numberstable"></table>
-     <h3>Keygen (click algorithm name to enable/disable)</h3>
+     <h3>Keygen</h3>
        <canvas id="keygenChart" width="1200" height="700"></canvas>
-     <h3>Encap & values (click algorithm name to enable/disable)</h3>
+     <h3>Encap & values</h3>
        <canvas id="encapChart" width="1600" height="900"></canvas>
-     <h3>Decap & values (click algorithm name to enable/disable)</h3>
+     <h3>Decap & values</h3>
        <canvas id="decapChart" width="1600" height="900"></canvas>
      <h3>Configuration information</h3>
        <table id="configtable" name="configtable">
