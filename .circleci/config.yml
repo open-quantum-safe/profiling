@@ -19,7 +19,7 @@ jobs:
   ubuntu_x64_openssl:
     description: A template for building and pushing OQS performance testing Docker image on Ubuntu Bionic that depend on OQS-OpenSSL
     docker:
-      - image: openquantumsafe/ci-ubuntu-bionic-x86_64:latest
+      - image: openquantumsafe/ci-ubuntu-focal-x86_64:latest
         auth:
           username: $DOCKER_LOGIN
           password: $DOCKER_PASSWORD
@@ -54,5 +54,4 @@ workflows:
   build:
     jobs:
       - ubuntu_x64_openssl:
-          name: ubuntu-bionic
           context: openquantumsafe
