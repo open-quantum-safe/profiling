@@ -54,7 +54,7 @@ RUN git clone --depth 1 --branch main https://github.com/open-quantum-safe/liboq
 
 # build s3fs:
 WORKDIR /opt/s3fs-fuse-${S3FS_VERSION}
-RUN ./autogen.sh && ./configure --prefix=/usr && make && make install
+RUN ./autogen.sh && ./configure --prefix=/usr && make ${MAKE_DEFINES} && make install
 
 RUN s3fs --version
 
@@ -120,7 +120,7 @@ ARG INSTALLDIR
 ARG SIG_ALG
 
 # Dependencies for logfile analysis and S3FS:
-RUN apk add python3 fuse libxml2 curl libstdc++6 git valgrind perl && ln -s /usr/lib/gcc/x86_64-alpine-linux-musl/6.4.0/libstdc\+\+.so.6 /usr/lib/libstdc\+\+.so.6 && rm -rf /var/cache/apk/*;
+RUN apk add python3 fuse libxml2 curl libstdc++6 git valgrind perl && ln -s /usr/lib/gcc/`(uname -m)`-alpine-linux-musl/6.4.0/libstdc\+\+.so.6 /usr/lib/libstdc\+\+.so.6 && rm -rf /var/cache/apk/*;
 
 # Move s3fs over...
 COPY --from=intermediate /usr/bin/s3fs /usr/bin/s3fs

@@ -5,6 +5,13 @@ set +x
 S3FOLDER=/tmp/s3dir
 LIBOQS_VERSION=0.5.0-dev
 
+ARCH=`uname -m`
+if [ ${ARCH} == "x86_64" ]; then
+   ARCH=""
+else
+   ARCH="-"${ARCH}
+fi
+
 echo "outputting some system information first"
 dmesg
 hostname
@@ -71,9 +78,9 @@ echo "Trying to mount S3..."
 if [ $? -eq 0 ]; then
     echo "Copy test results to S3"
     today=`date +%Y-%m-%d-%H_%M_%S`
-    tar czvf ${S3FOLDER}/${today}.tgz results/*.json
-    ./gen_website.sh ${S3FOLDER}
-    echo "Copy complete: ${S3FOLDER}/${today}.tgz"
+    tar czvf ${S3FOLDER}/${today}${ARCH}.tgz results/*.json
+    ./gen_website.sh ${S3FOLDER} ${ARCH}
+    echo "Copy complete: ${S3FOLDER}/${today}${ARCH}.tgz"
 else
     echo "Couldn't mount S3 bucket. Not copying out test results."
 fi

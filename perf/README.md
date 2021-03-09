@@ -4,7 +4,9 @@ This folder contains scripts to execute (´*.sh´) various OQS performance tests
 
 ## Building 
 
-To build the test image, simply execute `docker build -t oqs-perf .`
+To build the test image, simply execute `docker build -t oqs-perf .`.
+
+To build for ARM64, this command works: `docker buildx build -t oqs-perf:arm64 --platform=linux/arm64 .`. It requires the [installation & activation of `docker buildx`](https://github.com/docker/buildx#installing).
 
 ## Running
 
@@ -23,6 +25,12 @@ For example, in the case of a local execution `docker run -v /home/tests:/opt/te
 In order to store the results in AWS S3, the following environment variables have to be set for the script `mount_s3.sh` to operate correctly:
 - BUCKETNAME: Name of bucket where to store results. Follow [AWS guidance](https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html).
 - BUCKETSECRETS: Colon-separated pair of AWS Access Key ID:Secret Access Key. Guidance on creating and using these [available for example here](https://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html).
+
+### High-performance building
+
+In order to speed up the building of all components, the Dockerfile build argument `MAKE_DEFINES` is available and should be set to a value commensurate to the build platform at hand: If you have a 48 core machine, you may thus want to run the ARM64 cross-build command for example like this: `docker buildx build --build-arg MAKE_DEFINES="-j 48" -t oqs-perf:arm64 --platform=linux/arm64 .`.
+
+Default value for `MAKE_DEFINES` is "-j 2" to assure successful docker image generation also on more simple hardware.
 
 ### Running scheduled task
 
