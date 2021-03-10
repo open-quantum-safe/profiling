@@ -5,12 +5,7 @@ set +x
 S3FOLDER=/tmp/s3dir
 LIBOQS_VERSION=0.5.0-dev
 
-ARCH=`uname -m`
-if [ ${ARCH} == "x86_64" ]; then
-   ARCH=""
-else
-   ARCH="-"${ARCH}
-fi
+ARCH=-`uname -m`
 
 echo "outputting some system information first"
 dmesg
