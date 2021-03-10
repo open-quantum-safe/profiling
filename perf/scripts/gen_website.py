@@ -23,7 +23,7 @@ outdir = sys.argv[3]
 try:
    arch=sys.argv[4]
 except:
-   arch=""
+   arch="-x86_64"
     
 # collect all files after start date
 for file in os.listdir(datadir):
