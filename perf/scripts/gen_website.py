@@ -9,8 +9,8 @@ gen_files = [ "speed_kem", "speed_sig", "speed", "handshakes", "speed_kem-ref", 
 # will contain list of date/tgz-filename paths to be used for generating .list files:
 files = {}
 
-if len(sys.argv)<4:
-   print("Usage: %s <startdate> <datafile-folder> <output-folder> [arch]" % (sys.argv[0]))
+if len(sys.argv)!=5:
+   print("Usage: %s <startdate> <datafile-folder> <output-folder> arch" % (sys.argv[0]))
    exit(-1)
 
 # Parse start date (param1)
@@ -20,10 +20,7 @@ sd = datetime.datetime.strptime(sys.argv[1], '%Y-%m-%d')
 datadir = os.fsencode(sys.argv[2])
     
 outdir = sys.argv[3]
-try:
-   arch=sys.argv[4]
-except:
-   arch=""
+arch=sys.argv[4]
     
 # collect all files after start date
 for file in os.listdir(datadir):
