@@ -74,7 +74,12 @@
      <table id="downloadtable" name="downloadtable"></table>
      <table id="numberstable" name="numberstable"></table>
      <div id="canvases"> </div>
-     <script src="openssl_speed_setup.js"></script>
+     <script>
+       // the Charts to display
+       var charts=undefined;
+       var chartTypes=["keygen/s", "encap/s", "decap/s", "sign/s", "verify/s"]
+       var DOWNLOADJSON="speed.json";
+     </script>
 
      <h3>Configuration information</h3>
        <table id="configtable" name="configtable">

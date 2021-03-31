@@ -65,7 +65,12 @@
      <table id="downloadtable" name="downloadtable"></table>
      <table id="numberstable" name="numberstable"></table>
      <div id="canvases"> </div>
-     <script src="mem_sig_setup.js"></script>
+     <script>
+      // the Charts to display
+      var charts=undefined;
+      var chartTypes=["keygen", "sign", "verify"]
+      var DOWNLOADJSON="mem_sig.json";
+</script>
      <h3>Configuration information</h3>
        <table id="configtable" name="configtable">
           <tr>Data collected via AWS cron using image "openquantumsafe/oqs-perf"</tr>
