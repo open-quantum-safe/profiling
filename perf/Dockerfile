@@ -58,10 +58,10 @@ RUN ./autogen.sh && ./configure --prefix=/usr && make ${MAKE_DEFINES} && make in
 
 RUN s3fs --version
 
-# build liboqs shared and static
+# build liboqs shared and static, distributable
 WORKDIR /opt/liboqs
-RUN mkdir build && cd build && cmake .. ${LIBOQS_BUILD_DEFINES} -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=/opt/ossl-src/oqs && make ${MAKE_DEFINES} && make install
-RUN mkdir build-static && cd build-static && cmake .. ${LIBOQS_BUILD_DEFINES} -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=/opt/ossl-src/oqs && make ${MAKE_DEFINES} && make install
+RUN mkdir build && cd build && cmake .. ${LIBOQS_BUILD_DEFINES} -DOQS_DIST_BUILD=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=/opt/ossl-src/oqs && make ${MAKE_DEFINES} && make install
+RUN mkdir build-static && cd build-static && cmake .. ${LIBOQS_BUILD_DEFINES} -DOQS_DIST_BUILD=ON -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=/opt/ossl-src/oqs && make ${MAKE_DEFINES} && make install
 
 # build OQS-OpenSSL
 WORKDIR /opt/ossl-src
@@ -100,12 +100,12 @@ RUN env CPPFLAGS="-I/opt/ossl-src/oqs/include" \
 
 WORKDIR /opt/liboqs
 # Build ref-only variants and store in INSTALLDIR-ref
-RUN mkdir build-shared-ref && cd build-shared-ref && cmake .. ${LIBOQS_BUILD_DEFINES} -DBUILD_SHARED_LIBS=ON -DOQS_USE_CPU_EXTENSIONS=OFF -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}/oqs-ref && make ${MAKE_DEFINES} && make install
-RUN mkdir build-static-ref && cd build-static-ref && cmake .. ${LIBOQS_BUILD_DEFINES} -DBUILD_SHARED_LIBS=OFF -DOQS_USE_CPU_EXTENSIONS=OFF -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}/oqs-ref && make ${MAKE_DEFINES} && make install
+RUN mkdir build-shared-ref && cd build-shared-ref && cmake .. ${LIBOQS_BUILD_DEFINES} -DBUILD_SHARED_LIBS=ON -DOQS_OPT_TARGET="generic" -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}/oqs-ref && make ${MAKE_DEFINES} && make install
+RUN mkdir build-static-ref && cd build-static-ref && cmake .. ${LIBOQS_BUILD_DEFINES} -DBUILD_SHARED_LIBS=OFF -DOQS_OPT_TARGET="generic" -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}/oqs-ref && make ${MAKE_DEFINES} && make install
 
-# Build noportable fast variants and store in INSTALLDIR-noport
-RUN mkdir build-shared-noport && cd build-shared-noport && cmake .. ${LIBOQS_BUILD_DEFINES} -DBUILD_SHARED_LIBS=ON -DOQS_USE_CPU_EXTENSIONS=ON -DOQS_PORTABLE_BUILD=OFF -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}/oqs-noport && make ${MAKE_DEFINES} && make install
-RUN mkdir build-static-noport && cd build-static-noport && cmake .. ${LIBOQS_BUILD_DEFINES} -DBUILD_SHARED_LIBS=OFF -DOQS_USE_CPU_EXTENSIONS=ON -DOQS_PORTABLE_BUILD=OFF -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}/oqs-noport && make ${MAKE_DEFINES} && make install
+# Build noportable fast variants and store in INSTALLDIR-noport (liboqs build default)
+RUN mkdir build-shared-noport && cd build-shared-noport && cmake .. ${LIBOQS_BUILD_DEFINES} -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}/oqs-noport && make ${MAKE_DEFINES} && make install
+RUN mkdir build-static-noport && cd build-static-noport && cmake .. ${LIBOQS_BUILD_DEFINES} -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}/oqs-noport && make ${MAKE_DEFINES} && make install
 
 # Download current test.openquantumsafe.org test CA cert
 WORKDIR ${INSTALLDIR}
