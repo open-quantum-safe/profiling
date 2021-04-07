@@ -492,7 +492,7 @@ function loadJSONArray(formData, loadRef, refarray) {
                 }
             }
           });
-          urls.forEach(function (url, index) {
+          urls.reverse().forEach(function (url, index) {
             if (url.length>0) {
                 d = url.substring(0, url.indexOf("/"));
                 try {
