@@ -6,24 +6,26 @@
     <link rel="stylesheet" type="text/css" href="oqs-style.css">
   </head>
   <body>
-   <div class="wrapper">
-      <h1>Handshake performance</h1>
-      Operations per second per algorithm
-    <script src="oqsutils.js"></script>
+  <div id="mySidenav" class="sidenav">
+    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
 
-     <h3>Set minimum values (set to include/exclude algorithms)</h3>
      <form id="filterForm" name="filterForm" onsubmit="SubmitOQSForm(event);">
-       <label for="legend">Enable legend<input class="boolean optional" type="checkbox" value="1" name="legend" id="legend"></label>
-       <input type="hidden" id="datafile" name="datafile" value="handshakes.list">
-       <label for="handshakes">Handshakes/s:</label>
-       <input type="number" id="handshakesmin" name="keygenmin" maxlength="4" size="4">
+       <input type="hidden" id="datafile" name="datafile" value="handshakes-c.list">
        <label for="sigalg">Signature Algorithm:</label>
            <select id="sigalg" name="sigalg" onchange="SubmitOQSForm(event)">
            <!-- add a single option to have something; will be replaced by JSON contents at first file read-->
            <option>oqs_sig_default</option>
            </select>
+       <p>
+       <label for="date">Date(s):</label>
+       <select id="date" name="date" onchange="SubmitOQSForm(event)">
+       <option>All</option>
+       </select>
 
-       <label for="familyselector">Algorithm family:</label>
+       <h3 align="center">Set minimum values</h3>
+       <label for="handshakesmin">Handshakes/s:</label>
+       <input type="number" id="handshakesmin" name="handshakesmin" maxlength="4" size="4">
+       <h3 align="center">Algorithm family:</h3>
        <select id="familyselector" name="familyselector" multiple onchange="SubmitOQSForm(event)">
        <option selected>All</option>
        <option>BIKE</option>
@@ -36,33 +38,47 @@
        <option>SIDH</option>
        <option>Sike</option>
        </select>
-       <label for="refselector">Reference code:</label>
+       <select id="nistlevel" name="nistlevel" onchange="SubmitOQSForm(event)">
+       <option>All</option>
+       <option>NIST L1</option>
+       <option>NIST L3</option>
+       <option>NIST L5</option>
+       </select>
+       <h4>Code type:</h4>
        <select id="refselector" name="refselector" onchange="SubmitOQSForm(event)">
        <option selected>All</option>
-       <option>Reference only</option>
-       <option>Optimized portable only</option>
-       <option>Optimized non-portable only</option>
+       <option>Reference</option>
+       <option>Distributable</option>
+       <option>Performance</option>
        </select>
-       <label for="archselector">Architecture:</label>
+       <h3 align="center">Architecture:</h3>
        <select id="archselector" name="archselector" onchange="SubmitOQSForm(event)">
        <option selected>x86_64</option>
        <option>aarch64</option>
        <option>All</option>
        </select>
-       <label for="nistlevel">NIST level:</label>
-       <select id="nistlevel" name="nistlevel" onchange="SubmitOQSForm(event)">
-       <option>All</option>
-       <option>Level 1</option>
-       <option>Level 3</option>
-       <option>Level 5</option>
-       </select>
-       <label for="date">Date(s):</label>
-       <select id="date" name="date" onchange="SubmitOQSForm(event)">
-       <option>All</option>
-       </select>
-
+       <h3 align="center">ChartJS option:</h3>
+       <label for="legend">Enable legend<input class="boolean optional" type="checkbox" value="1" name="legend" id="legend"></label>
+       <br>
        <input type="submit" value="Filter">
      </form>
+   </div>
+   <div id="main" class="main">
+   <h1>Handshake performance</h1>
+    <script>
+    function openNav() {
+      document.getElementById("mySidenav").style.width = "250px";
+      document.getElementById("main").style.marginLeft = "250px";
+    }
+
+    function closeNav() {
+      document.getElementById("mySidenav").style.width = "0";
+      document.getElementById("main").style.marginLeft= "0";
+    }
+    </script>
+    <span onclick="openNav()">&#9776;</span>
+      Operations per second per algorithm
+    <script src="oqsutils.js"></script>
 
      <table id="downloadtable" name="downloadtable"></table>
      <table id="numberstable" name="numberstable"></table>

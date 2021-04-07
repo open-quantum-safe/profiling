@@ -19,7 +19,7 @@ def output_json(data, date, outpath, test):
     opath = os.path.join(dpath, test+".json")
     with open(opath, 'w') as outfile:
        json.dump(data, outfile)
-    lpath = os.path.join(outpath, test+".list")
+    lpath = os.path.join(outpath, test+"-c.list")
     with open(lpath, 'a') as outfile:
        outfile.write(os.path.join(date.strftime('%Y-%m-%d'),test+".json")+"\n")
 
@@ -142,6 +142,11 @@ outdir = sys.argv[3]
     
 # Start at date given and go back until error is returned or retdays is 0
 
-while(merge(sys.argv[2], sys.argv[3], sd) and (retdays>0)):
+dayscollected=False
+while((retdays>0) and merge(sys.argv[2], sys.argv[3], sd)):
    sd = sd+datetime.timedelta(days = -1)
    retdays=retdays-1
+   dayscollected=True
+
+if not dayscollected:
+   exit(-1)

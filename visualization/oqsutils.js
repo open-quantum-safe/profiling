@@ -316,13 +316,13 @@ function nOKAtNISTLevel(setLevel, alg) {
    if (setLevel=="All") {
       return false;
    }
-   if (setLevel=="Level 1") {
+   if (setLevel=="NIST L1") {
      if (l1algs.split(" ").includes(alg.toLowerCase())) return false;
    }
-   if (setLevel=="Level 3") {
+   if (setLevel=="NIST L3") {
      if (l3algs.split(" ").includes(alg.toLowerCase())) return false;
    }
-   if (setLevel=="Level 5") {
+   if (setLevel=="NIST L5") {
      if (l5algs.split(" ").includes(alg.toLowerCase())) return false;
    }
    return true;
@@ -376,9 +376,9 @@ function addConfigRows(table, title, roka) {
 }
 
 function checkTTypeMatch(setttype, ttype) {
-   if (((setttype=="Reference only") && (ttype=="-ref")) ||
-       ((setttype=="Optimized portable only") && (ttype=="")) ||
-       ((setttype=="Optimized non-portable only") && (ttype=="-noport"))) {
+   if (((setttype=="Reference") && (ttype=="-ref")) ||
+       ((setttype=="Distributable") && (ttype=="")) ||
+       ((setttype=="Performance") && (ttype=="-noport"))) {
       return true;
    }
    else return false;
@@ -517,6 +517,7 @@ function CleanSlate() {
    for (i = 0; i < chartTypes.length; i++) {
       if (charts[i] != undefined)
          charts[i].destroy();
+         charts[i] = undefined;
    }
    charts=undefined;
 }

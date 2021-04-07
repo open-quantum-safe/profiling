@@ -6,22 +6,25 @@
     <link rel="stylesheet" type="text/css" href="oqs-style.css">
   </head>
   <body>
-   <div class="wrapper">
-      <h1>KEM performance</h1>
-      Operations per second per algorithm
-    <script src="oqsutils.js"></script>
-
-     <h3>Set minimum values (set to include/exclude algorithms)</h3>
+  <div id="mySidenav" class="sidenav">
+  <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
      <form id="filterForm" name="filterForm" onsubmit="SubmitOQSForm(event);">
-       <label for="legend">Enable legend<input class="boolean optional" type="checkbox" value="1" name="legend" id="legend"></label>
-       <input type="hidden" id="datafile" name="datafile" value="speed_kem.list">
+       <input type="hidden" id="datafile" name="datafile" value="speed_kem-c.list">
+       <label for="date">Date(s):</label>
+       <select id="date" name="date" onchange="SubmitOQSForm(event)">
+       <option>All</option>
+       </select>
+       <p>
+       <h4 align="center">Set minimum:</h4>
        <label for="keygenmin">Keygen/s:</label>
        <input type="number" id="keygenmin" name="keygenmin" maxlength="4" size="4">
-       <label for="encapsmin">Encap/s:</label>
+       <br>
+       <label for="encapsmin">Encaps/s:</label>
        <input type="number" id="encapsmin" name="encapsmin" maxlength="4" size="4">
-       <label for="decapsmin">Decap/s:</label>
+       <br>
+       <label for="decapsmin">Decaps/s:</label>
        <input type="number" id="decapsmin" name="decapsmin" maxlength="4" size="4">
-       <label for="familyselector">Algorithm family:</label>
+       <h4 align="center">Algorithm family:</h4>
        <select id="familyselector" name="familyselector" multiple onchange="SubmitOQSForm(event)">
        <option selected>All</option>
        <option>BIKE</option>
@@ -34,33 +37,49 @@
        <option>SIDH</option>
        <option>Sike</option>
        </select>
-       <label for="refselector">Reference code:</label>
+       <select id="nistlevel" name="nistlevel" onchange="SubmitOQSForm(event)">
+       <option>All</option>
+       <option>NIST L1</option>
+       <option>NIST L3</option>
+       <option>NIST L5</option>
+       </select>
+       <h4>Code type:</h4>
        <select id="refselector" name="refselector" onchange="SubmitOQSForm(event)">
        <option selected>All</option>
-       <option>Reference only</option>
-       <option>Optimized portable only</option>
-       <option>Optimized non-portable only</option>
+       <option>Reference</option>
+       <option>Distributable</option>
+       <option>Performance</option>
        </select>
-       <label for="archselector">Architecture:</label>
+       <h3 align="center">Architecture:</h3>
        <select id="archselector" name="archselector" onchange="SubmitOQSForm(event)">
        <option selected>x86_64</option>
        <option>aarch64</option>
        <option>All</option>
        </select>
-       <label for="nistlevel">NIST level:</label>
-       <select id="nistlevel" name="nistlevel" onchange="SubmitOQSForm(event)">
-       <option>All</option>
-       <option>Level 1</option>
-       <option>Level 3</option>
-       <option>Level 5</option>
-       </select>
-       <label for="date">Date(s):</label>
-       <select id="date" name="date" onchange="SubmitOQSForm(event)">
-       <option>All</option>
-       </select>
-
-       <input type="submit" value="Filter">
+       <h4 align="center">ChartJS options</h4>
+       <label for="legend">Enable legend<input class="boolean optional" type="checkbox" value="1" name="legend" id="legend"></label>
+       <br>
+       <input type="submit" value="Filter" align="center">
      </form>
+
+    </div> 
+    <script>
+    function openNav() {
+      document.getElementById("mySidenav").style.width = "250px";
+      document.getElementById("main").style.marginLeft = "250px";
+    }
+
+    function closeNav() {
+      document.getElementById("mySidenav").style.width = "0";
+      document.getElementById("main").style.marginLeft= "0";
+    }
+    </script>
+   <div id="main" class="main">
+    <h1>KEM performance</h1>
+    <span onclick="openNav()">&#9776;</span>
+      Operations per second per algorithm
+    <script src="oqsutils.js"></script>
+
 
      <table id="downloadtable" name="downloadtable"></table>
      <table id="numberstable" name="numberstable"></table>

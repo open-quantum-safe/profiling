@@ -120,10 +120,12 @@ function PopulateDatum(key, arch, ttype, dscount, currentoperations, setDate,
            }
          }
          if (i>1) { // do line chart
-            // straight line for optimized implementations
             var borderdash = [];
-            if (ttype=="-ref") borderdash = [4]; // dashed line for reference code
-            if (ttype=="-noport") borderdash = [2]; // dotted line for nonportable code
+            bd = 1; // default for "-noport"
+            if (ttype=="-ref") bd=bd+1; 
+            if (ttype=="") bd=bd+2; 
+            if (arch=="aarch64") bd=bd*2;
+            if (bd>1) borderdash = [bd];
 
             for (j = 0; j < chartTypes.length; j++) {
               datasets[j][dscount]={
@@ -261,6 +263,7 @@ function LoadData(fullInit, cleanSlate) {
              datasets: datasets[j]
            },
            options: {
+             animation: false,
              legend: {
                display: displaylegend
              },
