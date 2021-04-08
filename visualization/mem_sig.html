@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SIG memory consumption</title>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script> 
+    <link rel="stylesheet" type="text/css" href="oqs-style.css">
+  </head>
+  <body>
+  <div id="mySidenav" class="sidenav">
+  <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+     <form id="filterForm" name="filterForm" onsubmit="SubmitOQSForm(event);">
+       <input type="hidden" id="datafile" name="datafile" value="mem_sig-c.list">
+       <label for="date">Date(s):</label>
+       <select id="date" name="date" onchange="SubmitOQSForm(event)">
+       <option>All</option>
+       </select>
+       <p>
+       <h4 align="center">Memory Type:</h4>
+       <select id="memselector" name="memselector" onchange="SubmitOQSForm(event)">
+       <option selected>maxHeap</option>
+       <option>maxStack</option>
+       </select>
+       <h4 align="center">Set minimum:</h4>
+       <label for="keygenmin">Keygen/s:</label>
+       <input type="number" id="keygenmin" name="keygenmin" maxlength="4" size="4">
+       <br>
+       <label for="encapsmin">Encaps/s:</label>
+       <input type="number" id="encapsmin" name="encapsmin" maxlength="4" size="4">
+       <br>
+       <label for="decapsmin">Decaps/s:</label>
+       <input type="number" id="decapsmin" name="decapsmin" maxlength="4" size="4">
+       <h4 align="center">Algorithm family:</h4>
+       <select id="familyselector" name="familyselector" multiple onchange="SubmitOQSForm(event)">
+       <option selected>All</option>
+        <option>Falcon</option>
+        <option>Dilithium</option>
+        <option>SPHINCS</option>
+        <option>Rainbow</option>
+        <option>Picnic</option>
+       </select>
+       <select id="nistlevel" name="nistlevel" onchange="SubmitOQSForm(event)">
+       <option>All</option>
+       <option>NIST L1</option>
+       <option>NIST L3</option>
+       <option>NIST L5</option>
+       </select>
+       <h4>Code type:</h4>
+       <select id="refselector" name="refselector" onchange="SubmitOQSForm(event)">
+       <option selected>All</option>
+       <option>Reference</option>
+       <option>Distributable</option>
+       <option>Performance</option>
+       </select>
+       </select>
+       <h3 align="center">Architecture:</h3>
+       <select id="archselector" name="archselector" onchange="SubmitOQSForm(event)">
+       <option selected>x86_64</option>
+       <option>aarch64</option>
+       <option>All</option>
+       </select>
+       <h4 align="center">ChartJS options</h4>
+       <label for="legend">Enable legend<input class="boolean optional" type="checkbox" value="1" name="legend" id="legend"></label>
+       <br>
+       <input type="submit" value="Filter" align="center">
+     </form>
+
+   </div>
+
+   <div id="main" class="main">
+      <script>
+      function openNav() {
+           document.getElementById("mySidenav").style.width = "250px";
+        document.getElementById("main").style.marginLeft = "250px";
+      }
+
+      function closeNav() {
+        document.getElementById("mySidenav").style.width = "0";
+        document.getElementById("main").style.marginLeft= "0";
+      }
+      </script>
+
+   <h1>SIG memory consumption</h1>
+    <span onclick="openNav()">&#9776;</span>
+
+    <script src="oqsutils.js"></script>
+
+     <table id="downloadtable" name="downloadtable"></table>
+     <table id="numberstable" name="numberstable"></table>
+     <div id="canvases"> </div>
+     <script>
+      // the Charts to display
+      var charts=undefined;
+      var chartTypes=["keygen", "sign", "verify"]
+      var DOWNLOADJSON="mem_sig.json";
+     </script>
+     <h3>Configuration information</h3>
+       <table id="configtable" name="configtable">
+          <tr>Data collected via AWS cron using image "openquantumsafe/oqs-perf"</tr>
+       </table>
+     </div>
+    <script src="oqsvis.js"></script>
+   <hr>
+   Color-coding derived from <a href="https://csrc.nist.gov/CSRC/media/Presentations/the-2nd-round-of-the-nist-pqc-standardization-proc/images-media/moody-opening-remarks.pdf#page=15" target=_new>a NIST presentation</a>.
+  </div>
+  </body>
+</html>
