@@ -385,7 +385,7 @@ function checkTTypeMatch(setttype, ttype) {
 }
 
 // helper function populating config information table
-function addConfigtable(fullInit, key) {
+function addConfigtable(fullInit, key, ro) {
          if ((!fullInitDone || fullInit) && filterOQSKeyByName(key)!=undefined) {
             var table = document.getElementById('configtable');
             var filterForm = document.getElementById('filterForm');
@@ -393,11 +393,11 @@ function addConfigtable(fullInit, key) {
             var setArch = formData.get("archselector");
             var setTType = formData.get("refselector");
 
-            Object.keys(refobj[key]).forEach(function(arch) {
+            Object.keys(ro[key]).forEach(function(arch) {
                if ((setArch=="All") || (setArch==arch)) {
-                  Object.keys(refobj[key][arch]).forEach(function(ttype) {
+                  Object.keys(ro[key][arch]).forEach(function(ttype) {
                      if ((setTType=="All") || checkTTypeMatch(setTType, ttype)) {
-                         if (Object.keys(refobj[key][arch][ttype]).length!=0) addConfigRows(table, arch+ttype+"-"+key, refobj[key][arch][ttype])
+                         if (Object.keys(ro[key][arch][ttype]).length!=0) addConfigRows(table, arch+ttype+"-"+key, ro[key][arch][ttype])
                      }
                   });
                }
