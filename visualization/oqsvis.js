@@ -239,7 +239,11 @@ function LoadData(fullInit, cleanSlate) {
          });
        }
        else { 
-         addConfigtable(fullInit, key);
+         if (setDate=="All")
+            addConfigtable(fullInit, key, refobj);
+         else {
+            addConfigtable(fullInit, key, jsonarray[setDate]);
+         }
        }
    });
    if (currentoperations.length > 1) charttype="line";
