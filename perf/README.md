@@ -16,6 +16,13 @@ Thus, to obtain the test results you may want to mount this folder to a permanen
 
 ## Implementation details
 
+### Tests built
+
+Three separate sets of test executables are built: 
+- Distributable build (default): This code contains [CPU-feature guarded](https://github.com/open-quantum-safe/liboqs/wiki/Customizing-liboqs#oqs_dist_build) assembly optimizations and should run on all x86_64 CPUs.
+- Reference code build ("-ref"): This code is plain C code compiled for generic x86_64 processors and will run on all CPUs of this type.
+- Performance build ("-noport"): This code will run on processors of class "skylake-avx512" but may fail to execute properly on CPUs with fewer CPU optimization features.
+
 ### Local execution 
 
 For example, in the case of a local execution `docker run -v /home/tests:/opt/test/results oqs-perf` will turn up the test results in the local ´/home/tests´ folder.
