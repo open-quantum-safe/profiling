@@ -3,7 +3,6 @@
 set +x
 
 S3FOLDER=/tmp/s3dir
-LIBOQS_VERSION=0.5.0-dev
 
 ARCH=-`uname -m`
 
@@ -30,7 +29,14 @@ python3 handshakes.py /opt/oqssa 1
 echo "Starting ref tests..."
 ./liboqs-test.sh -ref
 echo "Exchanging oqs lib..."
-cp /opt/oqssa/oqs-ref/lib/liboqs.so.$LIBOQS_VERSION /opt/oqssa/lib/liboqs.so.LIBOQS_VERSION
+cp /opt/oqssa/oqs-ref/lib/liboqs.so.0.* /opt/oqssa/lib/
+if [ $? -ne 0 ]; then
+   # if cp failed liboqs version count moved beyond 0.x. Terminate right here
+   echo "Check liboqs version number: Could not copy /opt/oqssa/oqs-ref/lib/liboqs.so.0.*"
+   ls /opt/oqssa/oqs-ref/lib/
+   exit 1
+fi
+
 echo "Done."
 echo "Starting openssl speed tests (ref)..."
 ./openssl-test.sh -ref
@@ -50,7 +56,8 @@ mv results/handshakes.json results/handshakes-ref.json
 echo "Starting nonportable tests..."
 ./liboqs-test.sh -noport
 echo "Exchanging oqs lib..."
-cp /opt/oqssa/oqs-noport/lib/liboqs.so.$LIBOQS_VERSION /opt/oqssa/lib/liboqs.so.$LIBOQS_VERSION
+cp /opt/oqssa/oqs-noport/lib/liboqs.so.0.* /opt/oqssa/lib/
+# Don't repeat version check here: It would have failed with -ref already
 echo "Done."
 echo "Starting openssl speed tests (noport)..."
 ./openssl-test.sh -noport
