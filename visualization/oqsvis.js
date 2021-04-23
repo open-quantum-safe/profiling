@@ -1,3 +1,14 @@
+// Logic to set form values from hashparams
+var hashP = window.location.hash
+if (hashP!=undefined && hashP.length>0) {
+   hashParams= hashP.substr(1).split('&'); // remove # and split by params
+   for(var i = 0; i < hashParams.length; i++){
+      var p = hashParams[i].split('=');
+      if ((p.length>1) && (p[0].length>0) && (p[1].length>0))
+          if (document.getElementById(p[0])!=null) document.getElementById(p[0]).value = decodeURIComponent(p[1]);;
+   }
+}
+
 var element = document.getElementById("canvases");
 for (j=0; j < chartTypes.length; j++) {
   var para = document.createElement("h3");
