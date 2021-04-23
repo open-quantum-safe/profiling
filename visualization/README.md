@@ -8,8 +8,17 @@ All logic is build around [Chart.js](https://www.chartjs.org): The HTML pages fo
 
 ## Concepts
 
-All data to be displayed is loaded into a JSON structure from which it is re-packaged for display in either a line (time series) or bar chart (single day) display. Color-coding, utility functions and OQS-specific methods are co-located in a central javascript module that is called from the test-specific visualization scripts. All filter logic is driven by an HTML form suitably queried by JavaScript code.
+All data to be displayed is loaded into a JSON structure from which it is re-packaged for display in either a line (time series) or bar chart (single day) display. Color-coding, utility functions and OQS-specific methods are co-located in a central javascript module that is called from the test-specific visualization scripts. All filter logic is driven by an HTML form suitably queried by JavaScript code. This permits quick manual (re)selection of the various test parameters like algorithms, NIST levels, architectures, test types, etc.
 
 ## Feature sets 
 
 Mostly documented in the [issue that drove code-creation](https://github.com/open-quantum-safe/speed/issues/5).
+
+### Deep linking
+
+It is also possible to directly pre-fill the filterForm driving visualization using "#" and standard URL formatting in order to directly navigate to specific data areas. Any of the filterForm parameters used in the different HTML files may be set directly, e.g., <a href="https://openquantumsafe.org/benchmarking/visualization/speed_kem.html#familyselector=Frodo">https://openquantumsafe.org/benchmarking/visualization/speed_kem.html#familyselector=Frodo</a>. Sample selectors are
+
+- familyselector: Setting the algorithm family name (default: `All`)
+- refselector: Setting the test type name (default: `All`)
+- archselector: Setting the CPU architecture (default: `x86_64`)
+
