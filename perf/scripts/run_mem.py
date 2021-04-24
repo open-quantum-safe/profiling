@@ -2,6 +2,7 @@ import json
 import re
 import subprocess
 import sys
+import os
 from get_cpuinfo import getcpuinfo
 
 data = {}
@@ -69,6 +70,13 @@ if exepath.find("kem")>0:
 else:
    methnames=["keygen","sign","verify"]
 
+try:
+   os.mkdir("build")
+   os.mkdir(os.path.join("build", "mem-benchmark"))
+except FileExistsError:
+   activealgs=[]
+
+# first determine all possible algorithm
 process = subprocess.Popen([exepath], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,universal_newlines=True)
 (outs, errs) = process.communicate()
 for line in outs.splitlines():
@@ -76,8 +84,19 @@ for line in outs.splitlines():
    if line.startswith("  algname: "):
       algs = line[len("  algname: "):].split(", ")
 
-
+activealgs=[]
+# weed out algs not enabled
 for alg in algs:
+   process = subprocess.Popen([exepath, alg, "0"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,universal_newlines=True)
+   (outs, errs) = process.communicate()
+   enabled=True
+   for line in outs.splitlines():
+      if "not enabled" in line:
+         enabled=False
+   if enabled:
+         activealgs.append(alg)
+
+for alg in activealgs:
    data[alg]={}
    # Activate this for a quick test:
    #if alg=="BIKE1-L3-FO" or alg=="DILITHIUM_3":
