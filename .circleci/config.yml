@@ -18,30 +18,29 @@ localCheckout: &localCheckout
 jobs:
   debian_arm64:
     description: Building and pushing ARM64 benchmarking baselin image 
-# to be used at CCI
-    machine:
-      image: ubuntu-2004:202101-01
-# for local testing:
-#    docker:
+# to be used at CCI if docker doesn't work:
+#    machine:
+#      image: ubuntu-2004:202101-01
+    docker:
 #      #- image: debian:stable-slim
-#      - image: openquantumsafe/ci-debian-buster-amd64
+      - image: openquantumsafe/ci-debian-buster-amd64
     steps:
-      - run:
-          name: Setup docker and qemu
-          command: |
-            sudo dpkg --add-architecture arm64 && apt -y update && apt -y upgrade && apt -y install qemu-user-static binfmt-support curl docker.io gcc-arm-linux-gnueabi gcc-arm-linux-gnueabihf gcc-aarch64-linux-gnu qemu-user-static libssl-dev:arm64
-            # manually get docker if install fails
-            #curl -fsSL https://get.docker.com -o get-docker.sh
-            #chmod u+x get-docker.sh && /root/get-docker.sh
-          workdir:
-            /root
+#      - run:
+#          name: Setup docker and qemu
+#          command: |
+#            dpkg --add-architecture arm64 && apt -y update && apt -y upgrade && apt -y install qemu-user-static binfmt-support curl docker.io gcc-arm-linux-gnueabi gcc-arm-linux-gnueabihf gcc-aarch64-linux-gnu qemu-user-static libssl-dev:arm64
+#            # manually get docker if install fails
+#            #curl -fsSL https://get.docker.com -o get-docker.sh
+#            #chmod u+x get-docker.sh && /root/get-docker.sh
+#          workdir:
+#            /root
       - run:
           name: Check versions
           command: |
             qemu-aarch64-static --version
             update-binfmts --version 
-# enable for local testing
-#      - setup_remote_docker
+# enable if not in machine:
+      - setup_remote_docker
       - checkout # change this from "checkout" to "*localCheckout" when running CircleCI locally
       - run: uname -a
 # enable for CCI pushing:
@@ -53,8 +52,7 @@ jobs:
           command: |
             # The CircleCI executor offers 35 cores, but using
             # all of them might exhaust memory
-            #docker build --build-arg MAKE_DEFINES="-j 18" -t oqs-perf-arm64 -f Dockerfile-arm64 . &&
-            docker build --build-arg MAKE_DEFINES="-j 2" -t oqs-perf-arm64 -f Dockerfile-arm64 . &&
+            docker build --build-arg MAKE_DEFINES="-j 18" -t oqs-perf-arm64 -f Dockerfile-arm64 . &&
             docker run -it oqs-perf-arm64 /opt/test/selftest.sh
           working_directory: perf
       - when:
