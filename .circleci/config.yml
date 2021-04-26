@@ -41,7 +41,7 @@ jobs:
             qemu-aarch64-static --version
             update-binfmts --version 
 # enable for local testing
-      - setup_remote_docker
+#      - setup_remote_docker
       - checkout # change this from "checkout" to "*localCheckout" when running CircleCI locally
       - run: uname -a
 # enable for CCI pushing:
