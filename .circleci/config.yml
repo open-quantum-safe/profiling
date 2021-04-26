@@ -18,23 +18,9 @@ localCheckout: &localCheckout
 jobs:
   debian_arm64:
     description: Building and pushing ARM64 benchmarking baselin image 
-# to be used at CCI if docker doesn't work:
-#    machine:
-#      image: ubuntu-2004:202101-01
     docker:
-#      #- image: debian:stable-slim
       - image: openquantumsafe/ci-debian-buster-amd64
     steps:
-#      - run:
-#          name: Setup docker and qemu
-#          command: |
-#            dpkg --add-architecture arm64 && apt -y update && apt -y upgrade && apt -y install qemu-user-static binfmt-support curl docker.io gcc-arm-linux-gnueabi gcc-arm-linux-gnueabihf gcc-aarch64-linux-gnu qemu-user-static libssl-dev:arm64
-#            # manually get docker if install fails
-#            #curl -fsSL https://get.docker.com -o get-docker.sh
-#            #chmod u+x get-docker.sh && /root/get-docker.sh
-#          workdir:
-#            /root
-# enable docker if not in machine:
       - setup_remote_docker
       - run:
           name: Check versions
@@ -46,8 +32,6 @@ jobs:
             docker run --rm --privileged multiarch/qemu-user-static --reset -p yes && 
             docker run -it arm64v8/debian:buster-slim uname -a
       - checkout # change this from "checkout" to "*localCheckout" when running CircleCI locally
-      - run: uname -a
-# enable for CCI pushing:
       - run:
           name: Authenticate to Docker
           command: echo $DOCKER_PASSWORD | docker login --username $DOCKER_LOGIN --password-stdin
@@ -56,8 +40,8 @@ jobs:
           command: |
             # The CircleCI executor offers 35 cores, but using
             # all of them might exhaust memory
-            docker build --build-arg MAKE_DEFINES="-j 18" -t oqs-perf-arm64 -f Dockerfile-arm64 . &&
-            docker run -it oqs-perf-arm64 /opt/test/selftest.sh
+            docker build --build-arg MAKE_DEFINES="-j 18" -t oqs-mperf-arm64 -f Dockerfile-arm64 . &&
+            docker run -it oqs-mperf-arm64 /opt/test/selftest.sh
           working_directory: perf
       - when:
           condition:
@@ -70,8 +54,8 @@ jobs:
             - run:
                 name: Push all images
                 command: |
-                  docker tag oqs-multiperf $TARGETNAME/oqs-multiperf &&
-                  docker push $TARGETNAME/oqs-multiperf
+                  docker tag oqs-mperf-arm64 $TARGETNAME/oqs-mperf:latest-arm64 &&
+                  docker push $TARGETNAME/oqs-mperf:latest-arm64
 
   debian_x64:
     description: A template for building and pushing OQS performance testing Docker image on Ubuntu Bionic that depend on OQS-OpenSSL
@@ -91,20 +75,45 @@ jobs:
           command: |
             # The CircleCI executor offers 35 cores, but using
             # all of them might exhaust memory
-            docker build --build-arg MAKE_DEFINES="-j 18" -t oqs-perf . &&
-            docker run -it oqs-perf /opt/test/selftest.sh
+            docker build --build-arg MAKE_DEFINES="-j 18" -t oqs-mperf . &&
+            docker run -it oqs-mperf /opt/test/selftest.sh
           working_directory: perf
       - when:
           condition:
             or:
+              - equal: [ mb-debian, << pipeline.git.branch >> ]
               - equal: [ main, << pipeline.git.branch >> ]
               - equal: [ true, << pipeline.parameters.new_openssl_commit >> ]
           steps:
             - run:
                 name: Push all images
                 command: |
-                  docker tag oqs-perf $TARGETNAME/oqs-perf:latest &&
-                  docker push $TARGETNAME/oqs-perf:latest 
+                  docker tag oqs-mperf $TARGETNAME/oqs-mperf:latest-amd64 &&
+                  docker push $TARGETNAME/oqs-mperf:latest-amd64 
+  merge:
+    description: merging multiple architecture docker images into one multiarch image
+    docker:
+      - image: openquantumsafe/ci-ubuntu-focal-x86_64:latest
+        auth:
+          username: $DOCKER_LOGIN
+          password: $DOCKER_PASSWORD
+    steps:
+      - setup_remote_docker
+      - run:
+          name: Authenticate to Docker
+          command: echo $DOCKER_PASSWORD | docker login --username $DOCKER_LOGIN --password-stdin
+      - when:
+          condition:
+            or:
+              - equal: [ mb-debian, << pipeline.git.branch >> ]
+              - equal: [ main, << pipeline.git.branch >> ]
+              - equal: [ true, << pipeline.parameters.new_openssl_commit >> ]
+          steps:
+            - run:
+                name: Merge
+                command: |
+                   export DOCKER_CLI_EXPERIMENTAL=enabled
+                   docker manifest create $TARGETNAME/oqs-mperf:latest --amend $TARGETNAME/oqs-mperf:latest-amd64 --amend $TARGETNAME/oqs-mperf:latest-arm64
 
 workflows:
   version: 2.1
@@ -113,4 +122,9 @@ workflows:
       - debian_x64:
           context: openquantumsafe
       - debian_arm64:
+          context: openquantumsafe
+      - merge:
+          requires:
+             - debian_x64
+             - debian_arm64
           context: openquantumsafe

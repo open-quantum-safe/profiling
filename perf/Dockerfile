@@ -4,8 +4,9 @@
 ARG INSTALLDIR=/opt/oqssa
 
 # liboqs build defines (https://github.com/open-quantum-safe/liboqs/wiki/Customizing-liboqs)
-ARG LIBOQS_BUILD_DEFINES="-DOQS_MINIMAL_BUILD=ON"
-#ARG LIBOQS_BUILD_DEFINES=""
+#for minimal build:
+#ARG LIBOQS_BUILD_DEFINES="-DOQS_MINIMAL_BUILD=ON"
+ARG LIBOQS_BUILD_DEFINES=""
 
 # openssl build defines (https://github.com/open-quantum-safe/openssl#build-options)
 ARG OPENSSL_BUILD_DEFINES="-DOQS_DEFAULT_GROUPS=p384_kyber768:X25519:kyber768:newhope1024cca"
