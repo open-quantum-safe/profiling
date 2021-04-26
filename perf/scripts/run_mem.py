@@ -44,6 +44,9 @@ fieldname=["insts", "maxBytes", "maxHeap", "extHeap", "maxStack"]
 def do_test(alg, meth, methnames, exepath):
    process = subprocess.Popen(["valgrind", "--tool=massif", "--stacks=yes", "--massif-out-file=valgrind-out", exepath, alg, str(meth)], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,universal_newlines=True)
    (outs, errs) = process.communicate()
+   if process.returncode != 0:
+      print("Valgrind died with retcode %d and \n%s\n%s\nFatal error. Exiting." % (process.returncode, outs, errs))
+      exit(1)
    if len(data["config"]) == 0:
       parse_config(outs)
    process = subprocess.Popen(["ms_print", "valgrind-out"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,universal_newlines=True)
@@ -76,7 +79,7 @@ try:
 except FileExistsError:
    activealgs=[]
 
-# first determine all possible algorithm
+# first determine all enabled algorithms
 process = subprocess.Popen([exepath], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,universal_newlines=True)
 (outs, errs) = process.communicate()
 for line in outs.splitlines():
@@ -99,7 +102,7 @@ for alg in algs:
 for alg in activealgs:
    data[alg]={}
    # Activate this for a quick test:
-   #if alg=="BIKE1-L3-FO" or alg=="DILITHIUM_3":
+   #if alg=="DEFAULT":
    for i in range(3):
       do_test(alg, i, methnames, exepath)
 

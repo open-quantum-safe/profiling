@@ -1,13 +1,11 @@
 # Multi-stage build: First the full builder image:
 
-# define the S3FS version to be baked in
-ARG S3FS_VERSION=1.82
-
 # Default location where all binaries wind up:
 ARG INSTALLDIR=/opt/oqssa
 
 # liboqs build defines (https://github.com/open-quantum-safe/liboqs/wiki/Customizing-liboqs)
 ARG LIBOQS_BUILD_DEFINES="-DOQS_MINIMAL_BUILD=ON"
+#ARG LIBOQS_BUILD_DEFINES=""
 
 # openssl build defines (https://github.com/open-quantum-safe/openssl#build-options)
 ARG OPENSSL_BUILD_DEFINES="-DOQS_DEFAULT_GROUPS=p384_kyber768:X25519:kyber768:newhope1024cca"
@@ -57,22 +55,15 @@ RUN dpkg --add-architecture arm64 && \
 # get all sources
 WORKDIR /opt
 RUN git clone --depth 1 --branch main https://github.com/open-quantum-safe/liboqs && \
-    git clone --depth 1 --branch OQS-OpenSSL_1_1_1-stable https://github.com/open-quantum-safe/openssl ossl-src && \
-    cp -R /opt/ossl-src /opt/ossl-src-arm64
+    git clone --depth 1 --branch OQS-OpenSSL_1_1_1-stable https://github.com/open-quantum-safe/openssl ossl-src
 
-RUN s3fs --version 
-
-# build liboqs shared and static, distributable
+# build liboqs shared and static, distributable (x86_64)
 WORKDIR /opt/liboqs
 # base platform build (x86_64)
 RUN mkdir build && cd build && cmake .. ${LIBOQS_BUILD_DEFINES} -DOQS_DIST_BUILD=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=/opt/ossl-src/oqs && make ${MAKE_DEFINES} && make install
 RUN mkdir build-static && cd build-static && cmake .. ${LIBOQS_BUILD_DEFINES} -DOQS_DIST_BUILD=ON -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=/opt/ossl-src/oqs && make ${MAKE_DEFINES} && make install
 
-# cross build build (arm64)
-RUN mkdir build-arm-shared && cd build-arm-shared && cmake -DCMAKE_TOOLCHAIN_FILE=../.CMake/toolchain_arm64.cmake .. ${LIBOQS_BUILD_DEFINES} -DOQS_DIST_BUILD=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=/opt/ossl-src-arm64/oqs && make ${MAKE_DEFINES} && make install
-RUN mkdir build-arm-static && cd build-arm-static && cmake -DCMAKE_TOOLCHAIN_FILE=../.CMake/toolchain_arm64.cmake .. ${LIBOQS_BUILD_DEFINES} -DOQS_DIST_BUILD=ON -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=/opt/ossl-src-arm64/oqs && make ${MAKE_DEFINES} && make install
-
-# build OQS-OpenSSL
+# build OQS-OpenSSL (x86_64)
 WORKDIR /opt/ossl-src
 # at ./configure time
 RUN LDFLAGS="-Wl,-rpath -Wl,${INSTALLDIR}/lib" ./config shared ${OPENSSL_BUILD_DEFINES} --prefix=${INSTALLDIR} && \
@@ -91,11 +82,11 @@ RUN set -x && \
     ${OPENSSL} req -x509 -new -newkey ${SIG_ALG} -keyout CA.key -out CA.crt -nodes -subj "/CN=oqstest CA" -days 365 -config ${OPENSSL_CNF} 
 
 WORKDIR /opt/liboqs
-# Build ref-only variants and store in INSTALLDIR-ref
+# Build ref-only variants and store in INSTALLDIR-ref (x86_64)
 RUN mkdir build-shared-ref && cd build-shared-ref && cmake .. ${LIBOQS_BUILD_DEFINES} -DBUILD_SHARED_LIBS=ON -DOQS_OPT_TARGET="generic" -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}/oqs-ref && make ${MAKE_DEFINES} && make install
 RUN mkdir build-static-ref && cd build-static-ref && cmake .. ${LIBOQS_BUILD_DEFINES} -DBUILD_SHARED_LIBS=OFF -DOQS_OPT_TARGET="generic" -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}/oqs-ref && make ${MAKE_DEFINES} && make install
 
-# Build noportable fast variants and store in INSTALLDIR-noport (liboqs build default)
+# Build noportable fast variants and store in INSTALLDIR-noport (liboqs build default) (x86_64)
 RUN mkdir build-shared-noport && cd build-shared-noport && cmake .. ${LIBOQS_BUILD_DEFINES} -DBUILD_SHARED_LIBS=ON -DOQS_OPT_TARGET=${PERF_ARCH_X64} -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}/oqs-noport && make ${MAKE_DEFINES} && make install
 RUN mkdir build-static-noport && cd build-static-noport && cmake .. ${LIBOQS_BUILD_DEFINES} -DBUILD_SHARED_LIBS=OFF -DOQS_OPT_TARGET=${PERF_ARCH_X64} -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}/oqs-noport && make ${MAKE_DEFINES} && make install
 
@@ -107,18 +98,16 @@ WORKDIR /
 
 ## second stage: Only create minimal image without build tooling and intermediate build results generated above:
 ARG ARCH
-FROM multiarch/debian-debootstrap:${ARCH}-buster as dev
+FROM debian:buster-slim as dev
 # Take in all global args
 ARG INSTALLDIR
 ARG SIG_ALG
 
 # Dependencies for logfile analysis and S3FS:
 # Get all software packages required for builing all components:
-RUN dpkg --add-architecture arm64 && \
-    apt-get update -qq && \
-    apt-get upgrade -y && \
-    apt-get dist-upgrade -y && \
-    apt-get install -y python3 fuse valgrind libssl-dev:arm64 s3fs && \
+RUN apt update && apt upgrade -y && \
+    apt dist-upgrade -y && \
+    apt install -y python3 fuse valgrind libssl-dev s3fs && \
     apt autoremove && rm -rf /var/cache/apt/*
 
 # Retain the ${INSTALLDIR} contents in the final image
@@ -163,8 +152,7 @@ RUN addgroup --gid 1000 oqs && adduser --system --disabled-password --gid 1000 -
 # permit changes to liboqs lib by normal oqs user:
 RUN chmod gou+rwx /opt/oqssa/lib
 RUN chmod gou+rwx /opt/oqssa/lib/*
-
-USER oqs
+#USER oqs
 WORKDIR /opt/test
 CMD ["/opt/test/run-tests.sh"]
-STOPSIGNAL SIGTERM
+#STOPSIGNAL SIGTERM

@@ -8,6 +8,7 @@ ARCH=-`uname -m`
 
 echo "outputting some system information first"
 cat /etc/os-release
+uname -a
 hostname
 
 cd /opt/test
