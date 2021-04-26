@@ -34,6 +34,8 @@ jobs:
 #            #chmod u+x get-docker.sh && /root/get-docker.sh
 #          workdir:
 #            /root
+# enable docker if not in machine:
+      - setup_remote_docker
       - run:
           name: Check versions
           command: |
@@ -43,8 +45,6 @@ jobs:
           command: |
             docker run --rm --privileged multiarch/qemu-user-static --reset -p yes && 
             docker run -it arm64v8/debian:buster-slim uname -a
-# enable if not in machine:
-      - setup_remote_docker
       - checkout # change this from "checkout" to "*localCheckout" when running CircleCI locally
       - run: uname -a
 # enable for CCI pushing:
