@@ -40,7 +40,8 @@ jobs:
           command: |
             # The CircleCI executor offers 35 cores, but using
             # all of them might exhaust memory
-            docker build --build-arg MAKE_DEFINES="-j 18" -t oqs-mperf-arm64 -f Dockerfile-arm64 . &&
+            # explicitly tag platform
+            docker build --platform arm64 --build-arg MAKE_DEFINES="-j 18" -t oqs-mperf-arm64 -f Dockerfile-arm64 . &&
             docker run -it oqs-mperf-arm64 /opt/test/selftest.sh
           working_directory: perf
       - when:
@@ -110,10 +111,11 @@ jobs:
               - equal: [ true, << pipeline.parameters.new_openssl_commit >> ]
           steps:
             - run:
-                name: Merge
+                name: Merge and push manifests to create multiarch image
                 command: |
                    export DOCKER_CLI_EXPERIMENTAL=enabled
                    docker manifest create $TARGETNAME/oqs-mperf:latest --amend $TARGETNAME/oqs-mperf:latest-amd64 --amend $TARGETNAME/oqs-mperf:latest-arm64
+                   docker push $TARGETNAME/oqs-mperf:latest
 
 workflows:
   version: 2.1
