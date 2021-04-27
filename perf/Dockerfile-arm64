@@ -81,8 +81,8 @@ RUN CC=aarch64-linux-gnu-gcc LDFLAGS="-Wl,-rpath -Wl,${INSTALLDIR}/lib" ./Config
 ENV PATH="${INSTALLDIR}/bin:${PATH}"
 
 # generate certificates for openssl s_server, which is what we will test curl against
-ENV OPENSSL=${INSTALLDIR}/bin/openssl
-ENV OPENSSL_CNF=${INSTALLDIR}/ssl/openssl.cnf
+ENV OPENSSL=${INSTALLDIR}-arm64/bin/openssl
+ENV OPENSSL_CNF=${INSTALLDIR}-arm64/ssl/openssl.cnf
 
 WORKDIR ${INSTALLDIR}/bin
 # generate CA key and cert
