@@ -62,7 +62,7 @@ jobs:
               - equal: [ true, << pipeline.parameters.new_openssl_commit >> ]
           steps:
             - run:
-                name: Push all images
+                name: Push image
                 command: |
                   docker tag oqs-mperf-arm64 $TARGETNAME/oqs-mperf:latest-arm64 &&
                   docker push $TARGETNAME/oqs-mperf:latest-arm64
@@ -96,7 +96,7 @@ jobs:
               - equal: [ true, << pipeline.parameters.new_openssl_commit >> ]
           steps:
             - run:
-                name: Push all images
+                name: Push image
                 command: |
                   docker tag oqs-mperf $TARGETNAME/oqs-mperf:latest-amd64 &&
                   docker push $TARGETNAME/oqs-mperf:latest-amd64 
@@ -126,7 +126,7 @@ jobs:
                    docker manifest create $TARGETNAME/oqs-mperf:latest $TARGETNAME/oqs-mperf:latest-amd64 $TARGETNAME/oqs-mperf:latest-arm64
                    # if --platform is not properly honored in build, set it explicitly here
                    docker manifest annotate $TARGETNAME/oqs-mperf:latest $TARGETNAME/oqs-mperf:latest-arm64 --arch arm64
-                   docker push $TARGETNAME/oqs-mperf:latest
+                   docker manifest push $TARGETNAME/oqs-mperf:latest
 
 workflows:
   version: 2.1
