@@ -74,15 +74,15 @@ RUN mkdir build-static-noport-arm64 && cd build-static-noport-arm64 && cmake -DC
 
 # build OQS-OpenSSL 
 WORKDIR /opt/ossl-src-arm64
-RUN CC=aarch64-linux-gnu-gcc LDFLAGS="-Wl,-rpath -Wl,${INSTALLDIR}/lib" ./Configure linux-aarch64 shared ${OPENSSL_BUILD_DEFINES} --prefix=${INSTALLDIR}-arm64 && \
+RUN CC=aarch64-linux-gnu-gcc LDFLAGS="-Wl,-rpath -Wl,${INSTALLDIR}/lib" ./Configure linux-aarch64 shared ${OPENSSL_BUILD_DEFINES} --prefix=${INSTALLDIR} && \
     make ${MAKE_DEFINES} && make install_sw && make install_ssldirs;
 
 # set path to use 'new' openssl. Dyn libs have been properly linked in to match
 ENV PATH="${INSTALLDIR}/bin:${PATH}"
 
 # generate certificates for openssl s_server, which is what we will test curl against
-ENV OPENSSL=${INSTALLDIR}-arm64/bin/openssl
-ENV OPENSSL_CNF=${INSTALLDIR}-arm64/ssl/openssl.cnf
+ENV OPENSSL=${INSTALLDIR}/bin/openssl
+ENV OPENSSL_CNF=${INSTALLDIR}/ssl/openssl.cnf
 
 WORKDIR ${INSTALLDIR}/bin
 # generate CA key and cert
@@ -107,7 +107,7 @@ RUN apt-get update -qq && \
     apt autoremove && rm -rf /var/cache/apt/*
 
 # Retain the ${INSTALLDIR} contents in the final image
-COPY --from=intermediate ${INSTALLDIR}-arm64 ${INSTALLDIR}
+COPY --from=intermediate ${INSTALLDIR} ${INSTALLDIR}
 # Also retain liboqs speed-executables
 COPY --from=intermediate /opt/liboqs/build-static-arm64/tests/speed_kem ${INSTALLDIR}/bin/speed_kem
 COPY --from=intermediate /opt/liboqs/build-static-arm64/tests/speed_sig ${INSTALLDIR}/bin/speed_sig
