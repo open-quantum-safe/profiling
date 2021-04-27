@@ -41,6 +41,7 @@ jobs:
             # The CircleCI executor offers 35 cores, but using
             # all of them might exhaust memory
             # explicitly tag platform
+            export DOCKER_CLI_EXPERIMENTAL=enabled
             docker build --platform arm64 --build-arg MAKE_DEFINES="-j 18" -t oqs-mperf-arm64 -f Dockerfile-arm64 . &&
             docker run -it oqs-mperf-arm64 /opt/test/selftest.sh
           working_directory: perf
