@@ -56,16 +56,14 @@ jobs:
       - when:
           condition:
             or:
-              # just to test:
-              - equal: [ mb-debian, << pipeline.git.branch >> ]
               - equal: [ main, << pipeline.git.branch >> ]
               - equal: [ true, << pipeline.parameters.new_openssl_commit >> ]
           steps:
             - run:
                 name: Push image
                 command: |
-                  docker tag oqs-mperf-arm64 $TARGETNAME/oqs-mperf:latest-arm64 &&
-                  docker push $TARGETNAME/oqs-mperf:latest-arm64
+                  docker tag oqs-mperf-arm64 $TARGETNAME/oqs-perf:latest-arm64 &&
+                  docker push $TARGETNAME/oqs-perf:latest-arm64
 
   debian_x64:
     description: A template for building and pushing OQS performance testing Docker image on Ubuntu Bionic that depend on OQS-OpenSSL
@@ -91,15 +89,14 @@ jobs:
       - when:
           condition:
             or:
-              - equal: [ mb-debian, << pipeline.git.branch >> ]
               - equal: [ main, << pipeline.git.branch >> ]
               - equal: [ true, << pipeline.parameters.new_openssl_commit >> ]
           steps:
             - run:
                 name: Push image
                 command: |
-                  docker tag oqs-mperf $TARGETNAME/oqs-mperf:latest-amd64 &&
-                  docker push $TARGETNAME/oqs-mperf:latest-amd64 
+                  docker tag oqs-mperf $TARGETNAME/oqs-perf:latest-amd64 &&
+                  docker push $TARGETNAME/oqs-perf:latest-amd64 
   merge:
     description: merging multiple architecture docker images into one multiarch image
     docker:
@@ -115,7 +112,6 @@ jobs:
       - when:
           condition:
             or:
-              - equal: [ mb-debian, << pipeline.git.branch >> ]
               - equal: [ main, << pipeline.git.branch >> ]
               - equal: [ true, << pipeline.parameters.new_openssl_commit >> ]
           steps:
@@ -123,10 +119,10 @@ jobs:
                 name: Merge and push manifests to properly label multiarch image
                 command: |
                    export DOCKER_CLI_EXPERIMENTAL=enabled
-                   docker manifest create $TARGETNAME/oqs-mperf:latest $TARGETNAME/oqs-mperf:latest-amd64 $TARGETNAME/oqs-mperf:latest-arm64
+                   docker manifest create $TARGETNAME/oqs-perf:latest $TARGETNAME/oqs-perf:latest-amd64 $TARGETNAME/oqs-perf:latest-arm64
                    # if --platform is not properly honored in build, set it explicitly here
-                   docker manifest annotate $TARGETNAME/oqs-mperf:latest $TARGETNAME/oqs-mperf:latest-arm64 --arch arm64
-                   docker manifest push $TARGETNAME/oqs-mperf:latest
+                   docker manifest annotate $TARGETNAME/oqs-perf:latest $TARGETNAME/oqs-perf:latest-arm64 --arch arm64
+                   docker manifest push $TARGETNAME/oqs-perf:latest
 
 workflows:
   version: 2.1

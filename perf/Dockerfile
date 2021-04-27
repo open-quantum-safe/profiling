@@ -4,7 +4,7 @@
 ARG INSTALLDIR=/opt/oqssa
 
 # liboqs build defines (https://github.com/open-quantum-safe/liboqs/wiki/Customizing-liboqs)
-#for minimal build:
+# for minimal build:
 #ARG LIBOQS_BUILD_DEFINES="-DOQS_MINIMAL_BUILD=ON"
 ARG LIBOQS_BUILD_DEFINES=""
 
@@ -64,9 +64,16 @@ WORKDIR /opt/liboqs
 RUN mkdir build && cd build && cmake .. ${LIBOQS_BUILD_DEFINES} -DOQS_DIST_BUILD=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=/opt/ossl-src/oqs && make ${MAKE_DEFINES} && make install
 RUN mkdir build-static && cd build-static && cmake .. ${LIBOQS_BUILD_DEFINES} -DOQS_DIST_BUILD=ON -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=/opt/ossl-src/oqs && make ${MAKE_DEFINES} && make install
 
+# Build ref-only variants and store in INSTALLDIR-ref (x86_64)
+RUN mkdir build-shared-ref && cd build-shared-ref && cmake .. ${LIBOQS_BUILD_DEFINES} -DBUILD_SHARED_LIBS=ON -DOQS_OPT_TARGET="generic" -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}/oqs-ref && make ${MAKE_DEFINES} && make install
+RUN mkdir build-static-ref && cd build-static-ref && cmake .. ${LIBOQS_BUILD_DEFINES} -DBUILD_SHARED_LIBS=OFF -DOQS_OPT_TARGET="generic" -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}/oqs-ref && make ${MAKE_DEFINES} && make install
+
+# Build noportable fast variants and store in INSTALLDIR-noport (liboqs build default) (x86_64)
+RUN mkdir build-shared-noport && cd build-shared-noport && cmake .. ${LIBOQS_BUILD_DEFINES} -DBUILD_SHARED_LIBS=ON -DOQS_OPT_TARGET=${PERF_ARCH_X64} -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}/oqs-noport && make ${MAKE_DEFINES} && make install
+RUN mkdir build-static-noport && cd build-static-noport && cmake .. ${LIBOQS_BUILD_DEFINES} -DBUILD_SHARED_LIBS=OFF -DOQS_OPT_TARGET=${PERF_ARCH_X64} -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}/oqs-noport && make ${MAKE_DEFINES} && make install
+
 # build OQS-OpenSSL (x86_64)
 WORKDIR /opt/ossl-src
-# at ./configure time
 RUN LDFLAGS="-Wl,-rpath -Wl,${INSTALLDIR}/lib" ./config shared ${OPENSSL_BUILD_DEFINES} --prefix=${INSTALLDIR} && \
     make ${MAKE_DEFINES} && make install_sw && make install_ssldirs;
 
@@ -81,19 +88,6 @@ WORKDIR ${INSTALLDIR}/bin
 # generate CA key and cert
 RUN set -x && \
     ${OPENSSL} req -x509 -new -newkey ${SIG_ALG} -keyout CA.key -out CA.crt -nodes -subj "/CN=oqstest CA" -days 365 -config ${OPENSSL_CNF} 
-
-WORKDIR /opt/liboqs
-# Build ref-only variants and store in INSTALLDIR-ref (x86_64)
-RUN mkdir build-shared-ref && cd build-shared-ref && cmake .. ${LIBOQS_BUILD_DEFINES} -DBUILD_SHARED_LIBS=ON -DOQS_OPT_TARGET="generic" -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}/oqs-ref && make ${MAKE_DEFINES} && make install
-RUN mkdir build-static-ref && cd build-static-ref && cmake .. ${LIBOQS_BUILD_DEFINES} -DBUILD_SHARED_LIBS=OFF -DOQS_OPT_TARGET="generic" -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}/oqs-ref && make ${MAKE_DEFINES} && make install
-
-# Build noportable fast variants and store in INSTALLDIR-noport (liboqs build default) (x86_64)
-RUN mkdir build-shared-noport && cd build-shared-noport && cmake .. ${LIBOQS_BUILD_DEFINES} -DBUILD_SHARED_LIBS=ON -DOQS_OPT_TARGET=${PERF_ARCH_X64} -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}/oqs-noport && make ${MAKE_DEFINES} && make install
-RUN mkdir build-static-noport && cd build-static-noport && cmake .. ${LIBOQS_BUILD_DEFINES} -DBUILD_SHARED_LIBS=OFF -DOQS_OPT_TARGET=${PERF_ARCH_X64} -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}/oqs-noport && make ${MAKE_DEFINES} && make install
-
-# Download current test.openquantumsafe.org test CA cert
-WORKDIR ${INSTALLDIR}
-RUN wget https://test.openquantumsafe.org/CA.crt && mv CA.crt oqs-testca.pem
 
 WORKDIR /
 
@@ -128,6 +122,8 @@ COPY --from=intermediate /opt/liboqs/build-static-ref/tests/test_sig_mem ${INSTA
 COPY --from=intermediate /opt/liboqs/build-static-noport/tests/test_kem_mem ${INSTALLDIR}/bin/test_kem_mem-noport
 COPY --from=intermediate /opt/liboqs/build-static-noport/tests/test_sig_mem ${INSTALLDIR}/bin/test_sig_mem-noport
 
+COPY scripts/* /opt/test/
+
 # set path to use 'new' openssl. Dyn libs have been properly linked in to match
 ENV PATH="${INSTALLDIR}/bin:${PATH}"
 
@@ -135,25 +131,18 @@ ENV PATH="${INSTALLDIR}/bin:${PATH}"
 ENV OPENSSL=${INSTALLDIR}/bin/openssl
 ENV OPENSSL_CNF=${INSTALLDIR}/ssl/openssl.cnf
 
-WORKDIR ${INSTALLDIR}/bin
-
-RUN set -x && mkdir /opt/test 
-
-COPY scripts/* /opt/test/
-# ToDo: Add further test scripts here
-
 WORKDIR ${INSTALLDIR}
 
 FROM dev
 ARG INSTALLDIR
 
 # Enable a normal user to create new server keys off set CA
-RUN addgroup --gid 1000 oqs && adduser --system --disabled-password --gid 1000 --uid 1000 oqs && chown -R oqs.oqs /opt/test 
+RUN addgroup --gid 1000 oqs && adduser --system --disabled-password --gid 1000 --uid 1000 oqs && chown -R oqs.oqs /opt/test
 
 # permit changes to liboqs lib by normal oqs user:
-RUN chmod gou+rwx /opt/oqssa/lib
-RUN chmod gou+rwx /opt/oqssa/lib/*
-#USER oqs
+RUN chmod gou+rwx /opt/oqssa/lib && chmod gou+rwx /opt/oqssa/lib/*
+
+USER oqs
 WORKDIR /opt/test
 CMD ["/opt/test/run-tests.sh"]
-#STOPSIGNAL SIGTERM
+STOPSIGNAL SIGTERM
