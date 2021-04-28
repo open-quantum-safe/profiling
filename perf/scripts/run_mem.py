@@ -2,6 +2,7 @@ import json
 import re
 import subprocess
 import sys
+import os
 from get_cpuinfo import getcpuinfo
 
 data = {}
@@ -43,6 +44,9 @@ fieldname=["insts", "maxBytes", "maxHeap", "extHeap", "maxStack"]
 def do_test(alg, meth, methnames, exepath):
    process = subprocess.Popen(["valgrind", "--tool=massif", "--stacks=yes", "--massif-out-file=valgrind-out", exepath, alg, str(meth)], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,universal_newlines=True)
    (outs, errs) = process.communicate()
+   if process.returncode != 0:
+      print("Valgrind died with retcode %d and \n%s\n%s\nFatal error. Exiting." % (process.returncode, outs, errs))
+      exit(1)
    if len(data["config"]) == 0:
       parse_config(outs)
    process = subprocess.Popen(["ms_print", "valgrind-out"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,universal_newlines=True)
@@ -69,6 +73,13 @@ if exepath.find("kem")>0:
 else:
    methnames=["keygen","sign","verify"]
 
+try:
+   os.mkdir("build")
+   os.mkdir(os.path.join("build", "mem-benchmark"))
+except FileExistsError:
+   activealgs=[]
+
+# first determine all enabled algorithms
 process = subprocess.Popen([exepath], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,universal_newlines=True)
 (outs, errs) = process.communicate()
 for line in outs.splitlines():
@@ -76,11 +87,22 @@ for line in outs.splitlines():
    if line.startswith("  algname: "):
       algs = line[len("  algname: "):].split(", ")
 
-
+activealgs=[]
+# weed out algs not enabled
 for alg in algs:
+   process = subprocess.Popen([exepath, alg, "0"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,universal_newlines=True)
+   (outs, errs) = process.communicate()
+   enabled=True
+   for line in outs.splitlines():
+      if "not enabled" in line:
+         enabled=False
+   if enabled:
+         activealgs.append(alg)
+
+for alg in activealgs:
    data[alg]={}
    # Activate this for a quick test:
-   #if alg=="BIKE1-L3-FO" or alg=="DILITHIUM_3":
+   #if alg=="DEFAULT":
    for i in range(3):
       do_test(alg, i, methnames, exepath)
 

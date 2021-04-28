@@ -7,7 +7,8 @@ S3FOLDER=/tmp/s3dir
 ARCH=-`uname -m`
 
 echo "outputting some system information first"
-dmesg
+cat /etc/os-release
+uname -a
 hostname
 
 cd /opt/test
