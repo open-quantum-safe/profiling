@@ -43,7 +43,10 @@ def merge(basepath, outpath, date):
                os.system(cmd)
 
    if (exportedtarballs != len(archs)):
-     print("Warning: %d exported tarballs vs %d known architectures." % (exportedtarballs, len(archs)))
+     print("Warning: %d exported tarballs vs %d known architectures at %s." % (exportedtarballs, len(archs), str(date.date())))
+   if exportedtarballs==0:
+     print("No Tarballs found. Exiting.")
+     exit(1)
    else:
      basepath=tmpdir.name
 
@@ -58,14 +61,13 @@ def merge(basepath, outpath, date):
       # validate folders exist
       path = os.path.join(basepath, arch, date.strftime('%Y-%m-%d'))
       if not os.path.exists(path):
-         print("%s not found. Failing." % (path))
-         return False
+         print("%s not found. Investigate!" % (path))
       # validate data files exist
-      for ttype in ttypes:
+      else:
+        for ttype in ttypes:
             fpath = os.path.join(path, test+ttype+".json")
             if not os.path.exists(fpath):
-               print("%s not found. Failing." % (fpath))
-               return
+               print("%s not found. Investigate!" % (fpath))
             else:
               with open(fpath, 'r') as json_file:
                  d = json.load(json_file)
@@ -89,14 +91,13 @@ def merge(basepath, outpath, date):
       # validate folders exist
       path = os.path.join(basepath, arch, date.strftime('%Y-%m-%d'))
       if not os.path.exists(path):
-         print("%s not found. Failing." % (path))
-         return False
+         print("%s not found. Investigate tests!" % (path))
       # validate data files exist
-      for ttype in ttypes:
+      else:
+        for ttype in ttypes:
          fpath = os.path.join(path, test+ttype+".json")
          if not os.path.exists(fpath):
-              print("%s not found. Failing." % (fpath))
-              return
+              print("%s not found. Investigate!" % (fpath))
          else:
             with open(fpath, 'r') as json_file:
               d = json.load(json_file)
