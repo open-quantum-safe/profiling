@@ -63,9 +63,10 @@ echo "Done."
 echo "Starting openssl speed tests (noport)..."
 ./openssl-test.sh -noport
 
-echo "Starting liboqs memory tests..."
-python3 run_mem.py test_kem_mem-noport && mv test_kem_mem-noport.json results/mem_kem-noport.json
-python3 run_mem.py test_sig_mem-noport && mv test_sig_mem-noport.json results/mem_sig-noport.json
+# TBD: Re-enable once Valgrind can handle AVX512-optimized code
+#echo "Starting liboqs memory tests for fast code..."
+#python3 run_mem.py test_kem_mem-noport && mv test_kem_mem-noport.json results/mem_kem-noport.json
+#python3 run_mem.py test_sig_mem-noport && mv test_sig_mem-noport.json results/mem_sig-noport.json
 
 # About 1100 tests: Multiply with test runtime set by second parameter:
 echo "Starting openssl handshake tests..."
