@@ -33,8 +33,10 @@ fi
 cp $1/devs.txt$2 .
 # create new deviations report
 python3 devcheck.py out devs.txt$2 > newdevs.txt$2
+# output architecture in report file:
+echo "Deviations for architecture: $2" > report.txt
 # discard cycle counting deviations assuming they're caused by swapping
-egrep -v "insts|cycles" newdevs.txt$2 > report.txt
+egrep -v "insts|cycles" newdevs.txt$2 >> report.txt
 # store todays deviation for comparison tomorrow
 cp newdevs.txt$2 $1/devs.txt$2
 # send email
