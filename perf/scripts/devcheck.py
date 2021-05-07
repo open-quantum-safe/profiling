@@ -3,6 +3,7 @@ from datetime import date
 import os
 import sys
 import json
+import tempfile
 
 # This script has to receive as first parameter a folder containing different performance 
 # measurements stored in JSON format in folders organized by day (yyyy-mm-dd format).
@@ -17,14 +18,21 @@ MAXDIFF=20
 
 
 
-if len(sys.argv)>3 or len(sys.argv)<2:
-    print("Usage: [python3] %s <results-folder> [last-deviations-file]. Exiting." % (sys.argv[0]), file=sys.stderr)
+if len(sys.argv)>4 or len(sys.argv)<3:
+    print("Usage: [python3] %s <results-folder> <arch> [last-deviations-file]. Exiting." % (sys.argv[0]), file=sys.stderr)
     exit(1)
-
 
 
 # idea is to collect in this dict a list of all <files>-<algorithm>-<measurement>: value (float)
 todaysvalues={}
+
+# extract tarball ./dir/filename*.tgz into tmpdir/day
+def extract(tmpdir, dir, filename, day):
+    tarball = os.path.join(os.path.abspath(dir), filename)
+    ndf = os.path.join(tmpdir, day)
+    #print("Extracting %s to %s" % (tarball, tmpdir), file = sys.stderr)
+    os.system("mkdir "+ndf+"&& cd "+ndf+" && tar xzvf "+tarball+" > /dev/null")
+    return os.path.join(ndf, "results")
 
 # recursively flatten JSON; retain only all-numbers structures
 def iterate_dict(d, prefix):
@@ -59,10 +67,29 @@ td = timedelta(days = 1)
 # collect all .json files of today:
 files = []
 
-with os.scandir(sys.argv[1]+os.sep+str(t)) as entries:
+datafolder=os.path.join(sys.argv[1], str(t))
+dotarballs = False
+
+if not os.path.isdir(datafolder):
+   # find tgz file with suitable date
+   candidatefiles = os.listdir(sys.argv[1])
+   datafolder = None
+   
+   for f in candidatefiles:
+      if f.startswith(str(t)) and sys.argv[2] in f:
+          tmpd = tempfile.TemporaryDirectory()
+          tmpdir = tmpd.name
+          datafolder = extract(tmpdir, sys.argv[1], f, str(t))
+          dotarballs = True
+          break
+   if datafolder == None:
+      print("Cannot find datafolder to process. Exiting.")
+      exit(1)
+
+with os.scandir(datafolder) as entries:
     for entry in entries:
         files.append(entry.name)
-        with open(sys.argv[1]+os.sep+str(t)+os.sep+entry.name) as json_file:
+        with open(os.path.join(datafolder, entry.name)) as json_file:
             todaysvalues[entry.name] = iterate_dict(json.load(json_file), entry.name)
 
 prev = {}
@@ -73,34 +100,55 @@ for i in range(CHECKDAYS):
    day = str(t-(i+1)*td)
    # same approach as for todaysvalues: flatten the data into key:float-value pairs:
    prev[day]={}
+   if dotarballs:
+       #print("Search tarballs for %s" % (day), file = sys.stderr)
+       datapath=""
+       for f in candidatefiles:
+          if f.startswith(day) and sys.argv[2] in f:
+             datapath = os.path.join(extract(tmpdir, sys.argv[1], f, day))
+             break
+   else:
+       datapath = os.path.join(sys.argv[1], day)
    for file in files:
-        with open(sys.argv[1]+os.sep+day+os.sep+file) as json_file:
+     try:
+        with open(os.path.join(datapath, file)) as json_file:
             prev[day][file] = iterate_dict(json.load(json_file), file)
+     except FileNotFoundError as fnf:
+        print("Some data not available: "+str(fnf), file = sys.stderr)
 
 # create the value avgs for the previous days:
+sums = {}
 for file in files:
  avgs[file]={}
+ sums[file]={}
+ dc=0
  for day in prev:
+  if file in prev[day]:
+   dc = dc+1
    for k in prev[day][file]:
-      try:
-         avgs[file][k]=avgs[file][k]+prev[day][file][k]/CHECKDAYS
-      except KeyError:
-         avgs[file][k]=prev[day][file][k]/CHECKDAYS
+      if k in sums[file]:
+         sums[file][k]=sums[file][k]+prev[day][file][k]
+      else:
+         sums[file][k]=prev[day][file][k]
+ for k in sums[file]:
+    avgs[file][k]=sums[file][k]/dc
 
 knowndevs={}
-if (len(sys.argv)==3):
+if (len(sys.argv)==4):
    # Now (try to) load file with known deviations:
    try:
-      with open(sys.argv[2], "r") as lastdevfile:
+      with open(sys.argv[3], "r") as lastdevfile:
          for line in lastdevfile.readlines():
              knowndevs[line.split("|")[1]] = float(line.split("|")[0])
    except FileNotFoundError as e:
-      print("No lastdeviations file found at "+sys.argv[2], file=sys.stderr)
+      print("No lastdeviations file found at "+sys.argv[3], file=sys.stderr)
 
 cnt=0
 devs=0
 for file in todaysvalues:
    for k in todaysvalues[file]:
+    if k in avgs[file]:
+      #print("AVG[%s in %s] = %f" % (k, file, avgs[file][k]), file = sys.stderr)
       delta = 100.0*abs(todaysvalues[file][k]-avgs[file][k])/min(todaysvalues[file][k],avgs[file][k])
       cnt=cnt+1
       if (delta > MAXDIFF):
