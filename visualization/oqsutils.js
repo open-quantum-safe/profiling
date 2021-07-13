@@ -170,14 +170,10 @@ var ColorMap = {
 "SIKE-p751-compressed":"#5e1106",
 
 // Quasi cyclic https://coolors.co/gradient-palette/ff2600-e15c45?number=20
-"bike1l1cpa":"#ff2600",
-"bike1l3cpa":"#fd2904",
-"bike1l1fo":"#fc2c07",
-"bike1l3fo":"#f73412",
-"BIKE1-L1-CPA":"#ff2600", 
-"BIKE1-L3-CPA":"#fd2904", 
-"BIKE1-L1-FO":"#fc2c07", 
-"BIKE1-L3-FO":"#f73412", 
+"bikel1":"#ff2600",
+"bikel3":"#fd2904",
+"BIKE-L1":"#ff2600", 
+"BIKE-L3":"#fd2904", 
 "hqc128":"#f63716",
 "hqc192":"#f43a19",
 "hqc256":"#ef4224",
