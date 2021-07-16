@@ -104,6 +104,9 @@ function PopulateDatum(key, arch, ttype, dscount, currentoperations, setDate,
                  else {
                    jso = jsonarray[date][setSig][key];
                  }
+                 if (jso === undefined) // alg may be gone
+                   console.log("JSO unknown for "+key);
+                 else 
                  for (j = 0; j < chartTypes.length; j++) {
                     var cT = chartTypes[j];
                     if (setMemType == undefined) {
@@ -235,7 +238,8 @@ function LoadData(fullInit, cleanSlate) {
          }
          if (selectbysig === undefined) jso = jsonarray[currentoperations[0]][key];
          else jso = jsonarray[currentoperations[0]][selectbysig][key];
-         Object.keys(jso).forEach(function(arch) {
+         try {
+          Object.keys(jso).forEach(function(arch) {
             if (!archs.includes(arch)) archs.push(arch);
             Object.keys(jso[arch]).forEach(function(ttype) {
             if (!ttypes.includes(ttype)) ttypes.push(ttype);
@@ -247,7 +251,12 @@ function LoadData(fullInit, cleanSlate) {
                dscount++;
             }
             });
-         });
+          });
+          }
+          catch(te) {
+            // TypeError possible if unknown/old alg type in key (-> empty JSO)
+            if (te.name != "TypeError") console.log("Unexpected error: "+te);
+          }
        }
        else { 
          if (setDate=="All")
