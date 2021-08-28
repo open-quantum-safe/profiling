@@ -45,7 +45,7 @@ function fillNumberTable(tabledata, setDate) {
 
    clearTable(ntable);
    if (tabledata.length > 0) {
-     fillDownloadTable(setDate, DOWNLOADJSON); // populated by _setup.js
+     fillDownloadTable(setDate, DOWNLOADJSON); // populated by specific .js
      var headerstring = "Algorithm";
      for (j = 0; j < chartTypes.length; j++) 
         if (setMemType==undefined) {
@@ -278,8 +278,13 @@ function LoadData(fullInit, cleanSlate) {
    for (j = 0; j < chartTypes.length; j++) {
       if (charts[j]===undefined) {
          var chartLabel = chartTypes[j];
-         if (!chartLabel.includes("/s"))
-            chartLabel=chartLabel+"/s";
+         if (setMemType==undefined) { // this is a speed chart
+            if (!chartLabel.includes("/s"))
+               chartLabel=chartLabel+"/s";
+         }
+         else { // this is a memory chart
+            chartLabel=chartLabel+" (Bytes)";
+         }
          charts[j] = new Chart(document.getElementById(chartTypes[j]+"Chart"), {
            type: charttype,
            data: {
