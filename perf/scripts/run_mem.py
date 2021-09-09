@@ -6,7 +6,8 @@ import os
 from get_cpuinfo import getcpuinfo
 
 data = {}
-data["cpuinfo"]=getcpuinfo(["flags", "model name", "cpu MHz"])
+# fetch both x86 and aarch64 CPU details:
+data["cpuinfo"]=getcpuinfo(["flags", "model name", "cpu MHz", "Features", "CPU implementer", "CPU variant", "CPU part", "BogoMIPS"])
 data["config"]={}
 
 def get_peak(lines):

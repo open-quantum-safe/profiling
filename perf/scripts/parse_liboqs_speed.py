@@ -11,7 +11,8 @@ class State(Enum):
    parsing=2
 
 data={}
-data["cpuinfo"]=getcpuinfo(["flags", "model name", "cpu MHz"])
+# fetch both x86 and aarch64 CPU details:
+data["cpuinfo"]=getcpuinfo(["flags", "model name", "cpu MHz", "Features", "CPU implementer", "CPU variant", "CPU part", "BogoMIPS"])
 
 if len(sys.argv)!=2:
    print("Usage: %s <logfile to parse>" % (sys.argv[0]))
