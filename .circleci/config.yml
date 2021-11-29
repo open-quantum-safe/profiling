@@ -21,7 +21,7 @@ jobs:
     docker:
       - image: openquantumsafe/ci-debian-bullseye-amd64
     steps:
-      - setup_remote_docker
+      - setup_remote_docker:
           version: 20.10.7
       - run:
           name: Check versions
