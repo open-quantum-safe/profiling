@@ -23,7 +23,7 @@ ARG PERF_ARCH_ARM64="cortex-a72"
 # default architecture
 ARG ARCH="amd64"
 
-FROM multiarch/debian-debootstrap:${ARCH}-buster as intermediate
+FROM multiarch/debian-debootstrap:${ARCH}-bullseye as intermediate
 # Take in all global args
 ARG INSTALLDIR
 ARG LIBOQS_BUILD_DEFINES
@@ -93,7 +93,7 @@ WORKDIR /
 
 ## second stage (ARM64): Only create minimal image without build tooling and intermediate build results generated above:
 # must be run on arm64 (emulated) host
-FROM arm64v8/debian:buster-slim as dev
+FROM arm64v8/debian:bullseye-slim as dev
 
 # Take in global args
 ARG INSTALLDIR
