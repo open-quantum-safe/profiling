@@ -17,11 +17,12 @@ localCheckout: &localCheckout
 
 jobs:
   debian_arm64:
-    description: Building and pushing ARM64 benchmarking baselin image 
+    description: Building and pushing ARM64 benchmarking baseline image
     docker:
-      - image: openquantumsafe/ci-debian-buster-amd64
+      - image: openquantumsafe/ci-debian-bullseye-amd64
     steps:
-      - setup_remote_docker
+      - setup_remote_docker:
+          version: 20.10.7
       - run:
           name: Check versions
           command: |
@@ -37,7 +38,7 @@ jobs:
           name: activate multiarch
           command: |
             docker run --rm --privileged multiarch/qemu-user-static --reset -p yes && 
-            docker run -it arm64v8/debian:buster-slim uname -a
+            docker run -it arm64v8/debian:bullseye-slim uname -a
       - checkout # change this from "checkout" to "*localCheckout" when running CircleCI locally
       - run:
           name: Authenticate to Docker
@@ -50,7 +51,8 @@ jobs:
             # explicitly tag platform
             export DOCKER_CLI_EXPERIMENTAL=enabled
             docker version
-            docker build --platform arm64 --build-arg MAKE_DEFINES="-j 18" -t oqs-mperf-arm64 -f Dockerfile-arm64 . &&
+            docker build --platform arm64 --build-arg MAKE_DEFINES="-j 18" -t intermediate -f Dockerfile-arm64-start . &&
+            docker build --platform arm64 --build-arg MAKE_DEFINES="-j 18" -t oqs-mperf-arm64 -f Dockerfile-arm64-end . &&
             docker run -it oqs-mperf-arm64 /opt/test/selftest.sh
           working_directory: perf
       - when:
