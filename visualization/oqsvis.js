@@ -139,6 +139,7 @@ function PopulateDatum(key, arch, ttype, dscount, currentoperations, setDate,
             if (ttype=="-ref") bd=bd+1; 
             if (ttype=="") bd=bd+2; 
             if (arch=="aarch64") bd=bd*2;
+            if (arch=="m1") bd=bd*3;
             if (bd>1) borderdash = [bd];
 
             for (j = 0; j < chartTypes.length; j++) {

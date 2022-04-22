@@ -8,7 +8,7 @@ import tempfile
 
 tests = [ "speed_kem", "speed_sig", "speed", "mem_kem", "mem_sig" ]
 ttypes = [ "", "-ref", "-noport" ]
-archs = [ "x86_64", "aarch64" ]
+archs = [ "x86_64", "aarch64", "m1" ]
 
 def output_json(data, date, outpath, test):
     dpath = os.path.join(outpath, date.strftime('%Y-%m-%d'))
