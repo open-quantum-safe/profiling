@@ -23,7 +23,7 @@ ARG PERF_ARCH_X64="skylake-avx512"
 # default architecture
 ARG ARCH="amd64"
 
-FROM multiarch/debian-debootstrap:${ARCH}-buster as intermediate
+FROM multiarch/debian-debootstrap:${ARCH}-bullseye as intermediate
 # Take in all global args
 ARG INSTALLDIR
 ARG LIBOQS_BUILD_DEFINES
@@ -93,7 +93,7 @@ WORKDIR /
 
 ## second stage: Only create minimal image without build tooling and intermediate build results generated above:
 ARG ARCH
-FROM debian:buster-slim as dev
+FROM debian:bullseye-slim as dev
 # Take in all global args
 ARG INSTALLDIR
 ARG SIG_ALG
