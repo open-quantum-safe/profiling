@@ -5,6 +5,12 @@ import json
 import sys
 import re
 
+# List of classic KEM algs to test
+CLASSIC_KEM_LIST="secp256k1,secp384r1,X25519,X448"
+
+# List of classic SIG algs to test
+CLASSIC_SIG_LIST="ED448,ED25519,RSA:2048,RSA:3072,ECDSAprime256v1,ECDSAsecp384r1"
+
 # Default install directory
 INSTALLDIR="/opt/oqssa"
 
@@ -15,6 +21,7 @@ TEST_TIME="1"
 data={}
 
 def populate_algs():
+   # first get QS algs:
    process = subprocess.Popen(["openssl", "speed", "test"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
    stdout_iterator = iter(process.stdout.readline, b"")
    stderr_iterator = iter(process.stderr.readline, b"")
@@ -31,8 +38,11 @@ def populate_algs():
           kems=alglist.split(",")
 
    if len(kems)==0 or len(sigs)==0:
-      print("Didn't find KEM or SIG list. Exiting.")
+      print("Didn't find quantumsafe KEM or SIG list. Exiting.")
       exit(1)
+   # Now add classic algs, too:
+   kems.extend(CLASSIC_KEM_LIST.split(","))
+   sigs.extend(CLASSIC_SIG_LIST.split(","))
    return kems,sigs
 
 kems,sigs=populate_algs()
@@ -47,9 +57,14 @@ if len(sys.argv)>2:
 for sig in sigs:
     data[sig]={}
     # Generate CA and server certs:
-    if os.system("openssl req -x509 -new -newkey "+sig+" -keyout CA.key -out CA.crt -nodes -subj \"/CN=oqstest CA\" -days 365 -config "+INSTALLDIR+"/ssl/openssl.cnf")!=0:
+    # Special handling for ECDSA algs required
+    if sig.startswith("ECDSA"):
+        s_spec = "ec -pkeyopt ec_paramgen_curve:"+sig[5:] # cutting off leading ECDSA moniker to get curve name
+    else:
+        s_spec = sig
+    if os.system("openssl req -x509 -new -newkey "+s_spec+" -keyout CA.key -out CA.crt -nodes -subj \"/CN=oqstest CA\" -days 365 -config "+INSTALLDIR+"/ssl/openssl.cnf")!=0:
        print("Couldn't generate CA")
-    if os.system("openssl req -new -newkey "+sig+" -keyout /opt/test/server.key -out /opt/test/server.csr -nodes -subj \"/CN=localhost\"")!=0:
+    if os.system("openssl req -new -newkey "+s_spec+" -keyout /opt/test/server.key -out /opt/test/server.csr -nodes -subj \"/CN=localhost\"")!=0:
        print("Couldn't generate CSR")
     if os.system("openssl x509 -req -in /opt/test/server.csr -out /opt/test/server.crt -CA CA.crt -CAkey CA.key -CAcreateserial -days 365")!=0:
        print("Couldn't generate server cert")
