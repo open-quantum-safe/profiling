@@ -24,9 +24,11 @@ def output_json(data, date, outpath, test):
        outfile.write(os.path.join(date.strftime('%Y-%m-%d'),test+".json")+"\n")
 
 
-def merge(basepath, outpath, date):
-   # works on <date>-<arch>.tgz files located in basepath:
-   # unpacks them to tmp folder
+# works on <date>-<arch>.tgz files located in basepath:
+# unpacks them to outpath folder
+# if allarchs set to True, require presence of data for all architectures to be successful
+# returns True iff successful
+def merge(basepath, outpath, date, allarchs=False):
    tmpdir=tempfile.TemporaryDirectory()
    exportedtarballs = 0
    for arch in archs:
@@ -44,9 +46,10 @@ def merge(basepath, outpath, date):
 
    if (exportedtarballs != len(archs)):
      print("Warning: %d exported tarballs vs %d known architectures at %s." % (exportedtarballs, len(archs), str(date.date())))
+     if allarchs: return False
    if exportedtarballs==0:
-     print("No Tarballs found. Exiting.")
-     exit(1)
+       print("No Tarballs found for date %s." % (str(sd)))
+       return False
    else:
      basepath=tmpdir.name
 
@@ -125,14 +128,16 @@ def merge(basepath, outpath, date):
 # Begin main :
 if len(sys.argv)!=4:
    print("OQS-profiling datafile combiner.")
-   print("Usage: %s [<startdate>|days-back-from-today] <datafile-folder> <output-folder> " % (sys.argv[0]))
+   print("Usage: %s [<startdate>|number-of-runs-back-from-today] <datafile-folder> <output-folder> " % (sys.argv[0]))
    exit(-1)
 
+retdays = 1000 # maximum number of days to return
+maxdays = 10000 # maximum number of days to search
 # Parse start date (param1)
-retdays = 10000
 try:
    sd = datetime.datetime.strptime(sys.argv[1], '%Y-%m-%d')
 except ValueError as ve:
+   # if not successful, first parameter is number of days to check
    sd = datetime.datetime.today()
    retdays = int(sys.argv[1])
 
@@ -144,10 +149,14 @@ outdir = sys.argv[3]
 # Start at date given and go back until error is returned or retdays is 0
 
 dayscollected=False
-while((retdays>0) and merge(sys.argv[2], sys.argv[3], sd)):
-   sd = sd+datetime.timedelta(days = -1)
-   retdays=retdays-1
-   dayscollected=True
+while(retdays>0 and maxdays>0):
+    if (merge(sys.argv[2], sys.argv[3], sd, True)):
+        print("Collected OK: %s" % (str(sd)))
+        retdays=retdays-1
+    sd = sd+datetime.timedelta(days = -1)
+    maxdays=maxdays-1 # ensures this loop terminates
+    dayscollected=True
 
 if not dayscollected:
-   exit(-1)
+    print("Not enough days collected. Error-Exit.")
+    exit(-1)
