@@ -20,6 +20,7 @@ MAXDIFF=20
 
 if len(sys.argv)>4 or len(sys.argv)<3:
     print("Usage: [python3] %s <results-folder> <arch> [last-deviations-file]. Exiting." % (sys.argv[0]), file=sys.stderr)
+    print("       arch: Supported architecture, e.g., x86_64, aarch64, m1")
     exit(1)
 
 
@@ -96,10 +97,10 @@ prev = {}
 avgs = {}
 
 # collect data for the same files over the prev CHECKDAYS days
-for i in range(CHECKDAYS):
+i=1 # number of days to check back in the past
+while(CHECKDAYS>0):
    day = str(t-(i+1)*td)
    # same approach as for todaysvalues: flatten the data into key:float-value pairs:
-   prev[day]={}
    if dotarballs:
        #print("Search tarballs for %s" % (day), file = sys.stderr)
        datapath=""
@@ -109,12 +110,16 @@ for i in range(CHECKDAYS):
              break
    else:
        datapath = os.path.join(sys.argv[1], day)
-   for file in files:
-     try:
-        with open(os.path.join(datapath, file)) as json_file:
-            prev[day][file] = iterate_dict(json.load(json_file), file)
-     except FileNotFoundError as fnf:
-        print("Some data not available: "+str(fnf), file = sys.stderr)
+   if datapath != "":
+     prev[day]={}
+     for file in files:
+       try:
+          with open(os.path.join(datapath, file)) as json_file:
+              prev[day][file] = iterate_dict(json.load(json_file), file)
+       except FileNotFoundError as fnf:
+          print("Some data not available: "+str(fnf), file = sys.stderr)
+     CHECKDAYS = CHECKDAYS-1
+   i=i+1
 
 # create the value avgs for the previous days:
 sums = {}
