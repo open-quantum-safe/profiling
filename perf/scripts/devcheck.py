@@ -97,9 +97,8 @@ prev = {}
 avgs = {}
 
 # collect data for the same files over the prev CHECKDAYS days
-i=1
+i=1 # number of days to check back in the past
 while(CHECKDAYS>0):
-#for i in range(CHECKDAYS):
    day = str(t-(i+1)*td)
    # same approach as for todaysvalues: flatten the data into key:float-value pairs:
    if dotarballs:
