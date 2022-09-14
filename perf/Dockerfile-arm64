@@ -20,10 +20,7 @@ ARG MAKE_DEFINES="-j 2"
 # Define main performance architecture(s)
 ARG PERF_ARCH_ARM64="cortex-a72"
 
-# default architecture
-ARG ARCH="aarch64"
-
-FROM multiarch/debian-debootstrap:${ARCH}-bullseye as intermediate
+FROM debian:bullseye as intermediate
 # Take in all global args
 ARG INSTALLDIR
 ARG LIBOQS_BUILD_DEFINES
@@ -91,7 +88,6 @@ RUN set -x && \
 WORKDIR /
 
 ## second stage: Only create minimal image without build tooling and intermediate build results generated above:
-ARG ARCH
 FROM debian:bullseye-slim as dev
 # Take in all global args
 ARG INSTALLDIR
