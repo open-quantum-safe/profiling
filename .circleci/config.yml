@@ -36,6 +36,11 @@ jobs:
             docker build -t oqs-mperf-arm64 -f Dockerfile-arm64 .
             docker run -it oqs-mperf-arm64 /opt/test/selftest.sh
           working_directory: perf
+      - run:
+          name: Push image for testing
+          command: |
+            docker tag oqs-mperf-arm64 $TARGETNAME/oqs-perf:native-arm64 &&
+            docker push $TARGETNAME/oqs-perf:native-arm64
   debian_arm64:
     description: Building and pushing ARM64 benchmarking baseline image
     docker:
