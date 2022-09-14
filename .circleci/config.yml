@@ -16,6 +16,22 @@ localCheckout: &localCheckout
     cp -a /tmp/_circleci_local_build_repo/.git ${PROJECT_PATH}
 
 jobs:
+  debian_arm64_native:
+    description: Build ARM64 benchmarking image on arm machine
+    machine:
+      image: 'ubuntu-2004:202101-01'
+    resource_class: arm.medium
+    steps:
+      - run:
+          name: Login to Docker Hub
+          command: |
+            docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
+      - run:
+          name: Build multiarch docker image and push
+          command: |
+            docker build -t -t oqs-mperf-arm64 -f Dockerfile-arm64 .
+            docker run -it oqs-mperf-arm64 /opt/test/selftest.sh
+          working_directory: perf
   debian_arm64:
     description: Building and pushing ARM64 benchmarking baseline image
     docker:
@@ -133,6 +149,8 @@ workflows:
       - debian_x64:
           context: openquantumsafe
       - debian_arm64:
+          context: openquantumsafe
+      - debian_arm64_native:
           context: openquantumsafe
       - merge:
           requires:
