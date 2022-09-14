@@ -34,8 +34,7 @@ LABEL version="2"
 ENV DEBIAN_FRONTEND noninteractive
 
 # Get all software packages required for building all components:
-RUN dpkg --add-architecture arm64 && \
-    apt-get update -qq && \
+RUN apt-get update -qq && \
     apt-get upgrade -y && \
     apt-get dist-upgrade -y && \
     apt-get install -y gcc \

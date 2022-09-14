@@ -20,10 +20,7 @@ ARG MAKE_DEFINES="-j 2"
 # Define main performance architecture(s)
 ARG PERF_ARCH_X64="skylake-avx512"
 
-# default architecture
-ARG ARCH="amd64"
-
-FROM multiarch/debian-debootstrap:${ARCH}-bullseye as intermediate
+FROM debian:bullseye as intermediate
 # Take in all global args
 ARG INSTALLDIR
 ARG LIBOQS_BUILD_DEFINES
@@ -37,8 +34,7 @@ LABEL version="2"
 ENV DEBIAN_FRONTEND noninteractive
 
 # Get all software packages required for builing all components:
-RUN dpkg --add-architecture arm64 && \
-    apt-get update -qq && \
+RUN apt-get update -qq && \
     apt-get upgrade -y && \
     apt-get dist-upgrade -y && \
     apt-get install -y gcc \
@@ -48,9 +44,8 @@ RUN dpkg --add-architecture arm64 && \
        python3 python3-nose python3-rednose python3-pytest python3-pytest-xdist docker.io \
        python3-psutil \
        maven openjdk-11-jdk \
-       gcc-arm-linux-gnueabi gcc-arm-linux-gnueabihf gcc-aarch64-linux-gnu qemu-user-static \
        docker \
-       libssl-dev:arm64 s3fs
+       s3fs
 
 
 # get all sources
@@ -92,14 +87,13 @@ RUN set -x && \
 WORKDIR /
 
 ## second stage: Only create minimal image without build tooling and intermediate build results generated above:
-ARG ARCH
 FROM debian:bullseye-slim as dev
 # Take in all global args
 ARG INSTALLDIR
 ARG SIG_ALG
 
 # Dependencies for logfile analysis and S3FS:
-# Get all software packages required for builing all components:
+# Get all software packages required for building all components:
 RUN apt update && apt upgrade -y && \
     apt dist-upgrade -y && \
     apt install -y python3 fuse valgrind libssl-dev s3fs git && \

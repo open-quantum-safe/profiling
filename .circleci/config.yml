@@ -39,8 +39,8 @@ jobs:
       - run:
           name: Push image for testing
           command: |
-            docker tag oqs-mperf-arm64 $TARGETNAME/oqs-perf:native-arm64 &&
-            docker push $TARGETNAME/oqs-perf:native-arm64
+            docker tag oqs-mperf-arm64 $TARGETNAME/oqs-perf:latest-arm64 &&
+            docker push $TARGETNAME/oqs-perf:latest-arm64
   debian_arm64:
     description: Building and pushing ARM64 benchmarking baseline image
     docker:
@@ -157,12 +157,12 @@ workflows:
     jobs:
       - debian_x64:
           context: openquantumsafe
-      - debian_arm64:
-          context: openquantumsafe
+#     - debian_arm64:
+#         context: openquantumsafe
       - debian_arm64_native:
           context: openquantumsafe
       - merge:
           requires:
              - debian_x64
-             - debian_arm64
+             - debian_arm64_native
           context: openquantumsafe
