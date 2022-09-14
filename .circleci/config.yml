@@ -29,7 +29,7 @@ jobs:
       - run:
           name: Build multiarch docker image and push
           command: |
-            docker build -t -t oqs-mperf-arm64 -f Dockerfile-arm64 .
+            docker build -t oqs-mperf-arm64 -f Dockerfile-arm64 .
             docker run -it oqs-mperf-arm64 /opt/test/selftest.sh
           working_directory: perf
   debian_arm64:
