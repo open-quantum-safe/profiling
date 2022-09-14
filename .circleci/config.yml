@@ -25,10 +25,13 @@ jobs:
       - run:
           name: Login to Docker Hub
           command: |
-            docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
+            echo $DOCKER_PASSWORD | docker login --username $DOCKER_LOGIN --password-stdin
       - run:
-          name: Build multiarch docker image and push
+          name: Build docker image and test
           command: |
+            uname -a
+            pwd
+            ls -l
             docker build -t oqs-mperf-arm64 -f Dockerfile-arm64 .
             docker run -it oqs-mperf-arm64 /opt/test/selftest.sh
           working_directory: perf
