@@ -16,7 +16,7 @@ localCheckout: &localCheckout
     cp -a /tmp/_circleci_local_build_repo/.git ${PROJECT_PATH}
 
 jobs:
-  debian_arm64_native:
+  debian_arm64:
     description: Build ARM64 benchmarking image on arm machine
     machine:
       image: 'ubuntu-2004:202101-01'
@@ -34,50 +34,6 @@ jobs:
             pwd
             ls -l
             docker build -t oqs-mperf-arm64 -f Dockerfile-arm64 .
-            docker run -it oqs-mperf-arm64 /opt/test/selftest.sh
-          working_directory: perf
-      - run:
-          name: Push image for testing
-          command: |
-            docker tag oqs-mperf-arm64 $TARGETNAME/oqs-perf:latest-arm64 &&
-            docker push $TARGETNAME/oqs-perf:latest-arm64
-  debian_arm64:
-    description: Building and pushing ARM64 benchmarking baseline image
-    docker:
-      - image: openquantumsafe/ci-debian-bullseye-amd64
-    steps:
-      - setup_remote_docker:
-          version: 20.10.7
-      - run:
-          name: Check versions
-          command: |
-            qemu-aarch64-static --version
-      - run:
-          name: Enable experimental features on docker server
-          command: |
-            ssh remote-docker \<<EOF
-              sudo bash -c 'echo "{\"experimental\": true}" > /etc/docker/daemon.json'
-              sudo systemctl restart docker
-            EOF
-      - run:
-          name: activate multiarch
-          command: |
-            docker run --rm --privileged multiarch/qemu-user-static --reset -p yes && 
-            docker run -it arm64v8/debian:bullseye-slim uname -a
-      - checkout # change this from "checkout" to "*localCheckout" when running CircleCI locally
-      - run:
-          name: Authenticate to Docker
-          command: echo $DOCKER_PASSWORD | docker login --username $DOCKER_LOGIN --password-stdin
-      - run:
-          name: Build and test profiling image
-          command: |
-            # The CircleCI executor offers 35 cores, but using
-            # all of them might exhaust memory
-            # explicitly tag platform
-            export DOCKER_CLI_EXPERIMENTAL=enabled
-            docker version
-            docker build --platform arm64 --build-arg MAKE_DEFINES="-j 18" -t intermediate -f Dockerfile-arm64-start . &&
-            docker build --platform arm64 --build-arg MAKE_DEFINES="-j 18" -t oqs-mperf-arm64 -f Dockerfile-arm64-end . &&
             docker run -it oqs-mperf-arm64 /opt/test/selftest.sh
           working_directory: perf
       - when:
@@ -157,12 +113,10 @@ workflows:
     jobs:
       - debian_x64:
           context: openquantumsafe
-#     - debian_arm64:
-#         context: openquantumsafe
-      - debian_arm64_native:
+      - debian_arm64:
           context: openquantumsafe
       - merge:
           requires:
              - debian_x64
-             - debian_arm64_native
+             - debian_arm64
           context: openquantumsafe
