@@ -1,34 +1,21 @@
 import subprocess
-from sys import platform
-
+import platform
+from shutil import which
 def getestimatedcpufrequency():
-    if platform != "linux" and platform != "linux2":
+    if platform.system() != "Linux" or platform.processor() != "aarch64":
         return None
+    
+    if which("perf"):
+        p = subprocess.Popen(["perf", "stat", "sleep", "1"], text=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+        lines = p.communicate()[1]
+        frequency = None
+        for line in lines.splitlines():
+            if "cycles" in line:
+                l = line.split("#")[1]
+                l = l.rstrip().lstrip()
+                return l
 
-    # estimating CPU frequency using perf
-    p = subprocess.Popen(["lscpu"], text=True, stdout=subprocess.PIPE)
-    maxfreq = None
-    minfreq = None
-    while True:
-        line = p.stdout.readline()
-        if not line: break
-        if "CPU max MHz" in line:
-            try:
-                maxfreq = line.split(":")[1].rstrip().lstrip()
-                unit = line.split(":")[0].split(" ")[2]
-                maxfreq = "{} {}".format(maxfreq, unit)
-            except:
-                pass
-        if "CPU min MHz" in line:
-            try:
-                minfreq = line.split(":")[1].rstrip().lstrip()
-                unit = line.split(":")[0].split(" ")[2]
-                minfreq = "{} {}".format(minfreq, unit)
-            except:
-                pass
-
-    return minfreq, maxfreq
-
+    return None
 
 def getcpuinfo(required_tags):
   tags = {}
