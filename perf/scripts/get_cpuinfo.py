@@ -6,8 +6,8 @@ def getestimatedcpufrequency():
         return None
     
     if which("perf"):
-        p = subprocess.Popen(["perf", "stat", "sleep", "1"], text=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-        lines = p.communicate()[1]
+        p = subprocess.Popen(["perf", "stat", "sleep", "1"], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+        lines = p.communicate()[1].decode()
         frequency = None
         for line in lines.splitlines():
             if "cycles" in line:
@@ -16,6 +16,7 @@ def getestimatedcpufrequency():
                 return l
 
     return None
+
 
 def getcpuinfo(required_tags):
   tags = {}
