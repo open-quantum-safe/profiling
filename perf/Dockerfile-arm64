@@ -96,7 +96,7 @@ ARG SIG_ALG
 # Get all software packages required for builing all components:
 RUN apt update && apt upgrade -y && \
     apt dist-upgrade -y && \
-    apt install -y python3 fuse valgrind libssl-dev s3fs git && \
+    apt install -y python3 fuse valgrind libssl-dev s3fs git linux-perf && \
     apt autoremove && rm -rf /var/cache/apt/*
 
 # Retain the ${INSTALLDIR} contents in the final image

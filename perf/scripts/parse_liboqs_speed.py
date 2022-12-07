@@ -4,6 +4,7 @@ import os
 import re
 from enum import Enum
 from get_cpuinfo import getcpuinfo
+from get_cpuinfo import getestimatedcpufrequency
 
 class State(Enum):
    starting=0
@@ -13,6 +14,15 @@ class State(Enum):
 data={}
 # fetch both x86 and aarch64 CPU details:
 data["cpuinfo"]=getcpuinfo(["flags", "model name", "cpu MHz", "Features", "CPU implementer", "CPU variant", "CPU part", "BogoMIPS"])
+minfreq, maxfreq = getestimatedcpufrequency()
+if minfreq != None:
+    data["cpuinfo"]["estminfrequency"] = minfreq
+else:
+    data["cpuinfo"]["estminfreqency"] = "Unavailable"
+if maxfreq != None:
+    data["cpuinfo"]["estmaxfrequency"] = maxfreq
+else:
+    data["cpuinfo"]["estmaxfreqency"] = "Unavailable"
 
 if len(sys.argv)!=2:
    print("Usage: %s <logfile to parse>" % (sys.argv[0]))

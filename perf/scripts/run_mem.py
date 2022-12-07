@@ -4,11 +4,20 @@ import subprocess
 import sys
 import os
 from get_cpuinfo import getcpuinfo
-
+from get_cpuinfo import getestimatedcpufrequency
 data = {}
 # fetch both x86 and aarch64 CPU details:
 data["cpuinfo"]=getcpuinfo(["flags", "model name", "cpu MHz", "Features", "CPU implementer", "CPU variant", "CPU part", "BogoMIPS"])
 data["config"]={}
+minfreq, maxfreq = getestimatedcpufrequency()
+if minfreq != None:
+    data["cpuinfo"]["estminfrequency"] = minfreq
+else:
+    data["cpuinfo"]["estminfreqency"] = "Unavailable"
+if maxfreq != None:
+    data["cpuinfo"]["estmaxfrequency"] = maxfreq
+else:
+    data["cpuinfo"]["estmaxfreqency"] = "Unavailable"
 
 def get_peak(lines):
     peak = -1

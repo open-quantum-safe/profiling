@@ -4,6 +4,7 @@ import os
 import re
 from enum import Enum
 from get_cpuinfo import getcpuinfo
+from get_cpuinfo import getestimatedcpufrequency
 
 # get operations per sec tags in a line containing <tagname>/s 
 def gettags(line):
@@ -30,6 +31,15 @@ if len(sys.argv)!=2:
 data={}
 # fetch both x86 and aarch64 CPU details:
 data["cpuinfo"]=getcpuinfo(["flags", "model name", "cpu MHz", "Features", "CPU implementer", "CPU variant", "CPU part", "BogoMIPS"])
+minfreq, maxfreq = getestimatedcpufrequency()
+if minfreq != None:
+    data["cpuinfo"]["estminfrequency"] = minfreq
+else:
+    data["cpuinfo"]["estminfreqency"] = "Unavailable"
+if maxfreq != None:
+    data["cpuinfo"]["estmaxfrequency"] = maxfreq
+else:
+    data["cpuinfo"]["estmaxfreqency"] = "Unavailable"
 
 fn = sys.argv[1]
 state = State.config
