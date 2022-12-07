@@ -9,15 +9,11 @@ data = {}
 # fetch both x86 and aarch64 CPU details:
 data["cpuinfo"]=getcpuinfo(["flags", "model name", "cpu MHz", "Features", "CPU implementer", "CPU variant", "CPU part", "BogoMIPS"])
 data["config"]={}
-minfreq, maxfreq = getestimatedcpufrequency()
-if minfreq != None:
-    data["cpuinfo"]["estminfrequency"] = minfreq
+estfreqency = getestimatedcpufrequency()
+if estfrequency != None:
+    data["cpuinfo"]["estfrequency"] = estfrequency
 else:
-    data["cpuinfo"]["estminfreqency"] = "Unavailable"
-if maxfreq != None:
-    data["cpuinfo"]["estmaxfrequency"] = maxfreq
-else:
-    data["cpuinfo"]["estmaxfreqency"] = "Unavailable"
+    data["cpuinfo"]["estfreqency"] = "Unavailable"
 
 def get_peak(lines):
     peak = -1
