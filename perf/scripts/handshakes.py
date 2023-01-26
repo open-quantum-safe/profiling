@@ -46,6 +46,17 @@ def populate_algs():
    return kems,sigs
 
 kems,sigs=populate_algs()
+print("Baseline KEMs:")
+print(kems)
+print("Baseline SIGs:")
+print(sigs)
+# Limit testing as per https://github.com/open-quantum-safe/profiling/issues/83#issuecomment-1345546025
+kems = ['kyber512', 'kyber768', 'kyber1024', 'p256_kyber512', 'p384_kyber768', 'p521_kyber1024', 'secp256k1', 'secp384r1', 'X25519', 'X448']
+sigs = ['dilithium2', 'p256_dilithium2', 'rsa3072_dilithium2', 'dilithium3', 'p384_dilithium3', 'dilithium5', 'p521_dilithium5', 'falcon512', 'p256_falcon512', 'rsa3072_falcon512', 'falcon1024', 'p521_falcon1024', 'sphincsharaka128fsimple', 'p256_sphincsharaka128fsimple', 'rsa3072_sphincsharaka128fsimple', 'sphincssha256128ssimple', 'p256_sphincssha256128ssimple', 'rsa3072_sphincssha256128ssimple', 'sphincsshake256128fsimple', 'p256_sphincsshake256128fsimple', 'rsa3072_sphincsshake256128fsimple', 'ED448', 'ED25519', 'RSA:2048', 'RSA:3072', 'ECDSAprime256v1', 'ECDSAsecp384r1']
+print("KEMs under test:")
+print(kems)
+print("SIGs under test:")
+print(sigs)
 
 if len(sys.argv)>1:
    # pass in installdir
