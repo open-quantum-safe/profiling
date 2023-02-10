@@ -35,7 +35,7 @@ estfrequency = getestimatedcpufrequency()
 if estfrequency != None:
     data["cpuinfo"]["estfrequency"] = estfrequency
 else:
-    data["cpuinfo"]["estfreqency"] = "Unavailable"
+    data["cpuinfo"]["estfrequency"] = "Unavailable"
 
 fn = sys.argv[1]
 state = State.config

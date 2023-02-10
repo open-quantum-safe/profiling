@@ -9,7 +9,7 @@ data = {}
 # fetch both x86 and aarch64 CPU details:
 data["cpuinfo"]=getcpuinfo(["flags", "model name", "cpu MHz", "Features", "CPU implementer", "CPU variant", "CPU part", "BogoMIPS"])
 data["config"]={}
-estfreqency = getestimatedcpufrequency()
+estfrequency = getestimatedcpufrequency()
 if estfrequency != None:
     data["cpuinfo"]["estfrequency"] = estfrequency
 else:

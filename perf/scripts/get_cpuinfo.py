@@ -2,13 +2,15 @@ import subprocess
 import platform
 from shutil import which
 def getestimatedcpufrequency():
-    if (platform.system() != "Linux" or not (platform.processor() == "aarch64"
-            or platform.processor() == "x86_64")):
+    # We should be checking the architecture we are running on, but platform.processor()
+    # is "unknown" in our container
+    if platform.system() != "Linux":
         return None
-    p = subprocess.run(["gcc", "-O2", "-o", "cpu_frequency_estimate", "cpu_frequency_estimate.c"])
+    p = subprocess.run(["gcc", "-O2", "-o", "/opt/test/cpu_frequency_estimate", "/opt/test/cpu_frequency_estimate.c"])
     if p.returncode != 0:
+        print("Failed to compile")
         raise Exception("cpu_frequency_estimate.c failed to compile")
-    p = subprocess.Popen(["./cpu_frequency_estimate"], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    p = subprocess.Popen(["/opt/test/cpu_frequency_estimate"], shell=False,stdout=subprocess.PIPE)
     lines = p.communicate()[0].decode()
     frequency = None
     for line in lines.splitlines():
@@ -16,7 +18,7 @@ def getestimatedcpufrequency():
             l = line.split("=")[1]
             l = l.rstrip().lstrip()
             return l
-
+    
     return None
 
 def getcpuinfo(required_tags):
