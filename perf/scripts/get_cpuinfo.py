@@ -2,21 +2,22 @@ import subprocess
 import platform
 from shutil import which
 def getestimatedcpufrequency():
-    if platform.system() != "Linux" or platform.processor() != "aarch64":
+    if (platform.system() != "Linux" or not (platform.processor() == "aarch64"
+            or platform.processor() == "x86_64")):
         return None
-    
-    if which("perf"):
-        p = subprocess.Popen(["perf", "stat", "sleep", "1"], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-        lines = p.communicate()[1].decode()
-        frequency = None
-        for line in lines.splitlines():
-            if "cycles" in line:
-                l = line.split("#")[1]
-                l = l.rstrip().lstrip()
-                return l
+    p = subprocess.run(["gcc", "-O2", "-o", "cpu_frequency_estimate", "cpu_frequency_estimate.c"])
+    if p.returncode != 0:
+        raise Exception("cpu_frequency_estimate.c failed to compile")
+    p = subprocess.Popen(["./cpu_frequency_estimate"], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    lines = p.communicate()[0].decode()
+    frequency = None
+    for line in lines.splitlines():
+        if "Estimated frequency" in line:
+            l = line.split("=")[1]
+            l = l.rstrip().lstrip()
+            return l
 
     return None
-
 
 def getcpuinfo(required_tags):
   tags = {}
