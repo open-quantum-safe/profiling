@@ -6,11 +6,11 @@ def getestimatedcpufrequency():
     # is "unknown" in our container
     if platform.system() != "Linux":
         return None
-    p = subprocess.run(["gcc", "-O2", "-o", "/opt/test/cpu_frequency_estimate", "/opt/test/cpu_frequency_estimate.c"])
+    p = subprocess.run(["gcc", "-O2", "-o", "cpu_frequency_estimate", "cpu_frequency_estimate.c"])
     if p.returncode != 0:
         print("Failed to compile")
         raise Exception("cpu_frequency_estimate.c failed to compile")
-    p = subprocess.Popen(["/opt/test/cpu_frequency_estimate"], shell=False,stdout=subprocess.PIPE)
+    p = subprocess.Popen(["./cpu_frequency_estimate"], shell=False,stdout=subprocess.PIPE)
     lines = p.communicate()[0].decode()
     frequency = None
     for line in lines.splitlines():
