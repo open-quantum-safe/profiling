@@ -79,9 +79,10 @@ ARG INSTALLDIR
 ARG SIG_ALG
 
 # Dependencies for logfile analysis and S3FS:
-# Get all software packages required for builing all components:
+# Get all software packages required for builing all components
+# gcc added to enable frequency estimation code gen
 RUN apt update && apt upgrade -y && \
-    apt install -y python3 fuse valgrind libssl-dev s3fs git && \
+    apt install -y python3 fuse valgrind libssl-dev s3fs git gcc && \
     apt autoremove && rm -rf /var/cache/apt/*
 
 # Retain the ${INSTALLDIR} contents in the final image
