@@ -51,8 +51,8 @@ RUN git clone --depth 1 --branch main https://github.com/open-quantum-safe/liboq
 
 # Build OpenSSL3; set softlink to lib dir for cmake FindPackage
 WORKDIR /opt/ossl-src
-RUN LDFLAGS="-Wl,-rpath -Wl,${INSTALLDIR}/lib64" ./config shared ${OPENSSL_BUILD_DEFINES} --prefix=${INSTALLDIR} && \
-    make ${MAKE_DEFINES} && make install_sw && make install_ssldirs && ln -s ${INSTALLDIR}/lib64 ${INSTALLDIR}/lib;
+RUN LDFLAGS="-Wl,-rpath -Wl,${INSTALLDIR}/lib" ./config shared ${OPENSSL_BUILD_DEFINES} --prefix=${INSTALLDIR} && \
+    make ${MAKE_DEFINES} && make install_sw && make install_ssldirs;
 
 # build liboqs shared and static, distributable (x86_64)
 WORKDIR /opt/liboqs
@@ -62,21 +62,21 @@ RUN mkdir build-static && cd build-static && cmake -GNinja -DOPENSSL_ROOT_DIR=${
 
 # Build oqs-provider distributable
 WORKDIR /opt/oqs-provider
-RUN ln -s ../ossl-src openssl && cmake -DOPENSSL_ROOT_DIR=${INSTALLDIR} -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${INSTALLDIR} -S . -B _build && cmake --build _build  && cp _build/lib/oqsprovider.so ${INSTALLDIR}/lib64/ossl-modules/oqsprovider-plain.so && sed -i "s/default = default_sect/default = default_sect\noqsprovider = oqsprovider_sect/g" /opt/oqssa/ssl/openssl.cnf && sed -i "s/\[default_sect\]/\[default_sect\]\nactivate = 1\n\[oqsprovider_sect\]\nactivate = 1\n/g" /opt/oqssa/ssl/openssl.cnf && sed -i "s/providers = provider_sect/providers = provider_sect\nssl_conf = ssl_sect\n\n\[ssl_sect\]\nsystem_default = system_default_sect\n\n\[system_default_sect\]\nGroups = \$ENV\:\:DEFAULT_GROUPS\n/g" /opt/oqssa/ssl/openssl.cnf && sed -i "s/HOME\t\t\t= ./HOME           = .\nDEFAULT_GROUPS = kyber512/g" /opt/oqssa/ssl/openssl.cnf
+RUN ln -s ../ossl-src openssl && cmake -DOPENSSL_ROOT_DIR=${INSTALLDIR} -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${INSTALLDIR} -S . -B _build && cmake --build _build  && cp _build/lib/oqsprovider.so ${INSTALLDIR}/lib/ossl-modules/oqsprovider-plain.so && sed -i "s/default = default_sect/default = default_sect\noqsprovider = oqsprovider_sect/g" /opt/oqssa/ssl/openssl.cnf && sed -i "s/\[default_sect\]/\[default_sect\]\nactivate = 1\n\[oqsprovider_sect\]\nactivate = 1\n/g" /opt/oqssa/ssl/openssl.cnf && sed -i "s/providers = provider_sect/providers = provider_sect\nssl_conf = ssl_sect\n\n\[ssl_sect\]\nsystem_default = system_default_sect\n\n\[system_default_sect\]\nGroups = \$ENV\:\:DEFAULT_GROUPS\n/g" /opt/oqssa/ssl/openssl.cnf && sed -i "s/HOME\t\t\t= ./HOME           = .\nDEFAULT_GROUPS = kyber512/g" /opt/oqssa/ssl/openssl.cnf
 
 # Build ref-only variants and store in INSTALLDIR-ref (x86_64)
 WORKDIR /opt/liboqs
 RUN mkdir build-shared-ref && cd build-shared-ref && cmake -GNinja .. ${LIBOQS_BUILD_DEFINES} -DOPENSSL_ROOT_DIR=${INSTALLDIR} -DOQS_DIST_BUILD=OFF -DBUILD_SHARED_LIBS=ON -DOQS_OPT_TARGET="generic" -DCMAKE_INSTALL_PREFIX=${INSTALLDIR} && ninja && ninja install
 RUN mkdir build-static-ref && cd build-static-ref && cmake -GNinja -DOPENSSL_ROOT_DIR=${INSTALLDIR} .. ${LIBOQS_BUILD_DEFINES} -DOQS_DIST_BUILD=OFF -DBUILD_SHARED_LIBS=OFF -DOQS_OPT_TARGET="generic" -DCMAKE_INSTALL_PREFIX=${INSTALLDIR} && ninja && ninja install
 WORKDIR /opt/oqs-provider
-RUN cmake -DOPENSSL_ROOT_DIR=${INSTALLDIR} -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${INSTALLDIR} -S . -B _build && cmake --build _build  && cp _build/lib/oqsprovider.so ${INSTALLDIR}/lib64/ossl-modules/oqsprovider-ref.so
+RUN cmake -DOPENSSL_ROOT_DIR=${INSTALLDIR} -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${INSTALLDIR} -S . -B _build && cmake --build _build  && cp _build/lib/oqsprovider.so ${INSTALLDIR}/lib/ossl-modules/oqsprovider-ref.so
 
 # Build noportable fast variants and store in INSTALLDIR-noport (x86_64)
 WORKDIR /opt/liboqs
 RUN mkdir build-shared-noport && cd build-shared-noport && cmake -GNinja .. ${LIBOQS_BUILD_DEFINES} -DOPENSSL_ROOT_DIR=${INSTALLDIR} -DOQS_DIST_BUILD=OFF -DBUILD_SHARED_LIBS=ON -DOQS_OPT_TARGET=${PERF_ARCH_ARM64} -DCMAKE_INSTALL_PREFIX=${INSTALLDIR} && ninja && ninja install
 RUN mkdir build-static-noport && cd build-static-noport && cmake -GNinja -DOPENSSL_ROOT_DIR=${INSTALLDIR} .. -DOQS_DIST_BUILD=OFF ${LIBOQS_BUILD_DEFINES} -DBUILD_SHARED_LIBS=OFF -DOQS_OPT_TARGET=${PERF_ARCH_ARM64} -DCMAKE_INSTALL_PREFIX=${INSTALLDIR} && ninja && ninja install
 WORKDIR /opt/oqs-provider
-RUN cmake -DOPENSSL_ROOT_DIR=${INSTALLDIR} -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${INSTALLDIR} -S . -B _build && cmake --build _build  && cp _build/lib/oqsprovider.so ${INSTALLDIR}/lib64/ossl-modules/oqsprovider-noport.so
+RUN cmake -DOPENSSL_ROOT_DIR=${INSTALLDIR} -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${INSTALLDIR} -S . -B _build && cmake --build _build  && cp _build/lib/oqsprovider.so ${INSTALLDIR}/lib/ossl-modules/oqsprovider-noport.so
 
 # set path to use 'new' openssl. Dyn libs have been properly linked in to match
 ENV PATH="${INSTALLDIR}/bin:${PATH}"
@@ -86,7 +86,7 @@ ENV OPENSSL=${INSTALLDIR}/bin/openssl
 ENV OPENSSL_CNF=${INSTALLDIR}/ssl/openssl.cnf
 
 # Activate one provider to allow the next commands to run:
-RUN cp ${INSTALLDIR}/lib64/ossl-modules/oqsprovider-plain.so ${INSTALLDIR}/lib64/ossl-modules/oqsprovider.so
+RUN cp ${INSTALLDIR}/lib/ossl-modules/oqsprovider-plain.so ${INSTALLDIR}/lib/ossl-modules/oqsprovider.so
 WORKDIR ${INSTALLDIR}/bin
 # generate CA key and cert
 RUN set -x && \
