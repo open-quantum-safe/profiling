@@ -1,9 +1,9 @@
 #!/bin/sh
 
-openssl version | grep "Open Quantum Safe"
+openssl list -providers | grep "OQS"
 
 if [ $? != 0 ]; then
-   echo "OQS OpenSSL not found. Test failure."
+   echo "OQS provider not found. Test failure."
    exit 1
 fi
 
