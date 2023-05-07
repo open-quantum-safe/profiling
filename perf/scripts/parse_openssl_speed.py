@@ -73,7 +73,8 @@ with open(fn) as fp:
                # Alg name is everything from start of line until start of first decimal number
                di = line.index(".")
                alg = line[:line.rfind(" ",0,di)].rstrip().lstrip().replace(":","")
-               data[alg]={}
+               # permit the same algorithm to be used in multiple categories:
+               if not alg in data: data[alg]={}
                for ti in range(len(tags)):
                    # go backwards:
                    f=line.rfind(" ",0,len(line)-2) 

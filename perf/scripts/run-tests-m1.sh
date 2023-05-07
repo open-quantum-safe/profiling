@@ -32,10 +32,14 @@ python3 handshakes.py /opt/oqssa 1
 
 cp results/speed_kem.json results/speed_kem-noport.json
 cp results/speed_sig.json results/speed_sig-noport.json
+cp results/mem_kem.json results/mem_kem-noport.json
+cp results/mem_sig.json results/mem_sig-noport.json
 cp results/speed.json results/speed-noport.json
 cp results/handshakes.json results/handshakes-noport.json
 cp results/speed_kem.json results/speed_kem-ref.json
 cp results/speed_sig.json results/speed_sig-ref.json
+cp results/mem_kem.json results/mem_kem-ref.json
+cp results/mem_sig.json results/mem_sig-ref.json
 cp results/speed.json results/speed-ref.json
 cp results/handshakes.json results/handshakes-ref.json
 

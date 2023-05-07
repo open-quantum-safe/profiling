@@ -82,7 +82,18 @@ def merge(basepath, outpath, date, allarchs=False):
                       for a in archs:
                          data[k][a]={}
                  try:
-                   data[k][arch][ttype]=d[k]
+                   # hack required as openssl output naming changed: keygens/s->keygen/s, encaps/s->encap/s, decaps/s->decap/s
+                   nd = {}
+                   for dk in d[k].keys():
+                       if dk == "encaps/s":
+                          nd["encap/s"]=d[k][dk]
+                       elif dk == "decaps/s":
+                          nd["decap/s"]=d[k][dk]
+                       elif dk == "keygens/s":
+                          nd["keygen/s"]=d[k][dk]
+                       else:
+                          nd[dk] = d[k][dk]
+                   data[k][arch][ttype]=nd
                  except KeyError as ke:
                    print("key error at %s %s %s %s (%s)" %(k,arch,ttype,date))
     output_json(data, date, outpath, test)
