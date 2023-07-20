@@ -48,6 +48,38 @@ jobs:
                   docker tag oqs-mperf-arm64 $TARGETNAME/oqs-perf:latest-arm64 &&
                   docker push $TARGETNAME/oqs-perf:latest-arm64
 
+  debian_m1:
+    description: Build M1 benchmarking image on arm machine
+    machine:
+      image: 'ubuntu-2004:202101-01'
+    resource_class: arm.medium
+    steps:
+      - checkout
+      - run:
+          name: Login to Docker Hub
+          command: |
+            echo $DOCKER_PASSWORD | docker login --username $DOCKER_LOGIN --password-stdin
+      - run:
+          name: Build docker image and test
+          command: |
+            uname -a
+            pwd
+            ls -l
+            docker build -t oqs-mperf-m1 -f Dockerfile-m1 .
+            docker run -it oqs-mperf-m1 /opt/test/selftest.sh
+          working_directory: perf
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+              - equal: [ true, << pipeline.parameters.new_openssl_commit >> ]
+          steps:
+            - run:
+                name: Push image
+                command: |
+                  docker tag oqs-mperf-m1 $TARGETNAME/oqs-perf:latest-m1 &&
+                  docker push $TARGETNAME/oqs-perf:latest-m1
+
   debian_x64:
     description: A template for building and pushing OQS performance testing Docker image on Ubuntu Bionic that depend on OQS-OpenSSL
     docker:
