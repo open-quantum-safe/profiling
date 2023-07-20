@@ -51,7 +51,7 @@ RUN git clone --depth 1 --branch main https://github.com/open-quantum-safe/liboq
 
 # Build OpenSSL3; set softlink to lib dir for cmake FindPackage
 WORKDIR /opt/ossl-src
-RUN LDFLAGS="-Wl,-rpath -Wl,${INSTALLDIR}/lib64" ./config shared ${OPENSSL_BUILD_DEFINES} --prefix=${INSTALLDIR} && \
+RUN LDFLAGS="-Wl,-rpath -Wl,${INSTALLDIR}/lib64" ./config shared --prefix=${INSTALLDIR} && \
     make ${MAKE_DEFINES} && make install_sw && make install_ssldirs && ln -s ${INSTALLDIR}/lib64 ${INSTALLDIR}/lib;
 
 # build liboqs shared and static, distributable (x86_64)
