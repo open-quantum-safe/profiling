@@ -147,8 +147,11 @@ workflows:
           context: openquantumsafe
       - debian_arm64:
           context: openquantumsafe
+      - debian_m1:
+          context: openquantumsafe
       - merge:
           requires:
              - debian_x64
              - debian_arm64
+             - debian_m1 # not doing anything with the M1 image in this job, but waiting out of caution
           context: openquantumsafe
