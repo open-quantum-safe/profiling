@@ -141,8 +141,8 @@ ARG INSTALLDIR
 # Enable a normal user to create new server keys off set CA
 RUN addgroup --gid 1000 oqs && adduser --system --disabled-password --gid 1000 --uid 1000 oqs && chown -R oqs.oqs /opt/test
 
-# permit changes to liboqs lib by normal oqs user:
-RUN chmod gou+rwx /opt/oqssa/lib && chmod gou+rwx /opt/oqssa/lib/*
+# permit changes to liboqs lib and oqsprovider for -ref/-noport activation by normal oqs user:
+RUN chmod gou+rwx /opt/oqssa/lib && chmod gou+rwx /opt/oqssa/lib/* && chmod gou+rwx /opt/oqssa/lib/ossl-modules && chmod gou+rwx /opt/oqssa/lib/ossl-modules/*
 
 USER oqs
 WORKDIR /opt/test
