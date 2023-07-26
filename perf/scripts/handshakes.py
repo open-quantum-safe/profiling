@@ -103,7 +103,7 @@ kems = ['kyber512', 'kyber768', 'kyber1024', 'p256_kyber512', 'p384_kyber768', '
 sigs = ['dilithium2', 'p256_dilithium2', 'rsa3072_dilithium2', 'dilithium3', 'p384_dilithium3', 'dilithium5', 'p521_dilithium5', 'falcon512', 'p256_falcon512', 'rsa3072_falcon512', 'falcon1024', 'p521_falcon1024', 'sphincsharaka128fsimple', 'p256_sphincsharaka128fsimple', 'rsa3072_sphincsharaka128fsimple', 'sphincssha256128ssimple', 'p256_sphincssha256128ssimple', 'rsa3072_sphincssha256128ssimple', 'sphincsshake256128fsimple', 'p256_sphincsshake256128fsimple', 'rsa3072_sphincsshake256128fsimple', 'ED448', 'ED25519', 'RSA:2048', 'RSA:3072', 'ECDSAprime256v1', 'ECDSAsecp384r1', 'ECDSAsecp521r1']
 # Limit testing as per https://github.com/open-quantum-safe/profiling/issues/93#issuecomment-1611818545
 # Deactivate the following two variables when interested in more than "NCCoE"
-sigs_levels = [ ['dilithium2', 'p256_dilithium2', 'falcon512', 'p256_falcon512', 'sphincsharaka128fsimple', 'p256_sphincsharaka128fsimple', 'sphincssha256128ssimple', 'p256_sphincssha256128ssimple', 'sphincsshake256128fsimple', 'p256_sphincsshake256128fsimple', 'ED25519', 'ECDSAprime256v1'],
+sigs_levels = [ ['dilithium2', 'p256_dilithium2', 'falcon512', 'p256_falcon512', 'sphincssha2128ssimple', 'p256_sphincssha2128ssimple', 'sphincsshake128fsimple', 'p256_sphincsshake128fsimple', 'ED25519', 'ECDSAprime256v1'],
                 ['dilithium3', 'p384_dilithium3', 'ED448', 'ECDSAsecp384r1'],
                 ['dilithium5', 'p521_dilithium5', 'falcon1024', 'p521_falcon1024', 'ECDSAsecp521r1']
               ]
