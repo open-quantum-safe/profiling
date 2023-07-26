@@ -76,8 +76,8 @@ echo "Trying to mount S3..."
 if [ $? -eq 0 ]; then
     echo "Copy test results to S3"
     today=`date +%Y-%m-%d-%H_%M_%S`
-    tar czvf ${S3FOLDER}/${today}${ARCH}.tgz results/*.json
-    ./gen_website.sh ${S3FOLDER} ${ARCH}
+    tar czvf ${S3FOLDER}/m1compare${today}${ARCH}ci.tgz results/*.json
+    #./gen_website.sh ${S3FOLDER} ${ARCH}
     echo "Copy complete: ${S3FOLDER}/${today}${ARCH}.tgz"
 else
     echo "Couldn't mount S3 bucket. Not copying out test results."
