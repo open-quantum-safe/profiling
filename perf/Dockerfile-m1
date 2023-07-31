@@ -54,8 +54,8 @@ RUN LDFLAGS="-Wl,-rpath -Wl,${INSTALLDIR}/lib" ./config shared --prefix=${INSTAL
 # build liboqs shared and static, distributable
 WORKDIR /opt/liboqs
 # base platform build 
-RUN mkdir build && cd build && cmake -GNinja .. ${LIBOQS_BUILD_DEFINES} -DOPENSSL_ROOT_DIR=${INSTALLDIR} -DOQS_DIST_BUILD=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=${INSTALLDIR} && ninja && ninja install
-RUN mkdir build-static && cd build-static && cmake -GNinja -DOPENSSL_ROOT_DIR=${INSTALLDIR} .. ${LIBOQS_BUILD_DEFINES} -DOQS_DIST_BUILD=ON -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=${INSTALLDIR} && ninja && ninja install
+RUN mkdir build && cd build && cmake -GNinja .. ${LIBOQS_BUILD_DEFINES} -DOPENSSL_ROOT_DIR=${INSTALLDIR} -DOQS_DIST_BUILD=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=${INSTALLDIR} && ninja && ninja install
+RUN mkdir build-static && cd build-static && cmake -GNinja -DOPENSSL_ROOT_DIR=${INSTALLDIR} .. ${LIBOQS_BUILD_DEFINES} -DOQS_DIST_BUILD=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=${INSTALLDIR} && ninja && ninja install
 
 # Build oqs-provider distributable
 WORKDIR /opt/oqs-provider
