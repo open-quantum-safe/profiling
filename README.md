@@ -1,7 +1,7 @@
 [![open-quantum-safe](https://circleci.com/gh/open-quantum-safe/profiling.svg?style=svg)](https://app.circleci.com/pipelines/github/open-quantum-safe/profiling)
 
 # profiling
-Testing various functional and non-functional properties like performance and memory consumption
+Testing various functional and non-functional properties like performance and memory consumption.
 
 ## Purpose
 
