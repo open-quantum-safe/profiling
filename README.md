@@ -1,7 +1,12 @@
-[![open-quantum-safe](https://circleci.com/gh/open-quantum-safe/profiling.svg?style=svg)](https://app.circleci.com/pipelines/github/open-quantum-safe/profiling)
+![Static Badge](https://img.shields.io/badge/status-deprecated-red)
 
 # profiling
+
 Testing various functional and non-functional properties like performance and memory consumption
+
+## <span style="color: red;">DEPRECATION NOTICE</span>
+
+<b><span style="color: red;">The Open Quantum Safe project has discontinued development of our profiling project.  This repository is being archived as read-only.  Use of this code is not recommended, as it is not maintained and may produce unreliable data. If you are interested in contributing to OQS benchmarking efforts, please reach out via the [OQS discussion board on Github](https://github.com/orgs/open-quantum-safe/discussions).</span></b>
 
 ## Purpose
 
